@@ -19,8 +19,8 @@ end-to-end sample) over time; responding to new business requirements and
 taking advantage of new services as they are released.
 
 In addition to the **source code**, we'll also produce a **set of written
-articles** covering the general concepts, the rationale behind design choices, 
-and a few other things to help you navigate the guidance.
+articles** covering the general concepts and patterns, the rationale behind 
+design choices, and a few other things to help you navigate the guidance.
 
 We intend this to be an interactive act of discovery.
 
