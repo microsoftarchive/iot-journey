@@ -1,5 +1,6 @@
-![Microsoft patterns & practices](docs/figures/pnp-logo.png)
-# IoT Journey
+<img alt="Microsoft" src="docs/figures/ms-logo.png" style="float:right">
+![patterns & practices](docs/figures/pnp-logo.png)
+# An IoT Journey
 
 ## Why
 
