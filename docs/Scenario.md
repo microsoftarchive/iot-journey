@@ -7,6 +7,24 @@ e.g.,
 
 > **Phase 1**: Proof of concept. Can we do what we think we can?
 
+## Narrative
+
+Our story has three significant “characters”:
+ 1. Apartment building owners
+ 1. Tenants
+ 1. A startup company hoping to be a smart-building service provider
+
+Our focus will mostly be on the fictitious startup: Contoso Environmental Monitoring Services. 
+They plan to provide environmental monitoring services to the apartment building owners.
+Once contracted, they would install devices in all of the apartments belonging to a building owner. These devices would report on temperature, humidity, smoke alarm and other environmental conditions.
+- With the data they collect Contoso provides services to the building owners:
+- Fire alerts
+- Flood alerts (broken pipes, slow leaks, etc.)
+- Unexpected temperature changes (indicating a broken HVAC)
+- etc.
+
+In addition, individual tenant can view the current state of their own apartment through a mobile app.
+
 ## Contoso Building Management
 
 Digital Thermostats
