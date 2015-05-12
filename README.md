@@ -28,17 +28,18 @@ We intend this to be an interactive act of discovery.
 
 We've constructed a [scenario][] that reflects business requirements we've
 gathered from customers and advisors. The scenario is not meant to be
-realistic,
-but rather representative. That is, it should represent the most command needs
-and [challenges][] you will face. (We'd like your immediate feedback on the
-[scenario][] to help make sure that it is truly representative.)
+realistic, but rather representative. That is, it should represent the most
+command needs and [challenges][] you will face.
+
+:memo: (We'd like your immediate feedback on the [scenario][] to help make sure
+that it is truly representative.)
 
 We'll use this scenario to define our [backlog][] for the reference
 implementation. Both the scenario and backlog will change over time. We'll
-deliberately break the scenario up into _phases_. Each phase will have a
-specific set of goals, deliverables, and target dates. We will tag the source
-as a [release][releases] at the end of each phase. Our engineering team will be
-working in two week iterations against the backlog.
+deliberately break the scenario up into [milestones][]. Each milestone will have
+a specific set of goals, deliverables, and target date. We will tag the source
+as a [release][releases] at the end of each milestone. Our engineering team will
+be working in two week iterations against the backlog.
 
 We will also establish an advisory council with regular meetings. The council
 will be asked to continuously review our work and provide critical feedback.
@@ -51,8 +52,8 @@ welcome.
 Our intended audience for this guidance is any senior developer or architect
 interested in developing an IoT solution. Our reference implementation will
 primarily target the .NET platform, however we will aim to make the written
-guidance platform agnostic as we reasonably can. It is likely that we will be
-discussing various open source and non-.NET technologies as well.
+guidance as _platform agnostic_ as we reasonably can. It is likely that we will
+be discussing various open source and non-.NET technologies as well.
 If you feel that there is anything more that we can do to make this guidance
 accessible to a broader audience, you are encouraged to share.
 
@@ -83,4 +84,5 @@ you can know what to expect._
 [scenario]: docs/Scenario.md
 [challenges]: docs/Challenges.md
 [backlog]: https://github.com/mspnp/iot-journey/issues
+[milestones]: https://github.com/mspnp/iot-journey/milestones
 [releases]: https://help.github.com/articles/about-releases/
