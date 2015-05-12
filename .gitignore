@@ -194,3 +194,7 @@ FakesAssemblies/
 
 # Visual Studio 6 workspace options file
 *.opt
+
+# User-specific configuration that should not be place under source control
+*.azurePubXml
+mysettings.config
