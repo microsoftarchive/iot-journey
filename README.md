@@ -81,7 +81,7 @@ things. As new technologies and services become available, we'll rouse the
 project and continue the effort. We will keep the status updated on this repo so
 you can know what to expect._
 
-[scenario]: docs/Scenario.md
+[scenario]: docs/customer-scenario.md
 [challenges]: docs/Challenges.md
 [backlog]: https://github.com/mspnp/iot-journey/issues
 [milestones]: https://github.com/mspnp/iot-journey/milestones
