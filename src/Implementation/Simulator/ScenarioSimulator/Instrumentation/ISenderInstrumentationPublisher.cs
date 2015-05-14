@@ -3,7 +3,7 @@
 
 using System;
 
-namespace Microsoft.Practices.IoTJourney.Devices.Simulator.Instrumentation
+namespace Microsoft.Practices.IoTJourney.ScenarioSimulator.Instrumentation
 {
     public interface ISenderInstrumentationPublisher
     {

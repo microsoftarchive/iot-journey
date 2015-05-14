@@ -7,10 +7,10 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Practices.EnterpriseLibrary.SemanticLogging;
-using Microsoft.Practices.IoTJourney.Devices.Simulator.Instrumentation;
 using Microsoft.Practices.IoTJourney.Logging;
+using Microsoft.Practices.IoTJourney.ScenarioSimulator.Instrumentation;
 
-namespace Microsoft.Practices.IoTJourney.Devices.Simulator.ConsoleHost
+namespace Microsoft.Practices.IoTJourney.ScenarioSimulator.ConsoleHost
 {
     internal class Program
     {

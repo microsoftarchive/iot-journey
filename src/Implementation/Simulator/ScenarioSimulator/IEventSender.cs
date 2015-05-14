@@ -3,7 +3,7 @@
 
 using System.Threading.Tasks;
 
-namespace Microsoft.Practices.IoTJourney.Devices.Simulator
+namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
 {
     public interface IEventSender
     {

@@ -3,7 +3,7 @@
 
 using System;
 
-namespace Microsoft.Practices.IoTJourney.Devices.Simulator
+namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
 {
     public class EventEntry
     {

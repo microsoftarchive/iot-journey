@@ -10,7 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Practices.IoTJourney.Logging;
 
-namespace Microsoft.Practices.IoTJourney.Devices.Simulator
+namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
 {
     public class Device
     {

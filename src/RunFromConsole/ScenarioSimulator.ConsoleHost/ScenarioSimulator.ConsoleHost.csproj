@@ -7,8 +7,8 @@
     <ProjectGuid>{AF2D23B3-5494-46B7-A617-89E1DA8514EE}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Microsoft.Practices.IoTJourney.Devices.Simulator.ConsoleHost</RootNamespace>
-    <AssemblyName>Microsoft.Practices.IoTJourney.Devices.Simulator.ConsoleHost</AssemblyName>
+    <RootNamespace>Microsoft.Practices.IoTJourney.ScenarioSimulator.ConsoleHost</RootNamespace>
+    <AssemblyName>Microsoft.Practices.IoTJourney.ScenarioSimulator.ConsoleHost</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -77,9 +77,9 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Implementation\Simulator\Devices.Simulator\Devices.Simulator.csproj">
+    <ProjectReference Include="..\..\Implementation\Simulator\ScenarioSimulator\ScenarioSimulator.csproj">
       <Project>{c05007fd-008c-45c9-a0b0-dd39f0a20e35}</Project>
-      <Name>Devices.Simulator</Name>
+      <Name>ScenarioSimulator</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\Implementation\Shared\Core\Core.csproj">
       <Project>{b3657b80-640f-4d72-885e-e9f9729bac18}</Project>

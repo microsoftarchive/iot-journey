@@ -4,7 +4,7 @@
 using System;
 using Microsoft.Practices.IoTJourney.Devices.Events;
 
-namespace Microsoft.Practices.IoTJourney.Devices.Simulator
+namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
 {
     public static class EventFactory
     {

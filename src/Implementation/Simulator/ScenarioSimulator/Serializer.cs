@@ -4,7 +4,7 @@
 using System.Text;
 using Newtonsoft.Json;
 
-namespace Microsoft.Practices.IoTJourney.Devices.Simulator
+namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
 {
     public static class Serializer
     {

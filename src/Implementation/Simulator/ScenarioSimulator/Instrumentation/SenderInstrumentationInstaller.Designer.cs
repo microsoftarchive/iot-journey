@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Practices.IoTJourney.Devices.Simulator.Instrumentation
+﻿namespace Microsoft.Practices.IoTJourney.ScenarioSimulator.Instrumentation
 {
     partial class SenderInstrumentationInstaller
     {

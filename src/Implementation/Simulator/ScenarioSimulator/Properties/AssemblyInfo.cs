@@ -7,11 +7,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Microsoft.Practices.IoTJourney.Devices.Simulator.ConsoleHost")]
+[assembly: AssemblyTitle("Microsoft.Practices.IoTJourney.ScenarioSimulator")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("Microsoft.Practices.IoTJourney.Devices.Simulator.ConsoleHost")]
+[assembly: AssemblyProduct("Microsoft.Practices.IoTJourney.ScenarioSimulator")]
 [assembly: AssemblyCopyright("Copyright ©  2015")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -22,7 +22,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("6b65b83d-aafb-49f0-ac2a-1b6839ad504b")]
+[assembly: Guid("de8cabcf-b079-42b6-9beb-b84a73e09a48")]
 
 // Version information for an assembly consists of the following four values:
 //

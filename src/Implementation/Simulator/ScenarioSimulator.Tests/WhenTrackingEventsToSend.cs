@@ -4,7 +4,7 @@
 using System;
 using Xunit;
 
-namespace Microsoft.Practices.IoTJourney.Devices.Simulator.Tests
+namespace Microsoft.Practices.IoTJourney.ScenarioSimulator.Tests
 {
     public class WhenTrackingEventsToSend
     {

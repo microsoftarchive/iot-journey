@@ -4,7 +4,7 @@
 using System;
 using System.Diagnostics;
 
-namespace Microsoft.Practices.IoTJourney.Devices.Simulator.Instrumentation
+namespace Microsoft.Practices.IoTJourney.ScenarioSimulator.Instrumentation
 {
     internal class SenderInstrumentationPublisher : ISenderInstrumentationPublisher
     {

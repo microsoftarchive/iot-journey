@@ -4,7 +4,7 @@
 using System.ComponentModel;
 using System.Configuration.Install;
 
-namespace Microsoft.Practices.IoTJourney.Devices.Simulator.Instrumentation
+namespace Microsoft.Practices.IoTJourney.ScenarioSimulator.Instrumentation
 {
     [RunInstaller(true)]
     public partial class SenderInstrumentationInstaller : Installer

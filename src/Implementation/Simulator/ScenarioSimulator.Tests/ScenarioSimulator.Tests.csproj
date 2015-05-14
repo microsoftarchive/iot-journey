@@ -8,8 +8,8 @@
     <ProjectGuid>{3101277B-B7D3-40D3-A9D8-6A1CFA68FF53}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Microsoft.Practices.IoTJourney.Devices.Simulator.Tests</RootNamespace>
-    <AssemblyName>Microsoft.Practices.IoTJourney.Devices.Simulator.Tests</AssemblyName>
+    <RootNamespace>Microsoft.Practices.IoTJourney.ScenarioSimulator.Tests</RootNamespace>
+    <AssemblyName>Microsoft.Practices.IoTJourney.ScenarioSimulator.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
@@ -63,9 +63,9 @@
       <Project>{879FC82C-62A5-4EA7-A0D0-34968B2BD4EC}</Project>
       <Name>Devices.Events</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Devices.Simulator\Devices.Simulator.csproj">
+    <ProjectReference Include="..\ScenarioSimulator\ScenarioSimulator.csproj">
       <Project>{c05007fd-008c-45c9-a0b0-dd39f0a20e35}</Project>
-      <Name>Devices.Simulator</Name>
+      <Name>ScenarioSimulator</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

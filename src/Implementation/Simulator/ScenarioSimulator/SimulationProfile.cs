@@ -8,11 +8,11 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Practices.IoTJourney.Devices.Simulator.Instrumentation;
 using Microsoft.Practices.IoTJourney.Logging;
+using Microsoft.Practices.IoTJourney.ScenarioSimulator.Instrumentation;
 using Microsoft.ServiceBus.Messaging;
 
-namespace Microsoft.Practices.IoTJourney.Devices.Simulator
+namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
 {
     public class SimulationProfile
     {

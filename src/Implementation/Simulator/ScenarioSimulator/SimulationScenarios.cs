@@ -8,7 +8,7 @@ using System.Reflection;
 using Microsoft.Practices.IoTJourney.Devices.Events;
 using Microsoft.Practices.IoTJourney.Logging;
 
-namespace Microsoft.Practices.IoTJourney.Devices.Simulator
+namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
 {
     using EventGenerator = Func<EventEntry[]>;
 

@@ -6,7 +6,7 @@ using System.Diagnostics;
 using Microsoft.Practices.IoTJourney.Instrumentation;
 using Microsoft.Practices.IoTJourney.Logging;
 
-namespace Microsoft.Practices.IoTJourney.Devices.Simulator.Instrumentation
+namespace Microsoft.Practices.IoTJourney.ScenarioSimulator.Instrumentation
 {
     public class SenderInstrumentationManager : InstrumentationManager
     {

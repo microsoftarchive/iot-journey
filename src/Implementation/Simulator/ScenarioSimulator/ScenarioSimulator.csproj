@@ -8,8 +8,8 @@
     <ProjectGuid>{C05007FD-008C-45C9-A0B0-DD39F0A20E35}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Microsoft.Practices.IoTJourney.Devices.Simulator</RootNamespace>
-    <AssemblyName>Microsoft.Practices.IoTJourney.Devices.Simulator</AssemblyName>
+    <RootNamespace>Microsoft.Practices.IoTJourney.ScenarioSimulator</RootNamespace>
+    <AssemblyName>Microsoft.Practices.IoTJourney.ScenarioSimulator</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
