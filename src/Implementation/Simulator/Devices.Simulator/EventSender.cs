@@ -13,8 +13,6 @@ namespace Microsoft.Practices.IoTJourney.Devices.Simulator
 {
     public class EventSender : IEventSender
     {
-        private static readonly ILogger Logger = LoggerFactory.GetLogger("Simulator");
-
         private readonly EventHubClient _eventHubClient;
 
         private readonly ISenderInstrumentationPublisher _instrumentationTelemetryPublisher;
@@ -65,22 +63,18 @@ namespace Microsoft.Practices.IoTJourney.Devices.Simulator
                         bytes.Length,
                         stopwatch.Elapsed);
 
-                    Logger.TraceApi(
-                        "EventHubClient.SendAsync",
-                        stopwatch.Elapsed,
-                        "OK/{0}",
-                        partitionKey);
+                    ScenarioSimulatorEventSource.Log.EventSent(stopwatch.ElapsedTicks, partitionKey);
 
                     return true;
                 }
             }
             catch (ServerBusyException e)
             {
-                Logger.ServiceThrottled(e, partitionKey);
+                ScenarioSimulatorEventSource.Log.ServiceThrottled(e, partitionKey);
             }
             catch (Exception e)
             {
-                Logger.UnableToSend(e, partitionKey, evt);
+                ScenarioSimulatorEventSource.Log.UnableToSend(e, partitionKey, evt.ToString());
             }
 
             return false;

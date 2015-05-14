@@ -12,7 +12,6 @@ namespace Microsoft.Practices.IoTJourney.Devices.Simulator.Instrumentation
     {
         private const string SenderPerformanceCounterCategoryName = "EventHub Sender";
 
-        private static readonly ILogger Logger = LoggerFactory.GetLogger("Simulator");
         private bool _instrumentationEnabled;
 
         public SenderInstrumentationManager(
@@ -65,7 +64,7 @@ namespace Microsoft.Practices.IoTJourney.Devices.Simulator.Instrumentation
         {
             if (!_instrumentationEnabled)
             {
-                Logger.InstrumentationDisabled(instanceName);
+                ScenarioSimulatorEventSource.Log.InstrumentationDisabled(instanceName);
                 return new NullSenderInstrumentationPublisher();
             }
 
@@ -75,14 +74,9 @@ namespace Microsoft.Practices.IoTJourney.Devices.Simulator.Instrumentation
             }
             catch (Exception ex)
             {
-                Logger.InitializingPerformanceCountersFailed(instanceName, ex);
+                ScenarioSimulatorEventSource.Log.InitializingPerformanceCountersFailed(ex, instanceName);
                 return new NullSenderInstrumentationPublisher();
             }
-        }
-
-        protected override ILogger DerivedLogger
-        {
-            get { return Logger; }
         }
 
         internal PerformanceCounterDefinition TotalEventsSentCounterDefinition { get; private set; }

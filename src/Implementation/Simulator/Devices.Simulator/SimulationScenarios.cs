@@ -14,8 +14,6 @@ namespace Microsoft.Practices.IoTJourney.Devices.Simulator
 
     public static class SimulationScenarios
     {
-        private static readonly ILogger Logger = LoggerFactory.GetLogger("Simulator");
-
         private static readonly Dictionary<string, EventGenerator> ScenarioMap;
 
         static SimulationScenarios()
@@ -78,7 +76,7 @@ namespace Microsoft.Practices.IoTJourney.Devices.Simulator
             if (!ScenarioMap.TryGetValue(scenario, out generator))
             {
                 var ex = new KeyNotFoundException("The specified scenario, " + scenario + ", was not recognized.");
-                Logger.UnknownScenario(scenario, ex);
+                ScenarioSimulatorEventSource.Log.UnknownScenario(scenario, ex);
                 throw ex;
             }
 

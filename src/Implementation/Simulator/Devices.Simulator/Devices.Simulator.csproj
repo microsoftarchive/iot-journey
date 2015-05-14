@@ -91,7 +91,6 @@
     <Compile Include="EventFactory.cs" />
     <Compile Include="Serializer.cs" />
     <Compile Include="SimulationScenarios.cs" />
-    <Compile Include="SimulatorLoggingExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

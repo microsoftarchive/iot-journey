@@ -24,8 +24,6 @@ namespace Microsoft.Practices.IoTJourney.Devices.Simulator
 
         private readonly string _hostName;
 
-        private static readonly ILogger Logger = LoggerFactory.GetLogger("Simulator");
-
         private readonly int _devicesPerInstance;
 
         private readonly ISubject<int> _observableTotalCount = new Subject<int>();
@@ -45,7 +43,7 @@ namespace Microsoft.Practices.IoTJourney.Devices.Simulator
 
         public async Task RunSimulationAsync(string scenario, CancellationToken token)
         {
-            Logger.SimulationStarted(_hostName, scenario);
+            ScenarioSimulatorEventSource.Log.SimulationStarted(_hostName, scenario);
 
             var produceEventsForScenario = SimulationScenarios.GetScenarioByName(scenario);
 
@@ -61,12 +59,12 @@ namespace Microsoft.Practices.IoTJourney.Devices.Simulator
 
             _observableTotalCount
                 .Sum()
-                .Subscribe(total => Logger.Info("Final total count for all devices is {0}", total));
+                .Subscribe(total => ScenarioSimulatorEventSource.Log.FinalEventCountForAllDevices(total));
 
             _observableTotalCount
                 .Buffer(TimeSpan.FromMinutes(5))
                 .Scan(0, (total, next) => total + next.Sum())
-                .Subscribe(total => Logger.Info("Current count for all devices is {0}", total));
+                .Subscribe(total => ScenarioSimulatorEventSource.Log.CurrentEventCountForAllDevices(total));
 
             try
             {
@@ -107,7 +105,7 @@ namespace Microsoft.Practices.IoTJourney.Devices.Simulator
                 }
             }
 
-            Logger.SimulationEnded(_hostName);
+            ScenarioSimulatorEventSource.Log.SimulationEnded(_hostName);
         }
 
         private static async Task SimulateDeviceAsync(
@@ -118,7 +116,7 @@ namespace Microsoft.Practices.IoTJourney.Devices.Simulator
             IObserver<int> totalCount,
             CancellationToken token)
         {
-            Logger.WarmingUpFor(deviceId, waitBeforeStarting);
+            ScenarioSimulatorEventSource.Log.WarmingUpFor(deviceId, waitBeforeStarting.Ticks);
 
             try
             {
@@ -134,7 +132,7 @@ namespace Microsoft.Practices.IoTJourney.Devices.Simulator
 
             device.ObservableEventCount
                 .Sum()
-                .Subscribe(total => Logger.Info("final count for {0} was {1}", deviceId, total));
+                .Subscribe(total => ScenarioSimulatorEventSource.Log.FinalEventCount(deviceId, total));
 
             device.ObservableEventCount
                 .Subscribe(totalCount.OnNext);

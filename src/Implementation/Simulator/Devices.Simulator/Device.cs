@@ -16,8 +16,6 @@ namespace Microsoft.Practices.IoTJourney.Devices.Simulator
     {
         private static readonly TimeSpan LoopFrequency = TimeSpan.FromSeconds(0.33);
 
-        private static readonly ILogger Logger = LoggerFactory.GetLogger("Simulator");
-
         private readonly string _deviceId;
 
         private readonly IEnumerable<EventEntry> _messagingList;
@@ -42,7 +40,7 @@ namespace Microsoft.Practices.IoTJourney.Devices.Simulator
         {
             var stopwatch = Stopwatch.StartNew();
 
-            Logger.DeviceStarting(_deviceId);
+            ScenarioSimulatorEventSource.Log.DeviceStarting(_deviceId);
 
             try
             {
@@ -94,13 +92,13 @@ namespace Microsoft.Practices.IoTJourney.Devices.Simulator
             catch (Exception e)
             {
                 ObservableEventCount.OnError(e);
-                Logger.DeviceUnexpectedFailure(e, _deviceId);
+                ScenarioSimulatorEventSource.Log.DeviceUnexpectedFailure(e, _deviceId);
                 return;
             }
 
             ObservableEventCount.OnCompleted();
 
-            Logger.DeviceStopping(_deviceId);
+            ScenarioSimulatorEventSource.Log.DeviceStopping(_deviceId);
         }
     }
 }
