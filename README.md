@@ -57,6 +57,12 @@ be discussing various open source and non-.NET technologies as well.
 If you feel that there is anything more that we can do to make this guidance
 accessible to a broader audience, you are encouraged to share.
 
+## Next Step
+
+Go to the [docs](docs) folder and review the readme.
+After that we recommend reading the [scenario][] and then the
+[journal](docs/journal).
+
 ## FAQ
 
 1. Will this result in an IoT library? Will there be a set of reusable bits or
@@ -82,7 +88,7 @@ project and continue the effort. We will keep the status updated on this repo so
 you can know what to expect._
 
 [scenario]: docs/customer-scenario.md
-[challenges]: docs/Challenges.md
+[challenges]: docs/challenges-and-questions.md
 [backlog]: https://github.com/mspnp/iot-journey/issues
 [milestones]: https://github.com/mspnp/iot-journey/milestones
 [releases]: https://help.github.com/articles/about-releases/
