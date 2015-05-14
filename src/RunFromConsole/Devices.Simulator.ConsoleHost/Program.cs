@@ -2,10 +2,13 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
+using System.Diagnostics.Tracing;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Practices.EnterpriseLibrary.SemanticLogging;
 using Microsoft.Practices.IoTJourney.Devices.Simulator.Instrumentation;
+using Microsoft.Practices.IoTJourney.Logging;
 
 namespace Microsoft.Practices.IoTJourney.Devices.Simulator.ConsoleHost
 {
@@ -13,6 +16,13 @@ namespace Microsoft.Practices.IoTJourney.Devices.Simulator.ConsoleHost
     {
         private static void Main(string[] args)
         {
+            var observableEventListener = new ObservableEventListener();
+
+            observableEventListener.EnableEvents(
+              ScenarioSimulatorEventSource.Log, EventLevel.Informational);
+
+            observableEventListener.LogToConsole();
+
             var configuration = SimulatorConfiguration.GetCurrentConfiguration();
 
             var instrumentationPublisher =
