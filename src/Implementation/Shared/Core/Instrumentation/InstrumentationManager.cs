@@ -42,8 +42,6 @@ namespace Microsoft.Practices.IoTJourney.Instrumentation
             return installer;
         }
 
-        protected abstract ILogger DerivedLogger { get; }
-
         protected PerformanceCounterDefinition AddDefinition(string counterName, string counterHelp, PerformanceCounterType counterType)
         {
             var definition = new PerformanceCounterDefinition(_categoryName, counterName, counterHelp, counterType);
@@ -73,17 +71,9 @@ namespace Microsoft.Practices.IoTJourney.Instrumentation
 
                 PerformanceCounterCategory.Create(_categoryName, _categoryHelp, _categoryType, _counterDefinitions);
             }
-            catch (UnauthorizedAccessException e)
-            {
-                DerivedLogger.Error(e, "Error creating the performance counter category named '{0}'. Ensure the process is running with the necessary privileges.", _categoryName);
-            }
-            catch (SecurityException e)
-            {
-                DerivedLogger.Error(e, "Error creating the performance counter category named '{0}'. Ensure the process is running with the necessary privileges.", _categoryName);
-            }
             catch (Exception e)
             {
-                DerivedLogger.Error(e, "Unexpected error creating the performance counter category named '{0}': {1}", _categoryName, e.Message);
+                ScenarioSimulatorEventSource.Log.CreatingPerfCounterCategoryFailed(e, _categoryName);
             }
         }
     }

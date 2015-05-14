@@ -114,13 +114,8 @@
     <Compile Include="DependencyResolverFactory.cs" />
     <Compile Include="Guard.cs" />
     <Compile Include="Instrumentation\InstrumentationManager.cs" />
-    <Compile Include="Instrumentation\LoggerPerformanceCounterExtensions.cs" />
     <Compile Include="Instrumentation\PerformanceCounterDefinition.cs" />
-    <Compile Include="Logging\ILogger.cs" />
-    <Compile Include="Logging\LoggerFactory.cs" />
-    <Compile Include="Logging\LogHelpers.cs" />
-    <Compile Include="Logging\NoOpLogger.cs" />
-    <Compile Include="Logging\NoOpLoggerFactory.cs" />
+    <Compile Include="Logging\ScenarioSimulatorEventSource.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

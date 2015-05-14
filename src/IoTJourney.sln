@@ -3,17 +3,21 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
 VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Devices.Simulator.ConsoleHost", "RunFromConsole\Devices.Simulator.ConsoleHost\Devices.Simulator.ConsoleHost.csproj", "{AF2D23B3-5494-46B7-A617-89E1DA8514EE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScenarioSimulator.ConsoleHost", "RunFromConsole\ScenarioSimulator.ConsoleHost\ScenarioSimulator.ConsoleHost.csproj", "{AF2D23B3-5494-46B7-A617-89E1DA8514EE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core", "Implementation\Shared\Core\Core.csproj", "{B3657B80-640F-4D72-885E-E9F9729BAC18}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Devices.Simulator", "Implementation\Simulator\Devices.Simulator\Devices.Simulator.csproj", "{C05007FD-008C-45C9-A0B0-DD39F0A20E35}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScenarioSimulator", "Implementation\Simulator\ScenarioSimulator\ScenarioSimulator.csproj", "{C05007FD-008C-45C9-A0B0-DD39F0A20E35}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests.Common", "Implementation\Shared\Tests.Common\Tests.Common.csproj", "{769C50C0-1627-4834-824A-A77B2C303F9D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Devices.Events", "Implementation\Shared\Devices.Events\Devices.Events.csproj", "{879FC82C-62A5-4EA7-A0D0-34968B2BD4EC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Devices.Simulator.Tests", "Implementation\Simulator\Devices.Simulator.Tests\Devices.Simulator.Tests.csproj", "{3101277B-B7D3-40D3-A9D8-6A1CFA68FF53}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScenarioSimulator.Tests", "Implementation\Simulator\ScenarioSimulator.Tests\ScenarioSimulator.Tests.csproj", "{3101277B-B7D3-40D3-A9D8-6A1CFA68FF53}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "UnitTests", "UnitTests", "{A6F98EEB-4AF8-463D-A966-38E2261A6A46}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.Tests", "Implementation\Shared\Core.Tests\Core.Tests.csproj", "{3143B976-6447-4337-A868-5457CEC540ED}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,8 +49,16 @@ Global
 		{3101277B-B7D3-40D3-A9D8-6A1CFA68FF53}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3101277B-B7D3-40D3-A9D8-6A1CFA68FF53}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3101277B-B7D3-40D3-A9D8-6A1CFA68FF53}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3143B976-6447-4337-A868-5457CEC540ED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3143B976-6447-4337-A868-5457CEC540ED}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3143B976-6447-4337-A868-5457CEC540ED}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3143B976-6447-4337-A868-5457CEC540ED}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{3101277B-B7D3-40D3-A9D8-6A1CFA68FF53} = {A6F98EEB-4AF8-463D-A966-38E2261A6A46}
+		{3143B976-6447-4337-A868-5457CEC540ED} = {A6F98EEB-4AF8-463D-A966-38E2261A6A46}
 	EndGlobalSection
 EndGlobal
