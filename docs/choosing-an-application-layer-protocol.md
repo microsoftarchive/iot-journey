@@ -5,15 +5,19 @@ A key requirement in designing an IoT solution is the ability for devices to com
 In an IoT solution, communications tend to follow one or more of the following patterns:
 
 - **Telemetry**. This is the one-way flow of information from a device passing information about the status of the device to a connected system.
+
 ![One-way flow of telemetry information from a device][Telemetry]
 
 - **Request/Response**. A device might initiate a request that gathers information from elsewhere, possibly to use as a trigger to initiate a new activity.
+
 ![Two-way request/response message flow from a device][Request]
 
 - **Notification**. The system can send information to the device to indicate a change of status that may require some action to be performed.
+
 ![Notification message from the system to a device][Notification]
 
 - **Command** The system can send an explicit request to the device to perform an operation, and obtain a response confirming the new state.
+
 ![Command message from the system to a device, with response][Command]
 
 # Factors to consider
