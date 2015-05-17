@@ -29,7 +29,6 @@
     Author     : Hanz Zhang
 #> 
 
-
 [CmdletBinding(PositionalBinding=$True)] 
 Param( 
     [Parameter(Mandatory = $true)] 
@@ -42,28 +41,30 @@ Param(
     [String]$BlobStorageAccountKey,                                        # required
 
     [ValidatePattern("^[A-Za-z0-9]$|^[A-Za-z0-9][\w-\.\/]*[A-Za-z0-9]$")] 
-    [String]$JobDefinitionPath = ".\StreamAnalyticsJobDefinition.json"    # optional default to C:\JobDefinition.json
+    [String]$JobDefinitionPath = "StreamAnalyticsJobDefinition.json"       # optional default to C:\StreamAnalyticsJobDefinition.json
     ) 
         
 $EventHubSharedAccessPolicyKeyPlaceHolder = "EventHubSharedAccessPolicyKeyPlaceHolder"
-$BlobStorageAccountKeyPlacHolder = "BlobStorageAccountKeyPlacHolder"
-$MemoryMappedFilePath = [guid]::NewGuid().ToString() + ".json"
+$BlobStorageAccountKeyPlacHolder          = "BlobStorageAccountKeyPlacHolder"
 
-Add-AzureAccount 
+
+Add-AzureAccount
 Select-AzureSubscription –SubscriptionId $AzureSubscriptionId
 Switch-AzureMode AzureResourceManager
 
-$JobDefinitionText = get-content $JobDefinitionPath 
-$JobDefinitionText = $JobDefinitionText -replace $EventHubSharedAccessPolicyKeyPlaceHolder,$EventHubSharedAccessPolicyKey
-$JobDefinitionText = $JobDefinitionText -replace $BlobStorageAccountKeyPlacHolder,$BlobStorageAccountKey
+$JobDefinitionText = (get-content $JobDefinitionPath).
+                    Replace($EventHubSharedAccessPolicyKeyPlaceHolder,$EventHubSharedAccessPolicyKey).
+                    Replace($BlobStorageAccountKeyPlacHolder,$BlobStorageAccountKey)
 
-[System.Reflection.Assembly]::LoadWithPartialName("System.IO.MemoryMappedFiles") 
-$MemMappedFile = [System.IO.MemoryMappedFiles.MemoryMappedFile]::CreateNew([string]$MemoryMappedFilePath,$JobDefinitionText.Length)
-$JobDefinitionText > $MemoryMappedFilePath
+$TempFileName = [guid]::NewGuid().ToString() + ".json"
 
-New-AzureStreamAnalyticsJob -ResourceGroupName StreamAnalytics-Default-West-US  -File $MemoryMappedFilePath -Force
+$JobDefinitionText > $TempFileName
 
-$MemMappedFile.Dispose()
-$MemMappedFile.SafeMemoryMappedFileHandle.Close()
+New-AzureStreamAnalyticsJob -ResourceGroupName StreamAnalytics-Default-West-US  -File $TempFileName -Force
+
+if (Test-Path $TempFileName) {
+    Clear-Content $TempFileName
+    Remove-Item $TempFileName
+}
 
 Write-Output "Create Azure StreamAnalyticsJob Completed"
