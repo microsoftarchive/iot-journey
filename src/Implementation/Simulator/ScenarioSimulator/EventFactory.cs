@@ -26,5 +26,14 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
                 Tempurature = device.CurrentTempurature.Value,
             };
         }
+
+        public static UpdateTemperatureEvent ThirtyDegreeTempuratureEventFactory(Random random, Device device)
+        {
+            return new UpdateTemperatureEvent
+            {
+                TimeStamp = DateTime.UtcNow.Ticks,
+                Tempurature = 30,
+            };
+        }
     }
 }

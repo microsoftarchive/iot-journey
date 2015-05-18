@@ -35,6 +35,14 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
                        };
         }
 
+        public static EventEntry[] ThrirtyDegreeReadings()
+        {
+            return new[]
+                       {
+                           new EventEntry(EventFactory.ThirtyDegreeTempuratureEventFactory, TimeSpan.FromSeconds(10), 0.1) 
+                       };
+        }
+
         public static EventEntry[] EventsWithNoHandler()
         {
             return new[]
