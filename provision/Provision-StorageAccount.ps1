@@ -3,24 +3,25 @@
 Storage Account Provisioning - Create a new storage account
 
 .DESCRIPTION
-This script creates a new Azure Storage Account in the chosen location, configured for Local Redundancy and hourly monitoring turned on. This storage account will be used for:
- - Event Hubs checkpoint account
- - Storing poison messages
- - Storing cold data
-
-.PARAMETER SubscriptionName
-The name of the subscription to use.
-
+This script creates a new Azure Storage Account in the chosen location, This storage account will be used for:
+ - Stream Analytics Job Output 
+ 
 .PARAMETER Name
 The name of the storage account.
 
 .PARAMETER Location
 The location of the storage account
+
+.PARAMETER ContainerName
+The Container Name of the storage account
 #>
 
-$Name = "fabrikamstorage01"
-$Location = "West US"
-$ContainerName = "fabrikam-container01"
+Param
+(
+    $Name = "fabrikamstorage01",             # optional default to fabrikamstorage01
+    $Location = "West US",                   # optional default to West US
+    $ContainerName = "fabrikam-container01"  # optional default to fabrikam-container01
+)
 
 $storageAccount = Get-AzureStorageAccount -StorageAccountName $Name -ErrorAction SilentlyContinue
 
