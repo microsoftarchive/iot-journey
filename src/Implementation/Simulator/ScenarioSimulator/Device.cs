@@ -18,20 +18,22 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
 
         private readonly string _deviceId;
 
-        private readonly IEnumerable<EventEntry> _messagingList;
+        private readonly IEnumerable<EventEntry> _eventEntries;
 
         private readonly Func<string, object, Task<bool>> _sendEventAsync;
 
         public ISubject<int> ObservableEventCount { get; private set; }
 
+        public float? CurrentTempurature { get; set; }
+
         public Device(
             string deviceId,
-            IEnumerable<EventEntry> messagingList,
+            IEnumerable<EventEntry> eventEntries,
             Func<string, object, Task<bool>> sendEventAsync)
         {
             _deviceId = deviceId;
             _sendEventAsync = sendEventAsync;
-            _messagingList = messagingList;
+            _eventEntries = eventEntries;
 
             ObservableEventCount = new Subject<int>();
         }
@@ -49,7 +51,7 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
                     var elaspedTime = stopwatch.Elapsed;
                     stopwatch.Restart();
 
-                    foreach (var entry in _messagingList)
+                    foreach (var entry in _eventEntries)
                     {
                         entry.UpdateElapsedTime(elaspedTime);
                         if (!entry.ShouldSendEvent())
@@ -58,7 +60,7 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
                         }
                         entry.ResetElapsedTime();
 
-                        var evt = entry.CreateNewEvent();
+                        var evt = entry.CreateNewEvent(this);
                         var partitionKey = _deviceId.ToString(CultureInfo.InvariantCulture);
                         var wasEventSent = await _sendEventAsync(partitionKey, evt);
 

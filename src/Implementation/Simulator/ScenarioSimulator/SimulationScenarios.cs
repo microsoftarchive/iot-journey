@@ -40,7 +40,7 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
             return new[]
                        {
                            new EventEntry(
-                               _ => new NoHandlerEvent(), 
+                               (r,d) => new NoHandlerEvent(),
                                TimeSpan.FromSeconds(60))
                        };
         }
@@ -50,7 +50,7 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
             return new[]
                        {
                            new EventEntry(
-                               _ => new ThrowsExceptionEvent(),
+                               (r,d) => new ThrowsExceptionEvent(),
                                TimeSpan.FromSeconds(60))
                        };
         }
@@ -60,7 +60,7 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
             return new[]
                        {
                            new EventEntry(
-                               _ => new LongRunningEvent(),
+                               (r,d) => new LongRunningEvent(),
                                TimeSpan.FromSeconds(10))
                        };
         }
