@@ -16,7 +16,7 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
             }
             else
             {
-                var temperatureChange = random.Next(-2,2);
+                var temperatureChange = random.Next(-2,3);
                 device.CurrentTempurature += temperatureChange;
             }
 
