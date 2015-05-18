@@ -15,7 +15,7 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator.Tests
             var frequency = TimeSpan.FromSeconds(1);
             var actualElapsed = TimeSpan.FromSeconds(2);
 
-            var entry = new EventEntry(_ => null, frequency);
+            var entry = new EventEntry((r, d) => null, frequency);
 
             entry.UpdateElapsedTime(actualElapsed);
 
@@ -31,7 +31,7 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator.Tests
             var frequency = TimeSpan.FromSeconds(FrequencyInSeconds);
             var elapsed = TimeSpan.FromSeconds(FrequencyInSeconds / 2);
 
-            var entry = new EventEntry(_ => null, frequency);
+            var entry = new EventEntry((r, d) => null, frequency);
 
             // update 3 times, since 2 should not be enough to trigger
             entry.UpdateElapsedTime(elapsed);
@@ -49,7 +49,7 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator.Tests
 
             var elapsed = TimeSpan.FromSeconds(1);
 
-            var entry = new EventEntry(_ => null, frequency);
+            var entry = new EventEntry((r, d) => null, frequency);
 
             entry.UpdateElapsedTime(elapsed);
 
@@ -63,7 +63,7 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator.Tests
             var frequency = TimeSpan.FromSeconds(1);
             var actualElapsed = TimeSpan.FromSeconds(2);
 
-            var entry = new EventEntry(_ => null, frequency);
+            var entry = new EventEntry((r, d) => null, frequency);
 
             entry.UpdateElapsedTime(actualElapsed);
 

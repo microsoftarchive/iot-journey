@@ -11,7 +11,7 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
 
         private readonly double _jitter;
 
-        private readonly Func<Random, object> _eventFactory;
+        private readonly Func<Random, Device, object> _eventFactory;
 
         private double _frequencyWithJitter;
 
@@ -19,7 +19,7 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
 
         private readonly Random _random;
 
-        public EventEntry(Func<Random, object> eventFactory, TimeSpan frequency, double percentToJitter = 0f)
+        public EventEntry(Func<Random, Device, object> eventFactory, TimeSpan frequency, double percentToJitter = 0f)
         {
             _eventFactory = eventFactory;
             _frequency = frequency.TotalMilliseconds;
@@ -37,9 +37,9 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
             }
         }
 
-        public object CreateNewEvent()
+        public object CreateNewEvent(Device device)
         {
-            return _eventFactory(_random);
+            return _eventFactory(_random, device);
         }
 
         public void ResetElapsedTime()
