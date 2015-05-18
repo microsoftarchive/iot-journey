@@ -16,17 +16,8 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
             }
             else
             {
-                var temperatureChange = random.Next(2) + 1; //Temperature should change by 1 or 2 degrees
-                var isTemperatureIncrease = random.Next(2) == 1;
-
-                if (isTemperatureIncrease)
-                {
-                    device.CurrentTempurature += temperatureChange;
-                }
-                else
-                {
-                    device.CurrentTempurature -= temperatureChange;
-                }
+                var temperatureChange = random.Next(-2,2);
+                device.CurrentTempurature += temperatureChange;
             }
 
             return new UpdateTemperatureEvent
