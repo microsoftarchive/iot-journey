@@ -65,7 +65,8 @@ Param(
     [ValidatePattern("^[A-Za-z][-A-Za-z0-9]*[A-Za-z0-9]$")] 
     [String]$Namespace="fabrikam-eventhub01-ns",    # optional    needs to start with letter or number, and contain only letters, numbers, and hyphens.
     [Bool]$CreateACSNamespace = $false,             # optional    default to $false 
-    [String]$Location = "West US"                   # optional    default to "West US" 
+    [String]$Location = "West US",                  # optional    default to "West US" 
+    [String]$RuleName = "Manage"                    # optional    default to "Manage" 
     ) 
  
 
@@ -129,6 +130,10 @@ else
     $EventHubDescription.MessageRetentionInDays = $MessageRetentionInDays 
     $EventHubDescription.UserMetadata = $UserMetadata 
     $EventHubDescription.Path = $Path
+    $RuleKey = [Microsoft.ServiceBus.Messaging.SharedAccessAuthorizationRule]::GenerateRandomKey();
+    [Microsoft.ServiceBus.Messaging.AccessRights[]]$AccessRights = @("Manage", "Listen", "Send")
+    $Rule = New-Object -TypeName Microsoft.ServiceBus.Messaging.SharedAccessAuthorizationRule  -ArgumentList $RuleName, $RuleKey,$AccessRights
+    $EventHubDescription.Authorization.Add($Rule); 
     $NamespaceManager.CreateEventHubIfNotExists($EventHubDescription);
     Write-Output "The [$Path] event hub in the [$Namespace] namespace has been successfully created." 
 } 
