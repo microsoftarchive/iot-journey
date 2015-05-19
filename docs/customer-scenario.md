@@ -38,22 +38,20 @@ They now have a few months to build system hosted on Azure that will support:
 
 ## Milestones
 
-### [The Prototype](https://github.com/mspnp/iot-journey/milestones/Milestone%2001)
+### [Milestone 1](https://github.com/mspnp/iot-journey/milestones/Milestone%2001)
 
 Fabrikam's engineering team has very little experience with high-scale
-event-oriented systems. They want to quickly prove to themselves that they can
-deliver. For their first milestone they want to:
+event-oriented systems. They want to make sure that they are [asking the right questions][orientation].
+They also want to get a minimum viable product deployed.
+For their first milestone they want to:
 - Ingest events from simulated devices
-- Store the events for later analytics (cold storage)
-- Increase the scale until they match the targets for there first contract
+- [Store all the events for later analytics][cold-storage]
+- [Monitor the incoming events for certain patterns and raise alerts][hot-analysis]
+- [Increase the scale until they match the targets for there first contract][increase-scale]
 
-In addition, they also want to answer some fundamental questions they'll need
-for future milestones.
-- What questions should we be asking in order to be succcessful?
-- [What protocol should our devices use to communicate with our backend?][protocol-choice]
-- [How should we serialize the data that our devices are sending?][serialziation-choice]
-
-[protocol-choice]: https://github.com/mspnp/iot-journey/issues/3
-[serialziation-choice]: https://github.com/mspnp/iot-journey/issues/4
+[orientation]: https://github.com/mspnp/iot-journey/issues/20
+[hot-analysis]: https://github.com/mspnp/iot-journey/issues/39
+[cold-storage]: https://github.com/mspnp/iot-journey/issues/26
+[increase-scale]: https://github.com/mspnp/iot-journey/issues/30
 [backlog]: https://github.com/mspnp/iot-journey/issues
 [milestones]: https://github.com/mspnp/iot-journey/milestones

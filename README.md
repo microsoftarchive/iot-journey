@@ -31,8 +31,8 @@ gathered from customers and advisors. The scenario is not meant to be
 realistic, but rather representative. That is, it should represent the most
 command needs and [challenges][] you will face.
 
-:memo: (We'd like your immediate feedback on the [scenario][] to help make sure
-that it is truly representative.)
+:memo: _We'd like your immediate feedback on the [scenario][] to help make sure
+that it is truly representative._
 
 We'll use this scenario to define our [backlog][] for the reference
 implementation. Both the scenario and backlog will change over time. We'll
