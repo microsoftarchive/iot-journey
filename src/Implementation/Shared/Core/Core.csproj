@@ -85,8 +85,6 @@
   <ItemGroup>
     <Compile Include="ConfigurationHelper.cs" />
     <Compile Include="Guard.cs" />
-    <Compile Include="Instrumentation\InstrumentationManager.cs" />
-    <Compile Include="Instrumentation\PerformanceCounterDefinition.cs" />
     <Compile Include="Logging\ScenarioSimulatorEventSource.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
