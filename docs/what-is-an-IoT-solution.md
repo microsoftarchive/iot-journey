@@ -26,13 +26,13 @@ The following sections provide some high-level guidelines to help you address th
 
 It is very easy to become overwhelmed by the sheer volume of data and the number of devices that an IoT system might be expected to handle. In addition, it can be hard to predict in advance which sensors and devices might provide the data that your system requires. 
 
-Rather than attempting to build a system that solves every problem at once, start prototyping with a small number of devices but focus on designing an architecture that will scale, is low-latency, and that can handle extreme hardware and software heterogeneity. Consider that some critical data might require immediate action (the *hot path*) while a large volume of information may need to be stored for subsequent analysis and decision-making (the *cold path*). 
+Rather than attempting to build a system that solves every problem at once, start end-to-end prototyping with a small number of devices, but focus on designing an architecture that will scale, is low-latency, and that can handle extreme hardware and software heterogeneity. Consider that some critical data might require immediate action (the *hot path*) while a large volume of information may need to be stored for subsequent analysis and decision-making (the *cold path*). Furthermore, identifying how data flows from devices all the way through the system to the analytics processing and business domain logic can help to highlight issues that might otherwise be missed.
 
 Implementing an initial subset of the system will help to highlight where possible issues are likely to occur. These issues include resolving device identity, management, update, and deployment of devices, and security concerns. It is easier to address these issues in the small scale. Be prepared to evaluate whether the prototype meets expectations, make any necessary adjustments, and then document the lessons learned so that you can apply them to the large scale.
 
 # Focus on telemetry first
 
-Devices and sensors are intended to report information about their state, while many devices can also accept commands to change their state. It can be inefficient to try and incorporate logic that implements business transformations in an IoT system until the data reported by devices and device capabilities are fully understood. Instead, start by focussing on the telemetry provided by devices (not only the state information that a device reports, but also diagnostics that help to establish device health). Privacy and security issues tend to be simpler for telemetry than for command and control, so this approach enables you to focus on security and manageability of the system before becoming embroiled in detailed transformational logic.
+Devices and sensors are intended to report information about their state, while many devices can also accept commands to change their state controlled by the business logic of the system. It can be inefficient to try and incorporate complex state-changing business processes in an IoT system until the data reported by devices and device capabilities are fully understood. Instead, start by focussing on the telemetry provided by devices (not only the state information that a device reports, but also diagnostics that help to establish device health). Privacy and security issues tend to be simpler for telemetry than for command and control, so this approach enables you to focus on security and manageability of the system before becoming embroiled in detailed transformational logic.
 
 Prototyping with telemetry can also give you an idea of how your system will respond under load. The system must be capable of ingesting data quickly, performing hot path processing of this data within the expected time-frame, and store potentially large volumes of data for cold path analysis without becoming overwhelmed.
 
@@ -42,16 +42,64 @@ Critical state information retrieved from devices may need to be handled quickly
 
 # Handle defense in depth
 
-Consider security, identity, and management from the very start; this is not something that can be added in later. Think about security on the device itself, as it is transferred over the network, and as it is received, stored, and processed.
+Consider security, identity, and management from the very start; this is not something that can be added in later. Think about security on the device itself, as data is transferred over the network, and as it is received, stored, and processed. In particular, consider the following aspects:
 
-*MORE WORK TO BE DONE HERE - DIAGRAM?*
+- Physical security and tamper detection of all devices in the field.
+
+- Firmware security and secure boot to prevent hardware being compromised.
+
+- Network protocol security to protect data in flight.
+
+- Application security to prevent loss and leakage of sensitive information.
+
+- Identity management for devices (prevent unexpected, rogue devices from being introduced into the system) and users.
+
+- Data privacy protection and controls to ensure that data is stored securely.
 
 # Design for a long life
 
-An IoT solution is an expensive investment, and as such it should be designed to last (possibly for decades.) The nature of technology is that hardware has a limited lifetime before it becomes obsolete. While switching a device simply because a newer model is available is not necessarily a desirable approach, innovations that increase the functionality or speed of devices can enable more advanced scenarios. An IoT system should be designed to support not only the current state of the art crop of devices, but also allow for the integration of sensors, hardware, and capabilities (including new software and infrastructure) that may become available in the future.
+An IoT solution is a significant investment. Once a device has been deployed to the field it might be there for a long time; don't necessarily expect that you will be able to replace it with newer hardware or update the firmware easily. Consequently, an IoT system should be designed to last, possibly for decades. 
+
+You should also consider that the nature of technology is such that newer, more powerful devices can become available at relatively short notice. Innovations that increase the functionality or speed of devices can enable more advanced scenarios as the system evolves and expands. An IoT system should therefore be designed to support not only the current state of the art devices, but also allow for the integration of sensors, hardware, and capabilities (including new software and infrastructure) that may become available in the future.
+
+# Design for composability
+
+Design the system with clear, well-defined interfaces to enable composability. This will allow the system to be easily extended by integrating new devices, architectural components, processing capabilities, and services. Analysis models and decision-making logic can be more easily modified and evolve to adapt to changing business requirements.
 
 # Build to the reference architecture
 
-*TBD - DIAGRAM*
+IoT is not specific to any particular sector or industry. Analysis has shown that the same principles can be applied regardless of whether an IoT solution is concerned with industrial automation and manufacturing, vehicle fleet management, healthcare, smart buildings, or a plethora of other cases in which remote devices provide information and can be controlled by some form of feedback loop. 
+
+The following architecture is intended to be a generic description of an IoT solution which can be applied and adapted to any specific case. It is also intended to be scalable - it is recommended that you use a cloud-based system that provides scale-out of processing and storage capabilities. The high-level elements can be implemented by using any appropriate technology supported by the cloud vendor.
+
+![IoT Reference Architecture](Figures/IoT-Intro/Reference-Architecture.jpg)
+
+In this diagram:
+
+- Devices are *things* (as in *Internet of Things*) that generate events. Devices may be simple of composite and include a variety of sensors. A device can communicate with the system running in the cloud, through one or more gateway services. Devices might also be able to communicate directly with each other.
+
+- The Field Gateway can implement local logic close to a collection of devices. It is optional. The field gateway might act as an aggregator, accumulating responses from devices and combining them into events. It can also provide a distribution point for commands and other data sent from the system in the cloud, directing operations to the appropriate devices.
+
+- The Cloud Gateway is the primary endpoint for ingesting events from devices in the field. It might also have other functions, such as handling authentication and authorization at the application level, translation, connection management, and command delivery.
+
+- The Device Registry is used by the system to identify devices, and is maintained when devices are provisioned and deprovisioned. Some features of the cloud gateway (such as authentication) might need information that is held here.
+
+- Event Processing handles the stream of event information that arrives from devices in the field. It may compromise multiple consumers and is a point of composition in the system.
+
+- Storage is the repository used by the system for holding event information and device status. This repository might compromise several data stores optimized for particular patterns of access and partitioned for scalability and performance.
+
+- Analytics includes the hot path and the cold path. The hot path must be optimized to ensure that events are captured, processed, and reported within the required timeframe.
+
+- Business Logic is the domain-specific logic of the system.
+
+- Command Processing handles outbound messages being sent to devices. This area is a considerable security concern - the outbound path must not be compromised as it could have serious consequences (consider what might happen if a device receives a rogue command).
+
+- Data Visualization covers the presentation logic of the system, including business reporting and charting, as well as dashboards that can be used to assess the overall health and stability of the system.
 
 # Further information
+
+- [Internet of Things Overview](http://channel9.msdn.com/Events/Build/2015/2-652)
+
+- [Best practices for creating IoT solutions with Azure](http://blogs.microsoft.com/iot/2015/04/30/best-practices-for-creating-iot-solutions-with-azure/)
+
+- [IoT Security Fundamentals](http://channel9.msdn.com/Events/Ignite/2015/BRK4553)
