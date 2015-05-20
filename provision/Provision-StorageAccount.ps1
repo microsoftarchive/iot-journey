@@ -22,7 +22,16 @@ Param
 
     [string]$Location = "Central US",                   
 
-    [ValidatePattern("^[a-z][a-z0-9]*[a-z0-9]$")]               # needs contain only lower case letters and numbers.
+    #[ValidatePattern("^[a-z0-9]*$")]                         # don't use this, powershell script is case insensitive, uppercase letter still pass as valid 
+    [ValidateScript({
+      # we need to use cmathch which is case sensitive, don't use match
+      If ($_ -cmatch "^[a-z0-9]*$") {                         # needs contain only lower case letters and numbers.
+        $True
+      }else {
+        Throw "`n---Storage account name can only contain lowercase letters and numbers!---"
+      }
+    })]
+
     [string]$Name = "fabrikamstorage01",            
 
     [string]$ContainerName = "container01"  
