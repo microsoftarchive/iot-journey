@@ -1,6 +1,17 @@
 # Glossary
 
+*This list will be sorted later*
 <dl>
+
+<dt>Cold Path</dt>
+<dd>The processing pathway for data that is not time critical. The data can be stored and handled later. This data is commonly used to provide statistical information, to generate analytical reports, and for auditing purposes.</dd>
+
+<dt>Hot Path</dt>
+<dd>The processing pathway for data that is time critical and that requires immediate attention and analysis.</dd>
+
+<dt>Warm Path</dt>
+<dd>The processing path for data that is time sensitive rather than time critical. It must be handled within a specified period of time, but is not urgent. Examples include performance-related diagnostic information.</dd>
+
 
 <dt>Event</dt>
 <dd>A message or data sent from the device. Generally assumed to have a body and
