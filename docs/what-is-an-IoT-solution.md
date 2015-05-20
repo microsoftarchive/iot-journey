@@ -1,6 +1,6 @@
 # What is an IoT solution?
 
-The fundamental reason for implementing a network is to connect computing resources together. Initially local area networks were commonly used for many business scenarios such as sharing access to devices such as hard disks and printers, and then for communications applications such as email and messaging. The Internet enabled publicly accessible wide-area networking, allowing remote machinery and users to communicate. Nowadays, it is possible to connect almost any network-enabled device to the Internet to send and receive information from other similarly connected devices. This connectivity enables a wide range of scenarios, from remote monitoring and control of the heating and air conditioning of an apartments from a users smart phone, to highly complex situations such as driverless cars or remote controlled aircraft. This is the "Internet of Things" or IoT.
+The fundamental reason for implementing a network is to connect computing resources together. Initially local area networks were commonly used for many business scenarios such as sharing access to devices such as hard disks and printers, and then for communications applications such as email and messaging. The Internet enabled publicly accessible wide-area networking, allowing remote machinery and users to communicate. Nowadays, it is possible to connect almost any network-enabled device to the Internet to send and receive information from other similarly connected devices. This connectivity enables a wide range of scenarios, from remote monitoring and control of the heating and air conditioning of an apartments from a users smart phone, to highly complex situations such as driverless cars or remote controlled aircraft. This is the *Internet of Things* or IoT.
 
 The concept of IoT is not new - the Internet has been around in various guises since the 1960s, and businesses have been connecting computers to hardware over a network for just as long. What is new is the affordability of hardware, the increased bandwidth and ubiquity of the Internet, the notion of virtualization, and the application of cloud services to combine devices together to support increasingly complex and large-scale scenarios. It is not uncommon for businesses to consider building systems that gather input from, and control, many thousands or even millions of heterogeneous items of equipment.
 
@@ -22,11 +22,14 @@ A development team faced with implementing a IoT solution has to wrestle with se
 
 The following sections provide some high-level guidelines to help you address these challenges.
 
+> Note: For a definition of common IoT terminology, see the [Glossary of Terms](glossary-of-terms.md)
+
+
 # Start small, think big
 
 It is very easy to become overwhelmed by the sheer volume of data and the number of devices that an IoT system might be expected to handle. In addition, it can be hard to predict in advance which sensors and devices might provide the data that your system requires. 
 
-Rather than attempting to build a system that solves every problem at once, start end-to-end prototyping with a small number of devices, but focus on designing an architecture that will scale, is low-latency, and that can handle extreme hardware and software heterogeneity. Consider that some critical data might require immediate action (the *hot path*) while a large volume of information may need to be stored for subsequent analysis and decision-making (the *cold path*). Furthermore, identifying how data flows from devices all the way through the system to the analytics processing and business domain logic can help to highlight issues that might otherwise be missed.
+Rather than attempting to build a system that solves every problem at once, start end-to-end prototyping with a small number of devices, but focus on designing an architecture that will scale, is low-latency, and that can handle extreme hardware and software heterogeneity. Consider that some critical data might require immediate action while a large volume of information may need to be stored for subsequent analysis and decision-making. Furthermore, identifying how data flows from devices all the way through the system to the analytics processing and business domain logic can help to highlight issues that might otherwise be missed.
 
 Implementing an initial subset of the system will help to highlight where possible issues are likely to occur. These issues include resolving device identity, management, update, and deployment of devices, and security concerns. It is easier to address these issues in the small scale. Be prepared to evaluate whether the prototype meets expectations, make any necessary adjustments, and then document the lessons learned so that you can apply them to the large scale.
 
@@ -70,13 +73,13 @@ Design the system with clear, well-defined interfaces to enable composability. T
 
 IoT is not specific to any particular sector or industry. Analysis has shown that the same principles can be applied regardless of whether an IoT solution is concerned with industrial automation and manufacturing, vehicle fleet management, healthcare, smart buildings, or a plethora of other cases in which remote devices provide information and can be controlled by some form of feedback loop. 
 
-The following architecture is intended to be a generic description of an IoT solution which can be applied and adapted to any specific case. It is also intended to be scalable - it is recommended that you use a cloud-based system that provides scale-out of processing and storage capabilities. The high-level elements can be implemented by using any appropriate technology supported by the cloud vendor.
+The following logical architecture is intended to be a generic description of an IoT solution which can be applied and adapted to any specific case.
 
-![IoT Reference Architecture](Figures/IoT-Intro/Reference-Architecture.jpg)
+![IoT Reference Architecture](media/what-is-an-IoT-solution/reference-architecture.png)
 
 In this diagram:
 
-- Devices are *things* (as in *Internet of Things*) that generate events. Devices may be simple of composite and include a variety of sensors. A device can communicate with the system running in the cloud, through one or more gateway services. Devices might also be able to communicate directly with each other.
+- Devices are *things* (as in *Internet of Things*) that generate events. Devices may be simple or composite and include a variety of sensors. A device can communicate with the system running in the cloud, through one or more gateway services. Devices might also be able to communicate directly with each other.
 
 - The Field Gateway can implement local logic close to a collection of devices. It is optional. The field gateway might act as an aggregator, accumulating responses from devices and combining them into events. It can also provide a distribution point for commands and other data sent from the system in the cloud, directing operations to the appropriate devices.
 
@@ -84,7 +87,7 @@ In this diagram:
 
 - The Device Registry is used by the system to identify devices, and is maintained when devices are provisioned and deprovisioned. Some features of the cloud gateway (such as authentication) might need information that is held here.
 
-- Event Processing handles the stream of event information that arrives from devices in the field. It may compromise multiple consumers and is a point of composition in the system.
+- Event Stream Logic handles the stream of event information that arrives from devices in the field. It may compromise multiple consumers and is a point of composition in the system.
 
 - Storage is the repository used by the system for holding event information and device status. This repository might compromise several data stores optimized for particular patterns of access and partitioned for scalability and performance.
 
@@ -92,7 +95,7 @@ In this diagram:
 
 - Business Logic is the domain-specific logic of the system.
 
-- Command Processing handles outbound messages being sent to devices. This area is a considerable security concern - the outbound path must not be compromised as it could have serious consequences (consider what might happen if a device receives a rogue command).
+- Command & Control Logic handles outbound messages being sent to devices. This area is a considerable security concern - the outbound path must not be compromised as it could have serious consequences (consider what might happen if a device receives a rogue command).
 
 - Data Visualization covers the presentation logic of the system, including business reporting and charting, as well as dashboards that can be used to assess the overall health and stability of the system.
 
@@ -103,3 +106,5 @@ In this diagram:
 - [Best practices for creating IoT solutions with Azure](http://blogs.microsoft.com/iot/2015/04/30/best-practices-for-creating-iot-solutions-with-azure/)
 
 - [IoT Security Fundamentals](http://channel9.msdn.com/Events/Ignite/2015/BRK4553)
+
+- [Glossary of Terms](glossary-of-terms.md)
