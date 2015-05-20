@@ -22,7 +22,7 @@ A development team faced with implementing a IoT solution has to wrestle with se
 
 The following sections provide some high-level guidelines to help you address these challenges.
 
-> Note: For a definition of common IoT terminology, see the [Glossary of Terms](glossary-of-terms.md)
+> Note: For a definition of common IoT terminology, see the [Glossary of Terms](glossary.md)
 
 
 # Start small, think big
@@ -107,4 +107,4 @@ In this diagram:
 
 - [IoT Security Fundamentals](http://channel9.msdn.com/Events/Ignite/2015/BRK4553)
 
-- [Glossary of Terms](glossary-of-terms.md)
+- [Glossary of Terms](glossary.md)
