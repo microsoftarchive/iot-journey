@@ -53,12 +53,9 @@ if(-not(Get-Module -name "Azure"))
     }
 }
 
-#Add-AzureAccount
-
-Select-AzureSubscription -SubscriptionName $SubscriptionName
+Add-AzureAccount
 
 .\Provision-EventHub.ps1 -SubscriptionName $SubscriptionName -Location $Location -Namespace $ServiceBusNamespace -EventHubName $EventHubName -ConsumerGroupName $ConsumerGroupName -EventHubSharedAccessPolicyName $EventHubSharedAccessPolicyName 
-
 
 .\Provision-StorageAccount.ps1 -SubscriptionName $SubscriptionName -Location $Location -Name $StorageAccountName -ContainerName $StorageContainerName
 

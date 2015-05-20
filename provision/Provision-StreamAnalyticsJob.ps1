@@ -48,13 +48,13 @@ Select-AzureSubscription -SubscriptionName $SubscriptionName
 try
 {
     # WARNING: Make sure to reference the latest version of the \Microsoft.ServiceBus.dll 
-    Write-Output "Adding the [Microsoft.ServiceBus.dll] assembly to the script..." 
+    Write-Verbose "Adding the [Microsoft.ServiceBus.dll] assembly to the script..." 
     $scriptPath = Split-Path (Get-Variable MyInvocation -Scope 0).Value.MyCommand.Path
     $packagesFolder = (Split-Path $scriptPath -Parent) + "\src\packages"
     $assembly = Get-ChildItem $packagesFolder -Include "Microsoft.ServiceBus.dll" -Recurse
     Add-Type -Path $assembly.FullName
 
-    Write-Output "The [Microsoft.ServiceBus.dll] assembly has been successfully added to the script." 
+    Write-Verbose "The [Microsoft.ServiceBus.dll] assembly has been successfully added to the script." 
 }
 catch [System.Exception]
 {
@@ -71,7 +71,7 @@ if($EventHub.Authorization.TryGetSharedAccessAuthorizationRule($ServiceBusRuleNa
 }
 else
 {
-    Write-Output "Can not find the Shared Access Key for Manage in event hub"
+    Write-Verbose "Can not find the Shared Access Key for Manage in event hub"
 }
 
 # Get Storage Account Key
@@ -95,9 +95,6 @@ $TempFileName = [guid]::NewGuid().ToString() + ".json"
 
 $JobDefinitionText > $TempFileName
 
-
-#$AzureSubscription = Get-AzureSubscription -SubscriptionName $SubscriptionName
-#Select-AzureSubscription –SubscriptionId $AzureSubscription.SubscriptionId
 Switch-AzureMode AzureResourceManager
 New-AzureStreamAnalyticsJob -ResourceGroupName $ResourceGroupName  -File $TempFileName -Force
 if (Test-Path $TempFileName) {
@@ -105,4 +102,4 @@ if (Test-Path $TempFileName) {
     Remove-Item $TempFileName
 }
 
-Write-Output "Create Azure StreamAnalyticsJob Completed"
+Write-Verbose "Create Azure StreamAnalyticsJob Completed"

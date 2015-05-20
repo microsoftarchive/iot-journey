@@ -62,31 +62,31 @@ $CurrentNamespace = Get-AzureSBNamespace -Name $Namespace
 # Check if the namespace already exists or needs to be created 
 if ($CurrentNamespace) 
 { 
-    Write-Output "The namespace [$Namespace] already exists in the [$($CurrentNamespace.Region)] region."  
+    Write-Verbose "The namespace [$Namespace] already exists in the [$($CurrentNamespace.Region)] region."  
 } 
 else 
 { 
-    Write-Output "The [$Namespace] namespace does not exist." 
-    Write-Output "Creating the [$Namespace] namespace in the [$Location] region..." 
+    Write-Verbose "The [$Namespace] namespace does not exist." 
+    Write-Verbose "Creating the [$Namespace] namespace in the [$Location] region..." 
     New-AzureSBNamespace -Name $Namespace -Location $Location -CreateACSNamespace $CreateACSNamespace -NamespaceType Messaging
     $CurrentNamespace = Get-AzureSBNamespace -Name $Namespace
-    Write-Output "The [$Namespace] namespace in the [$Location] region has been successfully created." 
+    Write-Verbose "The [$Namespace] namespace in the [$Location] region has been successfully created." 
 } 
  
 $sbr = Get-AzureSBAuthorizationRule -Namespace $Namespace
 # Create the NamespaceManager object to create the event hub 
-Write-Output "Creating a NamespaceManager object for the [$Namespace] namespace..." 
+Write-Verbose "Creating a NamespaceManager object for the [$Namespace] namespace..." 
 $NamespaceManager = [Microsoft.ServiceBus.NamespaceManager]::CreateFromConnectionString($sbr.ConnectionString); 
-Write-Output "NamespaceManager object for the [$Namespace] namespace has been successfully created." 
+Write-Verbose "NamespaceManager object for the [$Namespace] namespace has been successfully created." 
 
 # Check if the event hub already exists 
 if ($NamespaceManager.EventHubExists($EventHubName)) 
 { 
-    Write-Output "The [$EventHubName] event hub already exists in the [$Namespace] namespace."  
+    Write-Verbose "The [$EventHubName] event hub already exists in the [$Namespace] namespace."  
 } 
 else 
 { 
-    Write-Output "Creating the [$EventHubName] event hub in the [$Namespace] namespace: PartitionCount=[$PartitionCount] MessageRetentionInDays=[$MessageRetentionInDays]..." 
+    Write-Verbose "Creating the [$EventHubName] event hub in the [$Namespace] namespace: PartitionCount=[$PartitionCount] MessageRetentionInDays=[$MessageRetentionInDays]..." 
     $EventHubDescription = New-Object -TypeName Microsoft.ServiceBus.Messaging.EventHubDescription -ArgumentList $EventHubName 
     $EventHubDescription.PartitionCount = $PartitionCount 
     $EventHubDescription.MessageRetentionInDays = $MessageRetentionInDays 
@@ -97,19 +97,19 @@ else
     $Rule = New-Object -TypeName Microsoft.ServiceBus.Messaging.SharedAccessAuthorizationRule  -ArgumentList $EventHubSharedAccessPolicyName, $RuleKey,$AccessRights
     $EventHubDescription.Authorization.Add($Rule); 
     $NamespaceManager.CreateEventHubIfNotExists($EventHubDescription);
-    Write-Output "The [$EventHubName] event hub in the [$Namespace] namespace has been successfully created." 
+    Write-Verbose "The [$EventHubName] event hub in the [$Namespace] namespace has been successfully created." 
 } 
  
 # Create the consumer group if not exists 
-Write-Output "Creating the consumer group [$ConsumerGroupName] for the [$EventHubName] event hub..." 
+Write-Verbose "Creating the consumer group [$ConsumerGroupName] for the [$EventHubName] event hub..." 
 $ConsumerGroupDescription = New-Object -TypeName Microsoft.ServiceBus.Messaging.ConsumerGroupDescription -ArgumentList $EventHubName, $ConsumerGroupName 
 $ConsumerGroupDescription.UserMetadata = $ConsumerGroupUserMetadata 
 $NamespaceManager.CreateConsumerGroupIfNotExists($ConsumerGroupDescription); 
-Write-Output "The consumer group [$ConsumerGroupName] for the [$EventHubName] event hub has been successfully created." 
+Write-Verbose "The consumer group [$ConsumerGroupName] for the [$EventHubName] event hub has been successfully created." 
 
 # Mark the finish time of the script execution 
 $finishTime = Get-Date 
  
 # Output the time consumed in seconds 
 $TotalTime = ($finishTime - $startTime).TotalSeconds 
-Write-Output "The script completed in $TotalTime seconds."
+Write-Verbose "The script completed in $TotalTime seconds."

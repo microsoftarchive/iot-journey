@@ -45,8 +45,8 @@ $storageAccount = Get-AzureStorageAccount -StorageAccountName $Name -ErrorAction
 if (!$storageAccount)
 {
     # Create a new storage account
-    Write-Output "";
-    Write-Output ("Configuring storage account {0} in location {1}" -f $Name, $Location);
+    Write-Verbose "";
+    Write-Verbose ("Configuring storage account {0} in location {1}" -f $Name, $Location);
 
     New-AzureStorageAccount -StorageAccountName $Name -Location $Location -Verbose;
 }
@@ -71,4 +71,4 @@ else
 
 # Configure options for storage account
 Set-AzureStorageAccount -StorageAccountName $Name -Type "Standard_LRS" -Verbose;
-Write-Output ("Finished configuring storage account {0} in location {1}" -f $Name, $Location);
+Write-Verbose ("Finished configuring storage account {0} in location {1}" -f $Name, $Location);
