@@ -1,67 +1,95 @@
-﻿<# 
-    .SYNOPSIS 
-    This script is to be used to provision the stream analytics job that is defined 
-    in StreamAnalyticsJobDefinition.json
-             
-    .DESCRIPTION 
-    This script is to be used to provision the stream analytics job that is defined 
-    in StreamAnalyticsJobDefinition.json
-
-    In particular, the script allows to specify the following parameters: 
-    -- The Azure Subscription Id
-    -- The SharedAccessPolicyKey of the input event hub
-    -- The StorageAccountKey for the output blob
-    -- The Path to job definition json file of the stream analytics
-    
-    .PARAMETER  AzureSubscriptionId 
-    Specifies The Azure Subscription Id
-
-    .PARAMETER  EventHubSharedAccessPolicyKey 
-    Specifies The SharedAccessPolicyKey of the input event hub
-
-    .PARAMETER  BlobStorageAccountKey 
-    Specifies The StorageAccountKey for the output blob
-
-    .PARAMETER  Path 
-    Specifies the full path to job definition json file of the stream analytics
- 
-    .NOTES   
-    Author     : Hanz Zhang
-#> 
-
+﻿
 [CmdletBinding(PositionalBinding=$True)] 
 Param( 
-    [Parameter(Mandatory = $true)] 
-    [String]$AzureSubscriptionId,                                          # required
+	#[Parameter (Mandatory = $true)]
+	[string]$SubscriptionName = "Azure Guidance",
 
-    [Parameter(Mandatory = $true)] 
-    [String]$EventHubSharedAccessPolicyKey,                                # required
+    [String]$Location = "Central US",                 
 
-    [Parameter(Mandatory = $true)] 
-    [String]$BlobStorageAccountKey,                                        # required
+    [String]$ResourceGroupName = "StreamAnalytics-Default-Central-US",   
+
+    [String]$StreamAnalyticsJobName = "fabrikamstreamjob01",   
+
+    [ValidatePattern("^[A-Za-z][-A-Za-z0-9]*[A-Za-z0-9]$")]               # needs to start with letter or number, and contain only letters, numbers, and hyphens.
+    [String]$ServiceBusNamespace="fabrikam-ns01",                                   
+    
+    [ValidatePattern("^[A-Za-z0-9]$|^[A-Za-z0-9][\w-\.\/]*[A-Za-z0-9]$")] # needs to start with letter or number, and contain only letters, numbers, periods, hyphens, and underscores.
+    [String]$EventHubName = "eventhub01",                   
+    
+    [String]$ServiceBusRuleName = "ManagePolicy",                   
+
+    [String]$ConsumerGroupName= "consumergroup01", 
+
+    [String]$EventHubSharedAccessPolicyName = "ManagePolicy",
+
+    [String]$StorageAccountName = "fabrikamstorage01",    
+       
+    [String]$StorageContainerName = "container01",   
 
     [ValidatePattern("^[A-Za-z0-9]$|^[A-Za-z0-9][\w-\.\/]*[A-Za-z0-9]$")] 
     [String]$JobDefinitionPath = "StreamAnalyticsJobDefinition.json"       # optional default to C:\StreamAnalyticsJobDefinition.json
     ) 
         
-$EventHubSharedAccessPolicyKeyPlaceHolder = "EventHubSharedAccessPolicyKeyPlaceHolder"
-$BlobStorageAccountKeyPlacHolder          = "BlobStorageAccountKeyPlacHolder"
 
+#Add-AzureAccount
 
-Add-AzureAccount
-Select-AzureSubscription –SubscriptionId $AzureSubscriptionId
-Switch-AzureMode AzureResourceManager
+Select-AzureSubscription -SubscriptionName $SubscriptionName
+
+try
+{
+    # WARNING: Make sure to reference the latest version of the \Microsoft.ServiceBus.dll 
+    Write-Output "Adding the [Microsoft.ServiceBus.dll] assembly to the script..." 
+    $scriptPath = Split-Path (Get-Variable MyInvocation -Scope 0).Value.MyCommand.Path
+    $packagesFolder = (Split-Path $scriptPath -Parent) + "\src\packages"
+    $assembly = Get-ChildItem $packagesFolder -Include "Microsoft.ServiceBus.dll" -Recurse
+    Add-Type -Path $assembly.FullName
+
+    Write-Output "The [Microsoft.ServiceBus.dll] assembly has been successfully added to the script." 
+}
+catch [System.Exception]
+{
+    Write-Error("Could not add the Microsoft.ServiceBus.dll assembly to the script. Make sure you build the solution before running the provisioning script.")
+}
+
+$sbr = Get-AzureSBAuthorizationRule -Namespace $ServiceBusNamespace
+$NamespaceManager = [Microsoft.ServiceBus.NamespaceManager]::CreateFromConnectionString($sbr.ConnectionString); 
+$EventHub = $NamespaceManager.GetEventHub($EventHubName);
+$Rule = $null
+if($EventHub.Authorization.TryGetSharedAccessAuthorizationRule($ServiceBusRuleName, [ref]$Rule))
+{
+    $EventHubSharedAccessPolicyKey = $Rule.PrimaryKey
+}
+else
+{
+    Write-Output "Can not find the Shared Access Key for Manage in event hub"
+}
+
+# Get Storage Account Key
+$storageAccountKey = Get-AzureStorageKey -StorageAccountName $StorageAccountName
+
 
 $JobDefinitionText = (get-content $JobDefinitionPath).
-                    Replace($EventHubSharedAccessPolicyKeyPlaceHolder,$EventHubSharedAccessPolicyKey).
-                    Replace($BlobStorageAccountKeyPlacHolder,$BlobStorageAccountKey)
+                    Replace("_StreamAnalyticsJobName",$StreamAnalyticsJobName).
+                    Replace("_Location",$Location).
+                    Replace("_ConsumerGroupName",$ConsumerGroupName).
+                    Replace("_EventHubName",$EventHubName).
+                    Replace("_ServiceBusNamespace",$ServiceBusNamespace).
+                    Replace("_EventHubSharedAccessPolicyName",$EventHubSharedAccessPolicyName).
+                    Replace("_EventHubSharedAccessPolicyKey",$EventHubSharedAccessPolicyKey).
+                    Replace("_AccountName",$StorageAccountName).
+                    Replace("_AccountKey",$StorageAccountKey).
+                    Replace("_Container",$StorageContainerName)
+
 
 $TempFileName = [guid]::NewGuid().ToString() + ".json"
 
 $JobDefinitionText > $TempFileName
 
-New-AzureStreamAnalyticsJob -ResourceGroupName StreamAnalytics-Default-West-US  -File $TempFileName -Force
 
+#$AzureSubscription = Get-AzureSubscription -SubscriptionName $SubscriptionName
+#Select-AzureSubscription –SubscriptionId $AzureSubscription.SubscriptionId
+Switch-AzureMode AzureResourceManager
+New-AzureStreamAnalyticsJob -ResourceGroupName $ResourceGroupName  -File $TempFileName -Force
 if (Test-Path $TempFileName) {
     Clear-Content $TempFileName
     Remove-Item $TempFileName

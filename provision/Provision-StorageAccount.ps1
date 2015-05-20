@@ -18,10 +18,18 @@ The Container Name of the storage account
 
 Param
 (
-    $Name = "fabrikamstorage01",             # optional default to fabrikamstorage01
-    $Location = "West US",                   # optional default to West US
-    $ContainerName = "fabrikam-container01"  # optional default to fabrikam-container01
+    [string]$SubscriptionName = "Azure Guidance",
+
+    [string]$Location = "Central US",                   
+
+    [ValidatePattern("^[a-z][a-z0-9]*[a-z0-9]$")]               # needs contain only lower case letters and numbers.
+    [string]$Name = "fabrikamstorage01",            
+
+    [string]$ContainerName = "container01"  
 )
+
+#Add-AzureAccount
+Select-AzureSubscription -SubscriptionName $SubscriptionName
 
 $storageAccount = Get-AzureStorageAccount -StorageAccountName $Name -ErrorAction SilentlyContinue
 

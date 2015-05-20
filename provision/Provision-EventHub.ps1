@@ -1,72 +1,31 @@
-<# 
-    .SYNOPSIS 
-    This script can be used to provision a namespace and an event hub. 
-             
-    .DESCRIPTION 
-    This script can be used to provision a namespace and an event hub.  
-    In particular, the script allows to specify the following parameters: 
-    -- Event Hub path 
-    -- Event hub message retention in days 
-    -- Event Hub partition count 
-    -- Event Hub user metadata 
-    -- Service Bus Namespace 
-    -- Azure Datacenter location 
-     
-    .PARAMETER  Path 
-    Specifies the full path of the event hub. 
- 
-    .PARAMETER  PartitionCount 
-    Specifies the current number of shards on the event hub. 
- 
-    .PARAMETER  MessageRetentionInDays 
-    Specifies the number of days to retain the events for this event hub. 
- 
-    .PARAMETER  UserMetadata 
-    Specifies the user metadata for the event hub. 
-     
-    .PARAMETER  ConsumerGroupName 
-    Specifies the name of a custom consumer group. 
- 
-    .PARAMETER  ConsumerGroupUserMetadata 
-    Specifies the user metadata for the custom consumer group. 
- 
-    .PARAMETER  Namespace 
-    Specifies the name of the Service Bus namespace. 
- 
-    .PARAMETER  CreateACSNamespace 
-    Specifies whether  to create an ACS namespace associated to the Service Bus namespace. 
- 
-    .PARAMETER  Location 
-    Specifies the location to create the namespace in. The default value is "West Europe".  
- 
-    Valid values: 
-    -- East Asia 
-    -- East US 
-    -- North Central US 
-    -- North Europe 
-    -- West Europe 
-    -- West US 
-     
-    .NOTES   
-    Author     : Paolo Salvatori 
-    Twitter    : @babosbird 
-    Blog       : http://blogs.msdn.com/b/paolos/ 
-#> 
- 
+
 [CmdletBinding(PositionalBinding=$True)] 
 Param( 
+    [string]$SubscriptionName = "Azure Guidance",
+
+    [String]$Location = "Central US",                 
+
+    [ValidatePattern("^[A-Za-z][-A-Za-z0-9]*[A-Za-z0-9]$")]      # needs to start with letter or number, and contain only letters, numbers, and hyphens.
+    [String]$Namespace="fabrikam-ns01",                                   
+
     [ValidatePattern("^[A-Za-z0-9]$|^[A-Za-z0-9][\w-\.\/]*[A-Za-z0-9]$")] # needs to start with letter or number, and contain only letters, numbers, periods, hyphens, and underscores.
-    [String]$Path = "fabrikam-eventhub01",          # optional    default to "fabrikam-eventhub01"
-    [Int]$PartitionCount = 16,                      # optional    default to 16 
-    [Int]$MessageRetentionInDays = 7,               # optional    default to 7 
-    [String]$UserMetadata = $null,                  # optional    default to $null 
-    [String]$StreamAnalyticsConsumerGroupName= "fabrikam-consumergroup01", # optional    default to "fabrikam-consumergroup01" 
-    [String]$ConsumerGroupUserMetadata = $null,     # optional    default to $null 
-    [ValidatePattern("^[A-Za-z][-A-Za-z0-9]*[A-Za-z0-9]$")] 
-    [String]$Namespace="fabrikam-eventhub01-ns",    # optional    needs to start with letter or number, and contain only letters, numbers, and hyphens.
-    [Bool]$CreateACSNamespace = $false,             # optional    default to $false 
-    [String]$Location = "West US",                  # optional    default to "West US" 
-    [String]$RuleName = "Manage"                    # optional    default to "Manage" 
+
+    [String]$EventHubName = "eventhub01",                   
+
+    [String]$ConsumerGroupName= "consumergroup01", 
+
+    [String]$EventHubSharedAccessPolicyName = "ManagePolicy",
+
+    [Int]$PartitionCount = 16,                     
+
+    [Int]$MessageRetentionInDays = 7,              
+
+    [String]$UserMetadata = $null,                 
+
+    [String]$ConsumerGroupUserMetadata = $null,     
+
+    [Bool]$CreateACSNamespace = $false             
+
     ) 
  
 
@@ -74,6 +33,9 @@ Param(
 $VerbosePreference = "Continue" 
 $ErrorActionPreference = "Stop" 
  
+#Add-AzureAccount
+Select-AzureSubscription -SubscriptionName $SubscriptionName
+
 try
 {
     # WARNING: Make sure to reference the latest version of the \Microsoft.ServiceBus.dll 
@@ -93,7 +55,7 @@ catch [System.Exception]
  
 # Mark the start time of the script execution 
 $startTime = Get-Date 
- 
+
 # Create Azure Service Bus namespace 
 $CurrentNamespace = Get-AzureSBNamespace -Name $Namespace
 
@@ -118,32 +80,32 @@ $NamespaceManager = [Microsoft.ServiceBus.NamespaceManager]::CreateFromConnectio
 Write-Output "NamespaceManager object for the [$Namespace] namespace has been successfully created." 
 
 # Check if the event hub already exists 
-if ($NamespaceManager.EventHubExists($Path)) 
+if ($NamespaceManager.EventHubExists($EventHubName)) 
 { 
-    Write-Output "The [$Path] event hub already exists in the [$Namespace] namespace."  
+    Write-Output "The [$EventHubName] event hub already exists in the [$Namespace] namespace."  
 } 
 else 
 { 
-    Write-Output "Creating the [$Path] event hub in the [$Namespace] namespace: PartitionCount=[$PartitionCount] MessageRetentionInDays=[$MessageRetentionInDays]..." 
-    $EventHubDescription = New-Object -TypeName Microsoft.ServiceBus.Messaging.EventHubDescription -ArgumentList $Path 
+    Write-Output "Creating the [$EventHubName] event hub in the [$Namespace] namespace: PartitionCount=[$PartitionCount] MessageRetentionInDays=[$MessageRetentionInDays]..." 
+    $EventHubDescription = New-Object -TypeName Microsoft.ServiceBus.Messaging.EventHubDescription -ArgumentList $EventHubName 
     $EventHubDescription.PartitionCount = $PartitionCount 
     $EventHubDescription.MessageRetentionInDays = $MessageRetentionInDays 
     $EventHubDescription.UserMetadata = $UserMetadata 
-    $EventHubDescription.Path = $Path
+    $EventHubDescription.Path = $EventHubName
     $RuleKey = [Microsoft.ServiceBus.Messaging.SharedAccessAuthorizationRule]::GenerateRandomKey();
     [Microsoft.ServiceBus.Messaging.AccessRights[]]$AccessRights = @("Manage", "Listen", "Send")
-    $Rule = New-Object -TypeName Microsoft.ServiceBus.Messaging.SharedAccessAuthorizationRule  -ArgumentList $RuleName, $RuleKey,$AccessRights
+    $Rule = New-Object -TypeName Microsoft.ServiceBus.Messaging.SharedAccessAuthorizationRule  -ArgumentList $EventHubSharedAccessPolicyName, $RuleKey,$AccessRights
     $EventHubDescription.Authorization.Add($Rule); 
     $NamespaceManager.CreateEventHubIfNotExists($EventHubDescription);
-    Write-Output "The [$Path] event hub in the [$Namespace] namespace has been successfully created." 
+    Write-Output "The [$EventHubName] event hub in the [$Namespace] namespace has been successfully created." 
 } 
  
 # Create the consumer group if not exists 
-Write-Output "Creating the consumer group [$StreamAnalyticsConsumerGroupName] for the [$Path] event hub..." 
-$ConsumerGroupDescription = New-Object -TypeName Microsoft.ServiceBus.Messaging.ConsumerGroupDescription -ArgumentList $Path, $StreamAnalyticsConsumerGroupName 
+Write-Output "Creating the consumer group [$ConsumerGroupName] for the [$EventHubName] event hub..." 
+$ConsumerGroupDescription = New-Object -TypeName Microsoft.ServiceBus.Messaging.ConsumerGroupDescription -ArgumentList $EventHubName, $ConsumerGroupName 
 $ConsumerGroupDescription.UserMetadata = $ConsumerGroupUserMetadata 
 $NamespaceManager.CreateConsumerGroupIfNotExists($ConsumerGroupDescription); 
-Write-Output "The consumer group [$StreamAnalyticsConsumerGroupName] for the [$Path] event hub has been successfully created." 
+Write-Output "The consumer group [$ConsumerGroupName] for the [$EventHubName] event hub has been successfully created." 
 
 # Mark the finish time of the script execution 
 $finishTime = Get-Date 
