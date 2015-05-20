@@ -9,7 +9,6 @@ using System.Reactive.Subjects;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Practices.IoTJourney.Logging;
-using Microsoft.Practices.IoTJourney.ScenarioSimulator.Instrumentation;
 using Microsoft.ServiceBus.Messaging;
 
 namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
@@ -17,10 +16,6 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
     public class SimulationProfile
     {
         private readonly SimulatorConfiguration _simulatorConfiguration;
-
-        // The instrumentation publisher is responsible for updating 
-        // performance counters and sending related telemetry events.
-        private readonly ISenderInstrumentationPublisher _instrumentationPublisher;
 
         private readonly string _hostName;
 
@@ -31,11 +26,9 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
         public SimulationProfile(
             string hostName,
             int instanceCount,
-            ISenderInstrumentationPublisher instrumentationPublisher,
             SimulatorConfiguration simulatorConfiguration)
         {
             _hostName = hostName;
-            _instrumentationPublisher = instrumentationPublisher;
             _simulatorConfiguration = simulatorConfiguration;
 
             _devicesPerInstance = simulatorConfiguration.NumberOfDevices / instanceCount;
@@ -76,8 +69,7 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
                     var eventSender = new EventSender(
                         messagingFactory: messagingFactories[i % messagingFactories.Length],
                         config: _simulatorConfiguration,
-                        serializer: Serializer.ToJsonUTF8,
-                        telemetryPublisher: _instrumentationPublisher
+                        serializer: Serializer.ToJsonUTF8
                     );
 
                     var deviceTask = SimulateDeviceAsync(

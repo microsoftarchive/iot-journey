@@ -6,7 +6,6 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.Practices.IoTJourney.Devices.Events;
 using Microsoft.Practices.IoTJourney.Logging;
-using Microsoft.Practices.IoTJourney.ScenarioSimulator.Instrumentation;
 using Microsoft.ServiceBus.Messaging;
 
 namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
@@ -15,18 +14,14 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
     {
         private readonly EventHubClient _eventHubClient;
 
-        private readonly ISenderInstrumentationPublisher _instrumentationTelemetryPublisher;
-
         private readonly Func<object, byte[]> _serializer;
 
         public EventSender(
             MessagingFactory messagingFactory,
             SimulatorConfiguration config,
-            Func<object, byte[]> serializer,
-            ISenderInstrumentationPublisher telemetryPublisher)
+            Func<object, byte[]> serializer)
         {
             this._serializer = serializer;
-            this._instrumentationTelemetryPublisher = telemetryPublisher;
 
             this._eventHubClient = messagingFactory.CreateEventHubClient(config.EventHubPath);
         }
@@ -54,14 +49,8 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
 
                     var stopwatch = Stopwatch.StartNew();
 
-                    this._instrumentationTelemetryPublisher.EventSendRequested();
-
                     await this._eventHubClient.SendAsync(eventData);
                     stopwatch.Stop();
-
-                    this._instrumentationTelemetryPublisher.EventSendCompleted(
-                        bytes.Length,
-                        stopwatch.Elapsed);
 
                     ScenarioSimulatorEventSource.Log.EventSent(stopwatch.ElapsedTicks, partitionKey);
 

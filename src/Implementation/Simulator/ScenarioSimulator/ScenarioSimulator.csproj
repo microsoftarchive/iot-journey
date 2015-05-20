@@ -75,17 +75,8 @@
   <ItemGroup>
     <Compile Include="Device.cs" />
     <Compile Include="SimulatorConfiguration.cs" />
-    <Compile Include="Instrumentation\SenderInstrumentationInstaller.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Instrumentation\SenderInstrumentationInstaller.Designer.cs">
-      <DependentUpon>SenderInstrumentationInstaller.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Instrumentation\SenderInstrumentationManager.cs" />
     <Compile Include="SimulationProfile.cs" />
     <Compile Include="IEventSender.cs" />
-    <Compile Include="Instrumentation\SenderInstrumentationPublisher.cs" />
-    <Compile Include="Instrumentation\ISenderInstrumentationPublisher.cs" />
     <Compile Include="EventSender.cs" />
     <Compile Include="EventEntry.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

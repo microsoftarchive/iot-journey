@@ -8,7 +8,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Practices.EnterpriseLibrary.SemanticLogging;
 using Microsoft.Practices.IoTJourney.Logging;
-using Microsoft.Practices.IoTJourney.ScenarioSimulator.Instrumentation;
 
 namespace Microsoft.Practices.IoTJourney.ScenarioSimulator.ConsoleHost
 {
@@ -25,11 +24,7 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator.ConsoleHost
 
             var configuration = SimulatorConfiguration.GetCurrentConfiguration();
 
-            var instrumentationPublisher =
-                new SenderInstrumentationManager(instrumentationEnabled: true, installInstrumentation: true)
-                    .CreatePublisher("Console");
-
-            var deviceSimulator = new SimulationProfile("Console", 1, instrumentationPublisher, configuration);
+            var deviceSimulator = new SimulationProfile("Console", 1, configuration);
 
             var options = SimulationScenarios
                 .AllScenarios
