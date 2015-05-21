@@ -1,7 +1,7 @@
 ![Microsoft patterns & practices](http://pnp.azurewebsites.net/images/pnp-logo.png)
 # IoT Journey
 
-[![Build status](https://ci.appveyor.com/api/projects/status/7oj0ufqarqmgfqim?svg=true)](https://ci.appveyor.com/project/mspnp/iot-journey)
+[![Build status](https://ci.appveyor.com/api/projects/status/7oj0ufqarqmgfqim/branch/master?svg=true)](https://ci.appveyor.com/project/mspnp/iot-journey)
 
 [![Join the chat at https://gitter.im/mspnp/iot-journey](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/mspnp/iot-journey?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
