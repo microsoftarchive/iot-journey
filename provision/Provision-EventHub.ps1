@@ -24,7 +24,11 @@ Param(
 
     [String]$ConsumerGroupUserMetadata = $null,     
 
-    [Bool]$CreateACSNamespace = $false             
+    [Bool]$CreateACSNamespace = $false, 
+
+    [int]$RetryCountMax = 5, 
+
+    [int]$RetryDelaySeconds = 5
 
     ) 
  
@@ -81,6 +85,7 @@ Write-Verbose "Creating a NamespaceManager object for the [$Namespace] namespace
 $NamespaceManager = [Microsoft.ServiceBus.NamespaceManager]::CreateFromConnectionString($sbr.ConnectionString); 
 Write-Verbose "NamespaceManager object for the [$Namespace] namespace has been successfully created." 
 
+
 # Check if the event hub already exists 
 if ($NamespaceManager.EventHubExists($EventHubName)) 
 { 
@@ -98,8 +103,27 @@ else
     [Microsoft.ServiceBus.Messaging.AccessRights[]]$AccessRights = @("Manage", "Listen", "Send")
     $Rule = New-Object -TypeName Microsoft.ServiceBus.Messaging.SharedAccessAuthorizationRule  -ArgumentList $EventHubSharedAccessPolicyName, $RuleKey,$AccessRights
     $EventHubDescription.Authorization.Add($Rule); 
-    $NamespaceManager.CreateEventHubIfNotExists($EventHubDescription);
-    Write-Verbose "The [$EventHubName] event hub in the [$Namespace] namespace has been successfully created." 
+
+    $RetryCount = 0
+    $EventHubCreated = $false
+    while (-not $EventHubCreated) {
+        try {
+            $NamespaceManager.CreateEventHubIfNotExists($EventHubDescription);
+            Write-Verbose "The [$EventHubName] event hub in the [$Namespace] namespace has been successfully created." 
+            $EventHubCreated = $true
+        } catch {
+            if ($RetryCount -ge $RetryCountMax) {
+                Write-Verbose ("CreateEventHubIfNotExists failed the maximum number of {0} times." -f $RetryCountMax)
+                throw
+            } else {
+                Write-Verbose ("CreateEventHubIfNotExists failed. Retrying in {0} seconds." -f $RetryDelaySeconds)
+                Start-Sleep $RetryDelaySeconds
+                $RetryCount++
+            }
+
+        }
+
+    }
 } 
  
 # Create the consumer group if not exists 
