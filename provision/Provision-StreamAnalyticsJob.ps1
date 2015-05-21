@@ -40,6 +40,7 @@ Param(
     [String]$JobDefinitionPath = "StreamAnalyticsJobDefinition.json"       # optional default to C:\StreamAnalyticsJobDefinition.json
     ) 
         
+Switch-AzureMode -Name AzureServiceManagement
 
 #Add-AzureAccount
 
@@ -76,7 +77,7 @@ else
 
 # Get Storage Account Key
 $storageAccountKey = Get-AzureStorageKey -StorageAccountName $StorageAccountName
-
+$storageAccountKeyPrimary = $storageAccountKey.Primary
 
 $JobDefinitionText = (get-content $JobDefinitionPath).
                     Replace("_StreamAnalyticsJobName",$StreamAnalyticsJobName).
@@ -87,7 +88,7 @@ $JobDefinitionText = (get-content $JobDefinitionPath).
                     Replace("_EventHubSharedAccessPolicyName",$EventHubSharedAccessPolicyName).
                     Replace("_EventHubSharedAccessPolicyKey",$EventHubSharedAccessPolicyKey).
                     Replace("_AccountName",$StorageAccountName).
-                    Replace("_AccountKey",$StorageAccountKey).
+                    Replace("_AccountKey",$storageAccountKeyPrimary).
                     Replace("_Container",$StorageContainerName)
 
 
@@ -97,6 +98,8 @@ $JobDefinitionText > $TempFileName
 
 Switch-AzureMode AzureResourceManager
 New-AzureStreamAnalyticsJob -ResourceGroupName $ResourceGroupName  -File $TempFileName -Force
+Switch-AzureMode -Name AzureServiceManagement
+
 if (Test-Path $TempFileName) {
     Clear-Content $TempFileName
     Remove-Item $TempFileName

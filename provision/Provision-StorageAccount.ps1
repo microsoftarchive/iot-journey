@@ -38,6 +38,9 @@ Param
 )
 
 #Add-AzureAccount
+
+Switch-AzureMode -Name AzureServiceManagement
+
 Select-AzureSubscription -SubscriptionName $SubscriptionName
 
 $storageAccount = Get-AzureStorageAccount -StorageAccountName $Name -ErrorAction SilentlyContinue

@@ -13,7 +13,7 @@
 
         "Inputs": [
             {
-                "Name": "fabrikam-input01",
+                "Name": "input01",
                 "Properties": {
                     "Type": "Stream",
                     "DataSource": {
@@ -38,12 +38,12 @@
 
         "Outputs": [
             {
-                "Name": "fabrikam-output01",
+                "Name": "output01",
                 "Properties": {
                     "DataSource": {
                         "Type": "Microsoft.Storage/Blob",
                         "Properties": {
-                            "BlobPathPrefix": "fabrikam-",
+                            "BlobPathPrefix": "fabrikam",
                             "Container": "_Container",
                             "StorageAccounts": [
                                 {
@@ -56,7 +56,8 @@
                     "Serialization": {
                         "Type": "Json",
                         "Properties": {
-                            "Encoding": "UTF8"
+                            "Encoding": "UTF8",
+                            "Format": "LineSeparated"
                         }
                     }
                 }
@@ -64,10 +65,10 @@
         ],
 
         "Transformation": {
-            "Name": "fabrikam-transformation01",
+            "Name": "transformation01",
             "Properties": {
                 "StreamingUnits": 1,
-                "Query": "SELECT * FROM fabrikam-input01"
+                "Query": "SELECT * FROM input01"
             }
         }
     }
