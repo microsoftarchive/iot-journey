@@ -69,7 +69,7 @@ If that doesn't help join the conversation on gitter or open an issues.
 If you want to contribute directly, please review our
 [contribution guidelines](CONTRIBUTING.md).
 
-[scenario]: docs/00-introducing-the-journey.md
+[scenario]: docs/journal/00-introducing-the-journey.md
 [challenges]: docs/challenges-and-questions.md
 [backlog]: https://github.com/mspnp/iot-journey/issues
 [milestones]: https://github.com/mspnp/iot-journey/milestones
