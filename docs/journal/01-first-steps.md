@@ -10,9 +10,9 @@ They also need to get a minimum viable product deployed.
 
 For their [first milestone][milestone] they want to:
 - Ingest a representative set of simulated events.
-- Store all the events for later analytics. [*][cold-storage]
-- Store the most recent average temperature _per building_ to within 5 minutes. [*][warm-storage]
-- Increase the scale until they match the targets for there first contract [*][increase-scale]
+- Store all the events for later analytics. [:arrow_right:][cold-storage]
+- Store the most recent average temperature _per building_ to within 5 minutes. [:arrow_right:][warm-storage]
+- Increase the scale until they match the targets for there first contract [:arrow_right:][increase-scale]
 
 They need a basic implementation that maps to these components of the logical architecture:
 
