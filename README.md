@@ -1,6 +1,8 @@
 ![Microsoft patterns & practices](http://pnp.azurewebsites.net/images/pnp-logo.png)
 # IoT Journey
 
+[![Build status](https://ci.appveyor.com/api/projects/status/7oj0ufqarqmgfqim?svg=true)](https://ci.appveyor.com/project/mspnp/iot-journey)
+
 [![Join the chat at https://gitter.im/mspnp/iot-journey](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/mspnp/iot-journey?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 ## Why
@@ -61,15 +63,17 @@ accessible to a broader audience, you are encouraged to share.
 
 ## Next Step
 
-Go to the [docs](docs) folder and review the readme.
-After that we recommend reading the [scenario][] and then the
-[journal](docs/journal).
+- Go to the [docs](docs) folder and review the readme.
+- Start reading the [journal](docs/journal).
+
 
 ## Problems, Concerns, and Feedback
 If something doesn't make sense, start with the [FAQ](FAQ.md).
 If that doesn't help join the conversation on gitter or open an issues.
 If you want to contribute directly, please review our
 [contribution guidelines](CONTRIBUTING.md).
+
+[![Join the chat at https://gitter.im/mspnp/iot-journey](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/mspnp/iot-journey?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 [scenario]: docs/journal/00-introducing-the-journey.md
 [challenges]: docs/challenges-and-questions.md
