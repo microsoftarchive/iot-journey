@@ -17,5 +17,5 @@ They will discuss:
 
 The documents in this folder are specifically about defining the project as a whole. They can be read in any order.
 
-[scenario]: customer-scenario.md
+[scenario]: 00-introducing-the-journey.md
 [milestones]: https://github.com/mspnp/iot-journey/milestones
