@@ -99,9 +99,32 @@ else
     $EventHubDescription.MessageRetentionInDays = $MessageRetentionInDays 
     $EventHubDescription.UserMetadata = $UserMetadata 
     $EventHubDescription.Path = $EventHubName
-    $RuleKey = [Microsoft.ServiceBus.Messaging.SharedAccessAuthorizationRule]::GenerateRandomKey();
-    [Microsoft.ServiceBus.Messaging.AccessRights[]]$AccessRights = @("Manage", "Listen", "Send")
-    $Rule = New-Object -TypeName Microsoft.ServiceBus.Messaging.SharedAccessAuthorizationRule  -ArgumentList $EventHubSharedAccessPolicyName, $RuleKey,$AccessRights
+
+    $Rule = $null
+    $RetryCount = 0
+    $RuleCreated = $false
+    while (-not $RuleCreated) {
+        try {
+	        $RuleKey = [Microsoft.ServiceBus.Messaging.SharedAccessAuthorizationRule]::GenerateRandomKey();
+            [Microsoft.ServiceBus.Messaging.AccessRights[]]$AccessRights = @("Manage", "Listen", "Send")
+            Write-Verbose $EventHubSharedAccessPolicyName
+            Write-Verbose $RuleKey
+            # The following line throws exception occationaly for unknow reasons. so we retry it several times.
+            $Rule = New-Object -TypeName Microsoft.ServiceBus.Messaging.SharedAccessAuthorizationRule  -ArgumentList $EventHubSharedAccessPolicyName, $RuleKey,$AccessRights
+            $RuleCreated = $true
+            Write-Verbose "Rule created"
+        } catch {
+            if ($RetryCount -ge $RetryCountMax) {
+                Write-Verbose ("Generate Rule failed the maximum number of {0} times." -f $RetryCountMax)
+                throw
+            } else {
+                Write-Verbose ("Generate Rule failed. Retrying in {0} seconds." -f $RetryDelaySeconds)
+                Start-Sleep $RetryDelaySeconds
+                $RetryCount++
+            }
+        }
+    }
+
     $EventHubDescription.Authorization.Add($Rule); 
 
     $RetryCount = 0
