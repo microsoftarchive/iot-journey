@@ -101,8 +101,8 @@ else
     $EventHubDescription.Path = $EventHubName
 
 	$RuleKey = [Microsoft.ServiceBus.Messaging.SharedAccessAuthorizationRule]::GenerateRandomKey();
-    [Microsoft.ServiceBus.Messaging.AccessRights[]]$AccessRights = @("Manage", "Listen", "Send")
-    $Rule = New-Object Microsoft.ServiceBus.Messaging.SharedAccessAuthorizationRule -ArgumentList $EventHubSharedAccessPolicyName, $RuleKey, $AccessRights
+    $AccessRights = [Microsoft.ServiceBus.Messaging.AccessRights[]](@("Manage", "Listen", "Send"))
+    $Rule = New-Object Microsoft.ServiceBus.Messaging.SharedAccessAuthorizationRule($EventHubSharedAccessPolicyName, $RuleKey, $AccessRights)
     Write-Verbose "Rule created"
 
     $EventHubDescription.Authorization.Add($Rule); 
