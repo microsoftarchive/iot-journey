@@ -68,27 +68,27 @@ namespace Microsoft.Practices.IoTJourney.Logging
         }
 
         [NonEvent]
-        public void UnableToSend(Exception exception, string partitionKey, object evt)
+        public void UnableToSend(Exception exception, object evt)
         {
-            UnableToSend_inner(exception.ToString(), partitionKey, evt.ToString());
+            UnableToSend_inner(exception.ToString(), evt.ToString());
         }
 
         [Event(8, Level = EventLevel.Error)]
-        private void UnableToSend_inner(string exceptionString, string partitionKey, string objectString)
+        private void UnableToSend_inner(string exceptionString, string objectString)
         {
-            WriteEvent(8, exceptionString, partitionKey, objectString);
+            WriteEvent(8, exceptionString, objectString);
         }
 
         [NonEvent]
-        public void ServiceThrottled(Exception exception, string partitionKey)
+        public void ServiceThrottled(Exception exception)
         {
-            ServiceThrottled_Inner(exception.ToString(), partitionKey);
+            ServiceThrottled_Inner(exception.ToString());
         }
 
         [Event(9, Level = EventLevel.Error)]
-        private void ServiceThrottled_Inner(string exceptionString, string partitionKey)
+        private void ServiceThrottled_Inner(string exceptionString)
         {
-            WriteEvent(9, exceptionString, partitionKey);
+            WriteEvent(9, exceptionString);
         }
 
         [Event(10, Level = EventLevel.Informational)]
@@ -140,9 +140,9 @@ namespace Microsoft.Practices.IoTJourney.Logging
         }
 
         [Event(16, Level = EventLevel.Verbose)]
-        public void EventSent(long timeSpanTicks, string partitionKey)
+        public void EventSent(long timeSpanTicks)
         {
-            WriteEvent(16, timeSpanTicks, partitionKey);
+            WriteEvent(16, timeSpanTicks);
         }
 
         [Event(17, Level = EventLevel.Informational)]

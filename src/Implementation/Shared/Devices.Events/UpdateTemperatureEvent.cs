@@ -4,6 +4,8 @@ namespace Microsoft.Practices.IoTJourney.Devices.Events
 {
     public class UpdateTemperatureEvent
     {
+        public string DeviceId { get; set; }
+
         /// <summary>
         /// The observation timestamp (device), UTC offset, stored as ticks 
         /// </summary>

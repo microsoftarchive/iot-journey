@@ -103,7 +103,7 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
         private static async Task SimulateDeviceAsync(
             string deviceId,
             Func<EventEntry[]> produceEventsForScenario,
-            Func<string, object, Task<bool>> sendEventsAsync,
+            Func<object, Task<bool>> sendEventsAsync,
             TimeSpan waitBeforeStarting,
             IObserver<int> totalCount,
             CancellationToken token)
