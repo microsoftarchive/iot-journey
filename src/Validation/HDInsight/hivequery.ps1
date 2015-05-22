@@ -1,9 +1,9 @@
 <#
 .SYNOPSIS
-Hive query - View number of messages grouped by day.
+Hive query - View number of events grouped by device.
 
 .DESCRIPTION
-This script creates a Hive external table on cold storage blobs, executes a Hive query that will calculate the number of messages per day and display the results. You will need to provision your HDInsight cluster in the same storage account as your cold storage.
+This script creates a Hive external table on cold storage blobs, executes a Hive query that will calculate the number of events per device and display the results. You will need to provision your HDInsight cluster in the same storage account as your cold storage.
 
 .PARAMETER subscriptionName
 The name of the subscription to use.
