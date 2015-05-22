@@ -1,21 +1,3 @@
-<#
-.SYNOPSIS
-Storage Account Provisioning - Create a new storage account
-
-.DESCRIPTION
-This script creates a new Azure Storage Account in the chosen location, This storage account will be used for:
- - Stream Analytics Job Output 
- 
-.PARAMETER Name
-The name of the storage account.
-
-.PARAMETER Location
-The location of the storage account
-
-.PARAMETER ContainerName
-The Container Name of the storage account
-#>
-
 Param
 (
     [string]$SubscriptionName = "Azure Guidance",
@@ -39,7 +21,9 @@ Param
 
 #Add-AzureAccount
 
+$VerbosePreference = "SilentlyContinue" 
 Switch-AzureMode -Name AzureServiceManagement
+$VerbosePreference = "Continue" 
 
 Select-AzureSubscription -SubscriptionName $SubscriptionName
 

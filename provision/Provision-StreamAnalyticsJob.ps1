@@ -42,7 +42,9 @@ Param(
     [String]$JobDefinitionPath = "StreamAnalyticsJobDefinition.json"       # optional default to C:\StreamAnalyticsJobDefinition.json
     ) 
         
+$VerbosePreference = "SilentlyContinue" 
 Switch-AzureMode -Name AzureServiceManagement
+$VerbosePreference = "Continue" 
 
 Write-Verbose ("Resource Group Name: " + $ResourceGroupName)
 
@@ -100,7 +102,10 @@ $TempFileName = [guid]::NewGuid().ToString() + ".json"
 
 $JobDefinitionText > $TempFileName
 
+$VerbosePreference = "SilentlyContinue" 
 Switch-AzureMode AzureResourceManager
+$VerbosePreference = "Continue" 
+
 # Check if the namespace already exists or needs to be created 
 try
 { 
@@ -116,12 +121,27 @@ catch
     Write-Verbose "The [$ResourceGroupName] Resource Group in the [$Location] region has been successfully created." 
 } 
 
-New-AzureStreamAnalyticsJob -ResourceGroupName $ResourceGroupName  -File $TempFileName -Force
-Switch-AzureMode -Name AzureServiceManagement
-
-if (Test-Path $TempFileName) {
-    Clear-Content $TempFileName
-    Remove-Item $TempFileName
+try
+{
+    New-AzureStreamAnalyticsJob -ResourceGroupName $ResourceGroupName  -File $TempFileName -Force
 }
+catch [Exception]
+{
+    Write-Verbose $_.Exception.Message
+    throw
+}
+finally
+{
+    if (Test-Path $TempFileName) 
+    {
+        Write-Verbose "deleting the temp file ... "
+        Clear-Content $TempFileName
+        Remove-Item $TempFileName
+    }
+}
+
+$VerbosePreference = "SilentlyContinue" 
+Switch-AzureMode -Name AzureServiceManagement
+$VerbosePreference = "Continue" 
 
 Write-Verbose "Create Azure StreamAnalyticsJob Completed"

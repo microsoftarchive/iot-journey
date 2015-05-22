@@ -27,7 +27,7 @@ Param
 
     [String]$EventHubSharedAccessPolicyName = "ManagePolicy",
              
-    #[ValidatePattern("^[a-z0-9]*$")]                         # don't use this, powershell script is case insensitive, uppercase letter still pass as valid 
+    # dont use this: [ValidatePattern("^[a-z0-9]*$")]  # don't use this, powershell script is case insensitive, uppercase letter still pass as valid 
     [ValidateScript({
       # we need to use cmathch which is case sensitive, don't use match
       If ($_ -cmatch "^[a-z0-9]*$") {                         # needs contain only lower case letters and numbers.
@@ -43,10 +43,13 @@ Param
 
 # Make the script stop on error
 # Set the output level to verbose and make the script stop on error 
+
+$VerbosePreference = "SilentlyContinue" 
+Switch-AzureMode -Name AzureServiceManagement
 $VerbosePreference = "Continue" 
+
 $ErrorActionPreference = "Stop" 
 
-Switch-AzureMode -Name AzureServiceManagement
 
 # Check the azure module is installed
 if(-not(Get-Module -name "Azure")) 
@@ -65,10 +68,12 @@ if(-not(Get-Module -name "Azure"))
 
 Add-AzureAccount
 
+$VerbosePreference = "SilentlyContinue" 
 .\Provision-EventHub.ps1 -SubscriptionName $SubscriptionName -Location $Location -Namespace $ServiceBusNamespace -EventHubName $EventHubName -ConsumerGroupName $ConsumerGroupName -EventHubSharedAccessPolicyName $EventHubSharedAccessPolicyName 
 
 .\Provision-StorageAccount.ps1 -SubscriptionName $SubscriptionName -Location $Location -Name $StorageAccountName -ContainerName $StorageContainerName
 
 .\Provision-StreamAnalyticsJob.ps1 -SubscriptionName $SubscriptionName -Location $Location -ResourceGroupPrefix $ResourceGroupPrefix -ServiceBusNamespace $ServiceBusNamespace -EventHubName $EventHubName -ServiceBusRuleName $ServiceBusRuleName -ConsumerGroupName $ConsumerGroupName -EventHubSharedAccessPolicyName $EventHubSharedAccessPolicyName -StorageAccountName $StorageAccountName -StorageContainerName $StorageContainerName -StreamAnalyticsJobName $StreamAnalyticsJobName 
 
+$VerbosePreference = "Continue" 
 Write-Verbose "Provision-All completed"

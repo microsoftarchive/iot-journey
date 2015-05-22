@@ -34,11 +34,11 @@ Param(
  
 
 # Set the output level to verbose and make the script stop on error 
+$VerbosePreference = "SilentlyContinue" 
+Switch-AzureMode -Name AzureServiceManagement
 $VerbosePreference = "Continue" 
 $ErrorActionPreference = "Stop" 
 
-Switch-AzureMode -Name AzureServiceManagement
- 
 #Add-AzureAccount
 Select-AzureSubscription -SubscriptionName $SubscriptionName
 
