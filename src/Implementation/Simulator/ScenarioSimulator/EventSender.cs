@@ -34,36 +34,31 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
             return new Tuple<string, int>(type, 1);
         }
 
-        public async Task<bool> SendAsync(string partitionKey, object evt)
+        public async Task<bool> SendAsync(object evt)
         {
             try
             {
                 var bytes = this._serializer(evt);
 
-                using (var eventData = new EventData(bytes) { PartitionKey = partitionKey })
+                using (var eventData = new EventData(bytes))
                 {
-                    var registration = DetermineTypeFromEvent(evt);
-                    eventData.Properties[EventDataPropertyKeys.EventType] = registration.Item1;
-                    eventData.Properties[EventDataPropertyKeys.EventTypeVersion] = registration.Item2;
-                    eventData.Properties[EventDataPropertyKeys.DeviceId] = partitionKey;
-
                     var stopwatch = Stopwatch.StartNew();
 
                     await this._eventHubClient.SendAsync(eventData);
                     stopwatch.Stop();
 
-                    ScenarioSimulatorEventSource.Log.EventSent(stopwatch.ElapsedTicks, partitionKey);
+                    ScenarioSimulatorEventSource.Log.EventSent(stopwatch.ElapsedTicks);
 
                     return true;
                 }
             }
             catch (ServerBusyException e)
             {
-                ScenarioSimulatorEventSource.Log.ServiceThrottled(e, partitionKey);
+                ScenarioSimulatorEventSource.Log.ServiceThrottled(e);
             }
             catch (Exception e)
             {
-                ScenarioSimulatorEventSource.Log.UnableToSend(e, partitionKey, evt.ToString());
+                ScenarioSimulatorEventSource.Log.UnableToSend(e, evt.ToString());
             }
 
             return false;

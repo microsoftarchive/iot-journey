@@ -7,6 +7,6 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
 {
     public interface IEventSender
     {
-        Task<bool> SendAsync(string partitionKey, object evt);
+        Task<bool> SendAsync(object evt);
     }
 }
