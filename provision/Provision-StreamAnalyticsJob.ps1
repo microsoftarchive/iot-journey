@@ -6,7 +6,9 @@ Param(
 
     [String]$Location = "Central US",                 
 
-    [String]$ResourceGroupName = "StreamAnalytics-Default-Central-US",   
+    [String]$ResourceGroupPrefix = "Fabrikam",
+
+    [String]$ResourceGroupName = $ResourceGroupPrefix + "-" + $Location.Replace(" ","-"),
 
     [String]$StreamAnalyticsJobName = "fabrikamstreamjob01",   
 
@@ -41,6 +43,8 @@ Param(
     ) 
         
 Switch-AzureMode -Name AzureServiceManagement
+
+Write-Verbose ("Resource Group Name: " + $ResourceGroupName)
 
 #Add-AzureAccount
 
@@ -97,6 +101,21 @@ $TempFileName = [guid]::NewGuid().ToString() + ".json"
 $JobDefinitionText > $TempFileName
 
 Switch-AzureMode AzureResourceManager
+# Check if the namespace already exists or needs to be created 
+try
+{ 
+    $ResourceGroup = Get-AzureResourceGroup -Name $ResourceGroupName
+    Write-Verbose "The ResourceGroup [$ResourceGroupName] already exists"  
+} 
+catch
+{ 
+    Write-Verbose "The [$ResourceGroupName] ResourceGroup does not exist." 
+    Write-Verbose "Creating the [$ResourceGroupName] ResourceGroup..." 
+    New-AzureResourceGroup -Name $ResourceGroupName -Location $Location
+    $ResourceGroup = Get-AzureResourceGroup -Name $ResourceGroupName
+    Write-Verbose "The [$ResourceGroupName] Resource Group in the [$Location] region has been successfully created." 
+} 
+
 New-AzureStreamAnalyticsJob -ResourceGroupName $ResourceGroupName  -File $TempFileName -Force
 Switch-AzureMode -Name AzureServiceManagement
 
