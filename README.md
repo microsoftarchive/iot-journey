@@ -7,7 +7,7 @@
 
 ## Why
 
-There is no one-size-fits-all answer when it comes to building an IoT solution.
+There is no one-size-fits-all answer when it comes to building an [IoT solution][intro-to-iot].
 Our approach to guidance is to embark on a collaborative journey into
 understanding the mechanics and challenges surrounding an end-to-end system.
 Our purpose is _not_ to tell you all the answers that you'll need, but rather
@@ -75,6 +75,7 @@ If you want to contribute directly, please review our
 
 [![Join the chat at https://gitter.im/mspnp/iot-journey](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/mspnp/iot-journey?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
+[intro-to-iot]: docs/articles/what-is-an-IoT-solution.md
 [scenario]: docs/journal/00-introducing-the-journey.md
 [challenges]: docs/challenges-and-questions.md
 [backlog]: https://github.com/mspnp/iot-journey/issues

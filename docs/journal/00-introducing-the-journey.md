@@ -2,6 +2,8 @@
 
 We want to tell a story about a fictitious company trying to build an IoT solution.
 
+> To find out what we mean by "IoT solution", see [_What is an IoT solution?_][intro-to-iot].
+
 In order to tell the story, we'll first establish a scenario meant to reflect common business requirements.
 The scenario for our fictitious company is the prologue to the story. 
 The scenario is not designed to be _realistic_, but rather _representative_ of actual challenges.
@@ -75,6 +77,6 @@ It will receive this state from Event Processing. It is "warm" because the data 
 - _Dashboard_ is a user interface for exploring the recent aggregate state.
 - _Batch Analytics_ is anticipating the Hive queries that the customer will want to run from time to time.
 
-
+[intro-to-iot]: ../articles/what-is-an-IoT-solution.md
 [backlog]: https://github.com/mspnp/iot-journey/issues
 [milestones]: https://github.com/mspnp/iot-journey/milestones
