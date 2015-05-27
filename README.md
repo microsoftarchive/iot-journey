@@ -1,3 +1,4 @@
+[![Stories in Ready](https://badge.waffle.io/mspnp/iot-journey.png?label=ready&title=Ready)](https://waffle.io/mspnp/iot-journey)
 ![Microsoft patterns & practices](http://pnp.azurewebsites.net/images/pnp-logo.png)
 # IoT Journey
 
