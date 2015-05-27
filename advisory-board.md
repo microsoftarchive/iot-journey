@@ -44,6 +44,8 @@ or the _need to be successful in the near future_ are good qualities to bring to
 
 ## I’d like to be an advisor on this project, what do I do?
 
+If you have not done so, please review the [readme file](README.md) for this project first.
+
 Send an email to <a href="mailto:mspnp@microsoft.com?subject=IoT Journey">mspnp@microsoft.com</a>:
 
 Please include:
