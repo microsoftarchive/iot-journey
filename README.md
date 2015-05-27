@@ -75,6 +75,13 @@ If you want to contribute directly, please review our
 
 [![Join the chat at https://gitter.im/mspnp/iot-journey](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/mspnp/iot-journey?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
+| Current Backlog Status 
+| :------
+| [![Ready](https://badge.waffle.io/mspnp/iot-journey.svg?label=ready&title=Ready)](https://waffle.io/mspnp/iot-journey)
+| [![In Progress](https://badge.waffle.io/mspnp/iot-journey.svg?label=in progress&title=In Progress)](https://waffle.io/mspnp/iot-journey)
+| [![Awaiting Review](https://badge.waffle.io/mspnp/iot-journey.svg?label=awaiting-review&title=Awaiting Review)](https://waffle.io/mspnp/iot-journey)
+
+
 [intro-to-iot]: docs/articles/what-is-an-IoT-solution.md
 [scenario]: docs/journal/00-introducing-the-journey.md
 [challenges]: docs/challenges-and-questions.md
