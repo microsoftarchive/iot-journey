@@ -19,7 +19,7 @@ namespace Microsoft.Practices.IoTJourney.ColdStorage
 {
     public class ColdStorageProcessor : IEventProcessor
     {
-        public const string EventDelimiter = "\r\n";
+        public static readonly string EventDelimiter = Environment.NewLine;
         private const string ProcessorName = "writer";
 
         private const int MaxBlocks = 5;
@@ -106,7 +106,7 @@ namespace Microsoft.Practices.IoTJourney.ColdStorage
                     await FlushAndCheckPointAsync(context).ConfigureAwait(false);
                 }
             }
-            // If we just lost the lease, flush our data (the responsibility of writing this
+            // If we just lost the lease, clear our data (the responsibility of writing this
             // partition's data has been assigned to another instance)
             else if (reason == CloseReason.LeaseLost)
             {
@@ -116,13 +116,7 @@ namespace Microsoft.Practices.IoTJourney.ColdStorage
             }
         }
 
-        public Task ProcessEventsAsync(PartitionContext context, IEnumerable<EventData> events)
-        {
-            return ProcessEventsAsync(context, events, CancellationToken.None);
-        }
-
-        public async Task ProcessEventsAsync(PartitionContext context,
-            IEnumerable<EventData> events, CancellationToken cancellationToken)
+        public async Task ProcessEventsAsync(PartitionContext context, IEnumerable<EventData> events)
         {
             // Workaround for event hub sending null on timeout
             events = events ?? Enumerable.Empty<EventData>();
@@ -150,7 +144,7 @@ namespace Microsoft.Practices.IoTJourney.ColdStorage
 
             // Check the circuit breaker to see if we need to stall processing (in case of
             // sustained storage issues)
-            await CheckBreak(context, cancellationToken).ConfigureAwait(false);
+            await CheckBreak(context).ConfigureAwait(false);
 
             int processedEvents = 0;
 
@@ -189,8 +183,6 @@ namespace Microsoft.Practices.IoTJourney.ColdStorage
 
         }
 
-        // [TODO] - we want to call out the "change" points very clearly (where a customer would extend)
-        // In this sample we are assuming that certain properties are in the EventData.
         // You should provide your own implementation of this method if you need 
         // to customize the serialization.
         private static byte[] GetBytesInEvent(EventData eData)
@@ -266,8 +258,7 @@ namespace Microsoft.Practices.IoTJourney.ColdStorage
             return frame != null ? frame.LastEventDataInFrame : null;
         }
 
-        private async Task CheckBreak(PartitionContext partitionContext,
-            CancellationToken cancellationToken)
+        private async Task CheckBreak(PartitionContext partitionContext)
         {
             string partitionId = partitionContext.Lease.PartitionId;
 
@@ -299,28 +290,25 @@ namespace Microsoft.Practices.IoTJourney.ColdStorage
             ColdStorageEventSource.Log.CircuitBreakerTripped(ProcessorName, partitionId, _tripLevel, currentLevel);
             var nextErrorLogTime = DateTime.UtcNow.Add(_logCooldownInterval);
 
-            while (!cancellationToken.IsCancellationRequested)
+            
+            await Task.Delay(_stallInterval);
+
+            await FlushAndCheckPointAsync(partitionContext);
+
+            currentLevel = _eventHubBufferDataList.Count;
+
+            if (currentLevel < _warningLevel)
             {
-                //Logger.CircuitBreakerStalling(_processorName, partitionId, _tripLevel, currentLevel, _stallInterval);
-                await Task.Delay(_stallInterval, cancellationToken);
+                ColdStorageEventSource.Log.CircuitBreakerRestored(ProcessorName, partitionId, _warningLevel, currentLevel);
+                _nextWarningLogTime = null;
+                return;
+            }
 
-                await FlushAndCheckPointAsync(partitionContext);
-
-                currentLevel = _eventHubBufferDataList.Count;
-
-                if (currentLevel < _warningLevel)
-                {
-                    ColdStorageEventSource.Log.CircuitBreakerRestored(ProcessorName, partitionId, _warningLevel, currentLevel);
-                    _nextWarningLogTime = null;
-                    return;
-                }
-
-                var now = DateTime.UtcNow;
-                if (nextErrorLogTime <= now)
-                {
-                    ColdStorageEventSource.Log.CircuitBreakerTripped(ProcessorName, partitionId, _tripLevel, currentLevel);
-                    nextErrorLogTime = now.Add(_logCooldownInterval);
-                }
+            var now = DateTime.UtcNow;
+            if (nextErrorLogTime <= now)
+            {
+                ColdStorageEventSource.Log.CircuitBreakerTripped(ProcessorName, partitionId, _tripLevel, currentLevel);
+                nextErrorLogTime = now.Add(_logCooldownInterval);
             }
         }
     }
