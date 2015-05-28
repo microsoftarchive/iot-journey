@@ -1,5 +1,4 @@
-﻿
-[CmdletBinding(PositionalBinding=$True)] 
+﻿[CmdletBinding(PositionalBinding=$True)] 
 Param( 
 	#[Parameter (Mandatory = $true)]
 	[string]$SubscriptionName = "Azure Guidance",
@@ -40,7 +39,7 @@ Param(
 
     [ValidatePattern("^[A-Za-z0-9]$|^[A-Za-z0-9][\w-\.\/]*[A-Za-z0-9]$")] 
     [String]$JobDefinitionPath = "StreamAnalyticsJobDefinition.json"       # optional default to C:\StreamAnalyticsJobDefinition.json
-    ) 
+) 
         
 $VerbosePreference = "SilentlyContinue" 
 Switch-AzureMode -Name AzureServiceManagement
