@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.Tracing;
+using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Practices.EnterpriseLibrary.SemanticLogging;
@@ -62,19 +63,21 @@ namespace Microsoft.Practices.IoTJourney.ColdStorage.ConsoleHost
         {
             var configuration = Configuration.GetCurrentConfiguration();
             ColdStorageCoordinator processor = null;
-            
-            processor =
-                await ColdStorageCoordinator.CreateAsync("Console", configuration);
-
-            Console.WriteLine("Running processor");
 
             try
             {
+                processor = await ColdStorageCoordinator.CreateAsync("Console", configuration);
+
+                Console.WriteLine("Running processor");
+                
                 await Task.Delay(Timeout.InfiniteTimeSpan, token);
             }
-            catch (TaskCanceledException) { /* expected cancellation */ }
+            catch (Exception){}
 
-            processor.Dispose();
+            if (processor != null)
+            {
+                await processor.TearDownAsync();
+            }
         }
     }
 }
