@@ -1,45 +1,64 @@
 [CmdletBinding()]
 Param
 (
-	[Parameter(Mandatory=$True)][string]$SubscriptionName,
-    
+	[Parameter (Mandatory = $true)]
+    [ValidatePattern("^[A-Za-z][-A-Za-z0-9]*[A-Za-z0-9]$")]               # needs to start with letter or number, and contain only letters, numbers, and hyphens.
+    [String]$ServiceBusNamespace ="fabrikam-ns01",                                   
+
+    # dont use this: [ValidatePattern("^[a-z0-9]*$")]  # don't use this, powershell script is case insensitive, uppercase letter still pass as valid 
     [ValidateScript({
-      # we need to use cmatch which is case sensitive, don't use match
-      If ($_ -cmatch "^[a-z0-9]*$") {                         # need contain only lower case letters and numbers.
+      # we need to use cmathch which is case sensitive, don't use match
+      If ($_ -cmatch "^[a-z0-9]*$") {                         # needs contain only lower case letters and numbers.
         $True
       }else {
         Throw "`n---Storage account name can only contain lowercase letters and numbers!---"
       }
     })]
-    [Parameter(Mandatory=$True)][String]$StorageAccountName,
-    
-    [ValidatePattern("^[A-Za-z][-A-Za-z0-9]*[A-Za-z0-9]$")] #needs to start with letter or number, and contain only letters, numbers, and hyphens.
-    [Parameter(Mandatory=$true)][String]$ServiceBusNamespace,
-                               
-    [Parameter(Mandatory=$False)][String]$StreamAnalyticsJobName = "fabrikamstreamjob01",             
-    
-    [Parameter(Mandatory=$False)][String]$ResourceGroupPrefix = "Fabrikam",
-    
-    [ValidatePattern("^[A-Za-z0-9]$|^[A-Za-z0-9][\w-\.\/]*[A-Za-z0-9]$")] # needs to start with letter or number, and contain only letters, numbers, periods, hyphens, and underscores.   
-    [Parameter(Mandatory=$False)][String]$EventHubName = "eventhub01",                   
+	[Parameter (Mandatory = $true)]
+    [String]$StorageAccountName = "fabrikamstorage01",    
 
-    [Parameter(Mandatory=$False)][String]$ServiceBusRuleName = "ManagePolicy",      
-    
-    [Parameter(Mandatory=$False)][String]$ConsumerGroupName= "consumergroup01", 
-    
-    [Parameter(Mandatory=$False)][String]$EventHubSharedAccessPolicyName = "ManagePolicy",
-    
-    [ValidatePattern("^[A-Za-z][-A-Za-z0-9]*[A-Za-z0-9]$")] #needs to start with letter or number, and contain only letters, numbers, and hyphens.
-    [Parameter(Mandatory=$False)][String]$StorageContainerName = "container01",
+	[Parameter (Mandatory = $true)]
+    [String]$StreamAnalyticsJobName = "fabrikamstreamjob01",
 
-    [Parameter(Mandatory=$False)][string]$HDInsightStorageContainerName = "iot-hdicontainer01",
+	[Parameter (Mandatory = $true)]
+	[string]$SubscriptionName = "Azure Guidance",
+
+	[Parameter (Mandatory = $true)]
+    [string]$DBName = "fabrikamdb01",
+
+	[Parameter (Mandatory = $true)]
+    [string]$DBPassword = "MyPassword",
+
+	[Parameter (Mandatory = $true)]
+    [string]$DBServer = "fabrikamdbserver01",
+
+	[Parameter (Mandatory = $true)]
+    [string]$DBUser="fabrikamuser01",
+
+    [String]$Location = "Central US",               
+
+    [String]$ResourceGroupPrefix = "fabrikam",
+    
+    [ValidatePattern("^[A-Za-z0-9]$|^[A-Za-z0-9][\w-\.\/]*[A-Za-z0-9]$")] # needs to start with letter or number, and contain only letters, numbers, periods, hyphens, and underscores.
+    [String]$EventHubName = "eventhub01",                   
+    
+    [String]$ServiceBusRuleName = "ManagePolicy",      
+
+    [String]$ConsumerGroupName= "consumergroup01", 
+
+    [String]$EventHubSharedAccessPolicyName = "ManagePolicy",
+                   
+    [String]$StorageContainerName = "container01",
+
+    [Parameter(Mandatory=$False)]
+    [string]$HDInsightStorageContainerName = "iot-hdicontainer01",
     
     [ValidatePattern("^[A-Za-z][-A-Za-z0-9]*[A-Za-z0-9]$")] #needs to start with letter or number, and contain only letters, numbers, and hyphens.
-    [Parameter(Mandatory=$true)][String]$HDInsightClusterName,
+    [Parameter(Mandatory=$true)]
+    [String]$HDInsightClusterName,
     
-    [Parameter(Mandatory=$False)][int]$HDInsightClusterNodes = 2,
-    
-    [Parameter(Mandatory=$False)][String]$Location = "Central US"
+    [Parameter(Mandatory=$False)]
+    [int]$HDInsightClusterNodes = 2
 )
 
 # Make the script stop on error
