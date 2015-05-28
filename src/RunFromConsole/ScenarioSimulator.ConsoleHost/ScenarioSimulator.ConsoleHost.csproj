@@ -70,6 +70,7 @@
       <Link>mysettings.config</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="App.config" />
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
