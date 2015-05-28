@@ -55,7 +55,7 @@ namespace Microsoft.Practices.IoTJourney.ColdStorage
                 ContainerName =
                     ConfigurationHelper.GetConfigValue<string>("Coldstorage.ContainerName", "coldstorage"),
                 BlobPrefix =
-                    ConfigurationHelper.GetConfigValue<string>("Coldstorage.BlobPrefix", "pnp-datapipeline"),
+                    ConfigurationHelper.GetConfigValue<string>("Coldstorage.BlobPrefix", "pnp-iotjourney"),
 
                 CircuitBreakerWarningLevel =
                     ConfigurationHelper.GetConfigValue<int>("Coldstorage.circuitbreaker.WarningLevel", 200),
