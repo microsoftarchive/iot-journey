@@ -114,6 +114,11 @@ namespace Microsoft.Practices.IoTJourney.ColdStorage
 
                 ClearBufferDataList();
             }
+
+            foreach (var bufferedFrameData in _eventHubBufferDataList)
+            {
+                bufferedFrameData.Dispose();
+            }
         }
 
         public async Task ProcessEventsAsync(PartitionContext context, IEnumerable<EventData> events)
