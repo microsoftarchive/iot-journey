@@ -12,7 +12,7 @@ namespace Microsoft.Practices.IoTJourney.ColdStorage.RollingBlobWriter
 
         private readonly string _partitionName;
 
-        public PartitionAndDateNamingStrategy(string partitionName, String instanceName = "pnp-datapipeline")
+        public PartitionAndDateNamingStrategy(string partitionName, String instanceName = "pnp-iotjourney")
         {
             Guard.ArgumentNotNullOrEmpty(partitionName, "partitionName");
             Guard.ArgumentNotNullOrEmpty(instanceName, "instanceName");
