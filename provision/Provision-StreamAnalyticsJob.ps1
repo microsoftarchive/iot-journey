@@ -1,12 +1,16 @@
 ﻿[CmdletBinding()] 
 Param( 
-	[Parameter(Mandatory=$True)][string]$SubscriptionName,
-    
+    [string]$DBName = "fabrikamdb01",
+    [string]$DBPassword = "MyPassword",
+    [string]$DBServer = "fabrikamdbserver01",
+    [string]$DBUser="fabrikamuser01",
+	#[Parameter (Mandatory = $true)]
+	[string]$SubscriptionName = "Azure Guidance",
+
+    [String]$ResourceGroupPrefix = "Fabrikam",
 
     [Parameter(Mandatory=$True)][String]$StorageAccountName,
      
-    [Parameter(Mandatory=$False)][String]$ResourceGroupPrefix = "Fabrikam",
-    
     [Parameter(Mandatory=$False)][String]$StreamAnalyticsJobName = "fabrikamstreamjob03",   
     
     [ValidatePattern("^[A-Za-z][-A-Za-z0-9]*[A-Za-z0-9]$")] #needs to start with letter or number, and contain only letters, numbers, and hyphens.
@@ -83,8 +87,11 @@ $JobDefinitionText = (get-content $JobDefinitionPath).
                     Replace("_EventHubSharedAccessPolicyKey",$EventHubSharedAccessPolicyKey).
                     Replace("_AccountName",$StorageAccountName).
                     Replace("_AccountKey",$storageAccountKeyPrimary).
-                    Replace("_Container",$StorageContainerName)
-
+                    Replace("_Container",$StorageContainerName).
+                    Replace("_DBName",$DBName).
+                    Replace("_DBPassword",$DBPassword).
+                    Replace("_DBServer",$DBServer).
+                    Replace("_DBUser",$DBUser)
 
 $TempFileName = [guid]::NewGuid().ToString() + ".json"
 
