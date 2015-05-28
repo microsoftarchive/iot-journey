@@ -14,7 +14,7 @@ using Microsoft.WindowsAzure.Storage;
 
 namespace Microsoft.Practices.IoTJourney.ColdStorage
 {
-    public class ColdStorageCoordinator : IDisposable
+    public class ColdStorageCoordinator
     {
         private EventProcessorHost _host;
 
@@ -85,11 +85,11 @@ namespace Microsoft.Practices.IoTJourney.ColdStorage
             return new ColdStorageCoordinator(host);
         }
 
-        public void Dispose()
+        public async Task TearDownAsync()
         {
             if (_host != null)
             {
-                _host.UnregisterEventProcessorAsync().Wait();
+                await _host.UnregisterEventProcessorAsync();
                 _host = null;
             }
         }
