@@ -295,25 +295,27 @@ namespace Microsoft.Practices.IoTJourney.ColdStorage
             ColdStorageEventSource.Log.CircuitBreakerTripped(ProcessorName, partitionId, _tripLevel, currentLevel);
             var nextErrorLogTime = DateTime.UtcNow.Add(_logCooldownInterval);
 
-            
-            await Task.Delay(_stallInterval);
-
-            await FlushAndCheckPointAsync(partitionContext);
-
-            currentLevel = _eventHubBufferDataList.Count;
-
-            if (currentLevel < _warningLevel)
+            while (true)
             {
-                ColdStorageEventSource.Log.CircuitBreakerRestored(ProcessorName, partitionId, _warningLevel, currentLevel);
-                _nextWarningLogTime = null;
-                return;
-            }
+                await Task.Delay(_stallInterval);
 
-            var now = DateTime.UtcNow;
-            if (nextErrorLogTime <= now)
-            {
-                ColdStorageEventSource.Log.CircuitBreakerTripped(ProcessorName, partitionId, _tripLevel, currentLevel);
-                nextErrorLogTime = now.Add(_logCooldownInterval);
+                await FlushAndCheckPointAsync(partitionContext);
+
+                currentLevel = _eventHubBufferDataList.Count;
+
+                if (currentLevel < _warningLevel)
+                {
+                    ColdStorageEventSource.Log.CircuitBreakerRestored(ProcessorName, partitionId, _warningLevel, currentLevel);
+                    _nextWarningLogTime = null;
+                    return;
+                }
+
+                var now = DateTime.UtcNow;
+                if (nextErrorLogTime <= now)
+                {
+                    ColdStorageEventSource.Log.CircuitBreakerTripped(ProcessorName, partitionId, _tripLevel, currentLevel);
+                    nextErrorLogTime = now.Add(_logCooldownInterval);
+                }
             }
         }
     }
