@@ -1,4 +1,3 @@
-
 [CmdletBinding(PositionalBinding=$True)] 
 Param( 
     [string]$SubscriptionName = "Azure Guidance",
@@ -29,9 +28,7 @@ Param(
     [int]$RetryCountMax = 5, 
 
     [int]$RetryDelaySeconds = 5
-
-    ) 
- 
+)
 
 # Set the output level to verbose and make the script stop on error 
 $VerbosePreference = "SilentlyContinue" 

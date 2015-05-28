@@ -1,4 +1,3 @@
-
 Param
 (
 	[Parameter (Mandatory = $true)]
@@ -6,6 +5,15 @@ Param
     [String]$ServiceBusNamespace ="fabrikam-ns01",                                   
 
 	[Parameter (Mandatory = $true)]
+    # dont use this: [ValidatePattern("^[a-z0-9]*$")]  # don't use this, powershell script is case insensitive, uppercase letter still pass as valid 
+    [ValidateScript({
+      # we need to use cmathch which is case sensitive, don't use match
+      If ($_ -cmatch "^[a-z0-9]*$") {                         # needs contain only lower case letters and numbers.
+        $True
+      }else {
+        Throw "`n---Storage account name can only contain lowercase letters and numbers!---"
+      }
+    })]
     [String]$StorageAccountName = "fabrikamstorage01",    
 
 	[Parameter (Mandatory = $true)]
@@ -27,7 +35,6 @@ Param
 
     [String]$EventHubSharedAccessPolicyName = "ManagePolicy",
              
-    # dont use this: [ValidatePattern("^[a-z0-9]*$")]  # don't use this, powershell script is case insensitive, uppercase letter still pass as valid 
     [ValidateScript({
       # we need to use cmathch which is case sensitive, don't use match
       If ($_ -cmatch "^[a-z0-9]*$") {                         # needs contain only lower case letters and numbers.
@@ -36,9 +43,15 @@ Param
         Throw "`n---Storage account name can only contain lowercase letters and numbers!---"
       }
     })]
-       
-    [String]$StorageContainerName = "container01"
+    [String]$StorageContainerName = "container01",
 
+    #Storage containter should not be shared in HDInsight, even between clusters. 
+    #see: https://azure.microsoft.com/en-us/documentation/articles/hdinsight-provision-clusters/
+    [Parameter(Mandatory=$False)][string]$HDInsightStorageContainerName = "iot-hdicontainer01",
+
+    [Parameter(Mandatory=$False)][string]$HDInsightClusterName = "iot-hdicluster01",
+
+    [Parameter(Mandatory=$False)][string]$HDInsightClusterNodes = 2
 )
 
 # Make the script stop on error
@@ -73,7 +86,9 @@ $VerbosePreference = "SilentlyContinue"
 
 .\Provision-StorageAccount.ps1 -SubscriptionName $SubscriptionName -Location $Location -Name $StorageAccountName -ContainerName $StorageContainerName
 
-.\Provision-StreamAnalyticsJob.ps1 -SubscriptionName $SubscriptionName -Location $Location -ResourceGroupPrefix $ResourceGroupPrefix -ServiceBusNamespace $ServiceBusNamespace -EventHubName $EventHubName -ServiceBusRuleName $ServiceBusRuleName -ConsumerGroupName $ConsumerGroupName -EventHubSharedAccessPolicyName $EventHubSharedAccessPolicyName -StorageAccountName $StorageAccountName -StorageContainerName $StorageContainerName -StreamAnalyticsJobName $StreamAnalyticsJobName 
+.\Provision-StreamAnalyticsJob.ps1 -SubscriptionName $SubscriptionName -Location $Location -ResourceGroupPrefix $ResourceGroupPrefix -ServiceBusNamespace $ServiceBusNamespace -EventHubName $EventHubName -ServiceBusRuleName $ServiceBusRuleName -ConsumerGroupName $ConsumerGroupName -EventHubSharedAccessPolicyName $EventHubSharedAccessPolicyName -StorageAccountName $StorageAccountName -StorageContainerName $StorageContainerName -StreamAnalyticsJobName $StreamAnalyticsJobName
+
+.\Provision-HDInsight.ps1 -SubscriptionName $SubscriptionName -StorageAccountName $StorageAccountName -StorageContainerName $HDInsightStorageContainerName -ClusterName $HDInsightClusterName -CluserNodes $HDInsightClusterNodes -Location $Location
 
 $VerbosePreference = "Continue" 
 Write-Verbose "Provision-All completed"

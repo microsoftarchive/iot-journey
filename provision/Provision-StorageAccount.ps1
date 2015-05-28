@@ -13,7 +13,6 @@ Param
         Throw "`n---Storage account name can only contain lowercase letters and numbers!---"
       }
     })]
-
     [string]$Name = "fabrikamstorage01",            
 
     [string]$ContainerName = "container01"  
