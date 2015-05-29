@@ -2,19 +2,12 @@
 Param( 
 	[Parameter(Mandatory=$True)][string]$SubscriptionName,
     
-    [ValidateScript({
-      # we need to use cmathch which is case sensitive, don't use match
-      If ($_ -cmatch "^[a-z0-9]*$") {                         # needs contain only lower case letters and numbers.
-        $True
-      }else {
-        Throw "`n---Storage account name can only contain lowercase letters and numbers!---"
-      }
-    })]
+
     [Parameter(Mandatory=$True)][String]$StorageAccountName,
      
     [Parameter(Mandatory=$False)][String]$ResourceGroupPrefix = "Fabrikam",
-    [Parameter(Mandatory=$False)][String]$ResourceGroupName = $ResourceGroupPrefix + "-" + $Location.Replace(" ","-"),
-    [Parameter(Mandatory=$False)][String]$StreamAnalyticsJobName = "fabrikamstreamjob01",   
+    
+    [Parameter(Mandatory=$False)][String]$StreamAnalyticsJobName = "fabrikamstreamjob03",   
     
     [ValidatePattern("^[A-Za-z][-A-Za-z0-9]*[A-Za-z0-9]$")] #needs to start with letter or number, and contain only letters, numbers, and hyphens.
     [Parameter(Mandatory=$False)][String]$ServiceBusNamespace="fabrikam-ns01", 
@@ -22,12 +15,19 @@ Param(
     [ValidatePattern("^[A-Za-z0-9]$|^[A-Za-z0-9][\w-\.\/]*[A-Za-z0-9]$")] # needs to start with letter or number, and contain only letters, numbers, periods, hyphens, and underscores.                                   
     [Parameter(Mandatory=$False)][String]$EventHubName = "eventhub01",
                          
-    [Parameter(Mandatory=$False)][String]$ServiceBusRuleName = "ManagePolicy",                   
-    [Parameter(Mandatory=$False)][String]$ConsumerGroupName= "consumergroup01", 
-    [Parameter(Mandatory=$False)][String]$EventHubSharedAccessPolicyName = "ManagePolicy",       
-    [Parameter(Mandatory=$False)][String]$StorageContainerName = "container01",   
+    [Parameter(Mandatory=$False)][String]$ServiceBusRuleName = "ManagePolicy",
+                   
+    [Parameter(Mandatory=$False)][String]$ConsumerGroupName= "consumergroup01",
+ 
+    [Parameter(Mandatory=$False)][String]$EventHubSharedAccessPolicyName = "ManagePolicy",
+       
+    [Parameter(Mandatory=$False)][String]$StorageContainerName = "container01",
+   
     [Parameter(Mandatory=$False)][String]$JobDefinitionPath = "StreamAnalyticsJobDefinition.json",# optional default to C:\StreamAnalyticsJobDefinition.json
-    [Parameter(Mandatory=$False)][String]$Location = "Central US"
+    
+    [Parameter(Mandatory=$False)][String]$Location = "Central US",
+    
+    [Parameter(Mandatory=$False)][String]$ResourceGroupName = $ResourceGroupPrefix + "-" + $Location.Replace(" ","-")
 )
         
 $VerbosePreference = "SilentlyContinue" 
