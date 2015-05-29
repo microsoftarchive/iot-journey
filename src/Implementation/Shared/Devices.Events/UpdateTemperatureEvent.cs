@@ -14,6 +14,6 @@ namespace Microsoft.Practices.IoTJourney.Devices.Events
         /// <summary>
         /// Temperature reading in degrees Centigrade
         /// </summary>
-        public float Tempurature { get; set; }
+        public float Temperature { get; set; }
     }
 }
