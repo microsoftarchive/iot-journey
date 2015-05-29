@@ -237,7 +237,7 @@ namespace Microsoft.Practices.IoTJourney.ColdStorage.RollingBlobWriter
             if (lastBlob != null)
             {
                 string blobName = lastBlob.Name;
-                string[] nameParts = blobName.Split('/');
+                string[] nameParts = blobName.Split('-');
                 string sequenceIdPart = nameParts.Last();
                 var sequenceId = Int32.Parse(sequenceIdPart, CultureInfo.InvariantCulture);
                 return await SetupBlockCurrentBlobAsync(blobNamePrefix, sequenceId, cancellationToken);
