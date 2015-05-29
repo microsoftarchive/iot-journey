@@ -21,7 +21,7 @@ The name of an HDInsight cluster to use. You must provision the cluster before y
 The name of the directory inside the container. The directory you specify must have blobs in it.
 
 .EXAMPLE
-C:\PS> .\hivequery.ps1 -subscriptionName "{subscription-name}" -storageAccountName "{storage-account-name}" -containerName "{container-name}" -clusterName "{hdinsight-cluster-name}" -directoryName "{blobs-directory-name}"
+C:\PS> .\hivequeryforcoldstorageeventprocessor.ps1 -subscriptionName "{subscription-name}" -storageAccountName "{storage-account-name}" -containerName "{container-name}" -clusterName "{hdinsight-cluster-name}" -directoryName "{blobs-directory-name}"
 #>
 
 Param
@@ -43,15 +43,16 @@ Param
 
 Add-AzureAccount
 
-$tableName = "iotjourneyhivetable";
+$tableName = "iotjourneyhivetable2";
 $location = "wasb://$containerName@$storageAccountName.blob.core.windows.net/$directoryName";
 
 Select-AzureSubscription -SubscriptionName $subscriptionName;
 Use-AzureHdInsightCluster $clusterName;
 
 $query = "DROP TABLE $tableName; CREATE EXTERNAL TABLE IF NOT EXISTS $tableName (json string) LOCATION '" + $location  + "';
- SELECT get_json_object($tableName.json, '$.DeviceId'), count(*) 
- FROM $tableName GROUP BY get_json_object($tableName.json, '$.DeviceId')";
+ SELECT get_json_object(get_json_object($tableName.json, '$.Payload'), '$.DeviceId'), count(*) 
+ FROM $tableName 
+ GROUP BY get_json_object(get_json_object($tableName.json, '$.Payload'), '$.DeviceId');
 
 $result = Invoke-Hive -Query $query;
 

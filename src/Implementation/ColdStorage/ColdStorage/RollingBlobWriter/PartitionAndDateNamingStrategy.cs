@@ -29,7 +29,7 @@ namespace Microsoft.Practices.IoTJourney.ColdStorage.RollingBlobWriter
             var day = dateTime.Day;
             return String.Format(
                 CultureInfo.InvariantCulture,
-                "{0}/{1}/{2:D4}/{3:D2}/{4:D2}/",
+                "{0}/{1}-{2:D4}-{3:D2}-{4:D2}-",
                 _instanceName,
                 _partitionName,
                 year,

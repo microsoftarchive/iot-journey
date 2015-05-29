@@ -15,7 +15,7 @@ namespace Microsoft.Practices.IoTJourney.ColdStorage.Tests
 {
     public class GivenARollingBlobWriterOnExistingBlob : IDisposable
     {
-        private const string Prefix = "prefix/";
+        private const string Prefix = "prefix/partition-";
         private const int BlocksAllowed = 6;
         private const int BlockSize = 1024 * 1024;
 
