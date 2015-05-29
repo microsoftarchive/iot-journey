@@ -38,7 +38,52 @@ Now they now have a few months to roll out a system to production.
 
 ## The People
 
-> TODO: Introduce the key characters/personas in the story and establish their perspectives. 
+A well-balanced team for building an IoT solution will be composed of several roles. 
+The roles that are most important for your solution may be different from the ones discussed here.
+The people working at Fabrikam each bring their own unique perspective.
+
+- **Beth** is the _business manager_ for Fabrikam.
+	She understands Fabrikam's target market, the resources available to the company, 
+	and the goals that they need to meet. She has a strategic view and an interest in 
+	the day-to-day operations of the company. She is deeply concerned about customer 
+	experience.
+	
+	> ![Beth](media/PersonaBeth.png) 
+	"We need to take risks to be successful; but they need to be the right risks. 
+	I want to make sure that our team can respond quickly to customer needs without 
+	sacrificing future flexibility."
+
+- **Markus** is the software developer responsible for the _devices_.
+	He is analytical, detail-oriented, and methodical. 
+	He has a lot of experience with embedded systems.
+	He is concerned about unnessary abstractions and inefficiencies in the code.
+	
+	> ![Markus](media/PersonaMarkus.png) 
+	"Whatever we devices we deploy are likely to be in the field for years. I want to get 
+	this right the first time."
+
+- **Jana** is the software developer responsible for the _cloud-hosted services_.
+	She has a background with high-scale consumer-facing systems. She favors composable
+	designs and that be evolved over time. She is constantly looking for ways to improve
+	the development process.
+
+	> ![Jana](media/PersonaJana.png) 
+	"We need to get this out to the customer so that we can get feedback."
+
+- **Poe** is an IT professional who's an expert in deploying and running applications in the cloud.
+	He believes that it's importatnt to work closely with the development team. 
+	He's also concerned with ensuring that Fabrikam's system meets it's published service-level agreements (SLA).
+	
+	> ![Poe](media/PersonaPoe.png) 
+	"Availability and reliability are critical to our customers. We can't afford to have downtime for upgrades."
+
+- **Carlos** is a data scientist. 
+	He's interested discovering new insights that Fabrikam can leverage for its customers. 
+	He wants to bring the latest thinking about data science and machine learning to the company.
+	
+	> ![Carlos](media/PersonaCarlos.png) 
+	"I'm excited about this company. 
+	The sooner that we can get real data, the sooner we can bring real insights."
 
 ## The Initial Release
 
