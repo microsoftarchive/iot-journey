@@ -1,29 +1,7 @@
-﻿[CmdletBinding(PositionalBinding=$True)] 
+﻿[CmdletBinding()] 
 Param( 
-	#[Parameter (Mandatory = $true)]
-	[string]$SubscriptionName = "Azure Guidance",
-
-    [String]$Location = "Central US",                 
-
-    [String]$ResourceGroupPrefix = "Fabrikam",
-
-    [String]$ResourceGroupName = $ResourceGroupPrefix + "-" + $Location.Replace(" ","-"),
-
-    [String]$StreamAnalyticsJobName = "fabrikamstreamjob01",   
-
-    [ValidatePattern("^[A-Za-z][-A-Za-z0-9]*[A-Za-z0-9]$")]               # needs to start with letter or number, and contain only letters, numbers, and hyphens.
-    [String]$ServiceBusNamespace="fabrikam-ns01",                                   
+	[Parameter(Mandatory=$True)][string]$SubscriptionName,
     
-    [ValidatePattern("^[A-Za-z0-9]$|^[A-Za-z0-9][\w-\.\/]*[A-Za-z0-9]$")] # needs to start with letter or number, and contain only letters, numbers, periods, hyphens, and underscores.
-    [String]$EventHubName = "eventhub01",                   
-    
-    [String]$ServiceBusRuleName = "ManagePolicy",                   
-
-    [String]$ConsumerGroupName= "consumergroup01", 
-
-    [String]$EventHubSharedAccessPolicyName = "ManagePolicy",
-
-    #[ValidatePattern("^[a-z0-9]*$")]                         # don't use this, powershell script is case insensitive, uppercase letter still pass as valid 
     [ValidateScript({
       # we need to use cmathch which is case sensitive, don't use match
       If ($_ -cmatch "^[a-z0-9]*$") {                         # needs contain only lower case letters and numbers.
@@ -32,14 +10,25 @@ Param(
         Throw "`n---Storage account name can only contain lowercase letters and numbers!---"
       }
     })]
-
-    [String]$StorageAccountName = "fabrikamstorage01",    
-       
-    [String]$StorageContainerName = "container01",   
-
-    [ValidatePattern("^[A-Za-z0-9]$|^[A-Za-z0-9][\w-\.\/]*[A-Za-z0-9]$")] 
-    [String]$JobDefinitionPath = "StreamAnalyticsJobDefinition.json"       # optional default to C:\StreamAnalyticsJobDefinition.json
-) 
+    [Parameter(Mandatory=$True)][String]$StorageAccountName,
+     
+    [Parameter(Mandatory=$False)][String]$ResourceGroupPrefix = "Fabrikam",
+    [Parameter(Mandatory=$False)][String]$ResourceGroupName = $ResourceGroupPrefix + "-" + $Location.Replace(" ","-"),
+    [Parameter(Mandatory=$False)][String]$StreamAnalyticsJobName = "fabrikamstreamjob01",   
+    
+    [ValidatePattern("^[A-Za-z][-A-Za-z0-9]*[A-Za-z0-9]$")] #needs to start with letter or number, and contain only letters, numbers, and hyphens.
+    [Parameter(Mandatory=$False)][String]$ServiceBusNamespace="fabrikam-ns01", 
+    
+    [ValidatePattern("^[A-Za-z0-9]$|^[A-Za-z0-9][\w-\.\/]*[A-Za-z0-9]$")] # needs to start with letter or number, and contain only letters, numbers, periods, hyphens, and underscores.                                   
+    [Parameter(Mandatory=$False)][String]$EventHubName = "eventhub01",
+                         
+    [Parameter(Mandatory=$False)][String]$ServiceBusRuleName = "ManagePolicy",                   
+    [Parameter(Mandatory=$False)][String]$ConsumerGroupName= "consumergroup01", 
+    [Parameter(Mandatory=$False)][String]$EventHubSharedAccessPolicyName = "ManagePolicy",       
+    [Parameter(Mandatory=$False)][String]$StorageContainerName = "container01",   
+    [Parameter(Mandatory=$False)][String]$JobDefinitionPath = "StreamAnalyticsJobDefinition.json",# optional default to C:\StreamAnalyticsJobDefinition.json
+    [Parameter(Mandatory=$False)][String]$Location = "Central US"
+)
         
 $VerbosePreference = "SilentlyContinue" 
 Switch-AzureMode -Name AzureServiceManagement
