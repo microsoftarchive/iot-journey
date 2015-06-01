@@ -1,37 +1,24 @@
-
-[CmdletBinding(PositionalBinding=$True)] 
+[CmdletBinding()] 
 Param( 
-    [string]$SubscriptionName = "Azure Guidance",
-
-    [String]$Location = "Central US",                 
-
-    [ValidatePattern("^[A-Za-z][-A-Za-z0-9]*[A-Za-z0-9]$")]      # needs to start with letter or number, and contain only letters, numbers, and hyphens.
-    [String]$Namespace="fabrikam-ns01",                                   
+    [Parameter(Mandatory=$True)][string]$SubscriptionName,
+    
+    [ValidatePattern("^[A-Za-z][-A-Za-z0-9]*[A-Za-z0-9]$")] #needs to start with letter or number, and contain only letters, numbers, and hyphens.
+    [Parameter(Mandatory=$True)][String]$Namespace,
 
     [ValidatePattern("^[A-Za-z0-9]$|^[A-Za-z0-9][\w-\.\/]*[A-Za-z0-9]$")] # needs to start with letter or number, and contain only letters, numbers, periods, hyphens, and underscores.
-
-    [String]$EventHubName = "eventhub01",                   
-
-    [String]$ConsumerGroupName= "consumergroup01", 
-
-    [String]$EventHubSharedAccessPolicyName = "ManagePolicy",
-
-    [Int]$PartitionCount = 16,                     
-
-    [Int]$MessageRetentionInDays = 7,              
-
-    [String]$UserMetadata = $null,                 
-
-    [String]$ConsumerGroupUserMetadata = $null,     
-
-    [Bool]$CreateACSNamespace = $false, 
-
-    [int]$RetryCountMax = 5, 
-
-    [int]$RetryDelaySeconds = 5
-
-    ) 
- 
+    [Parameter(Mandatory=$True)][String]$EventHubName,
+           
+    [Parameter(Mandatory=$False)][String]$ConsumerGroupName= "consumergroup01", 
+    [Parameter(Mandatory=$False)][String]$EventHubSharedAccessPolicyName = "ManagePolicy",
+    [Parameter(Mandatory=$False)][Int]$PartitionCount = 16,                     
+    [Parameter(Mandatory=$False)][Int]$MessageRetentionInDays = 7,              
+    [Parameter(Mandatory=$False)][String]$UserMetadata = $null,                 
+    [Parameter(Mandatory=$False)][String]$ConsumerGroupUserMetadata = $null,     
+    [Parameter(Mandatory=$False)][Bool]$CreateACSNamespace = $false, 
+    [Parameter(Mandatory=$False)][int]$RetryCountMax = 5, 
+    [Parameter(Mandatory=$False)][int]$RetryDelaySeconds = 5,
+    [Parameter(Mandatory=$False)][String]$Location = "Central US"
+)
 
 # Set the output level to verbose and make the script stop on error 
 $VerbosePreference = "SilentlyContinue" 
