@@ -41,7 +41,7 @@
                     "DataSource": {
                         "Type": "Microsoft.Storage/Blob",
                         "Properties": {
-                            "Container": "container02",
+                            "Container": "_RefdataContainer",
                             "BlobName": "fabrikam/buildingdevice.json",
                             "StorageAccounts": [
                                 {
