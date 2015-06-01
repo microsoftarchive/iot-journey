@@ -1,38 +1,64 @@
-﻿[CmdletBinding()] 
+﻿[CmdletBinding(PositionalBinding=$True)] 
 Param( 
-    [string]$DBName = "fabrikamdb01",
-    [string]$DBPassword = "MyPassword",
-    [string]$DBServer = "fabrikamdbserver01",
-    [string]$DBUser="fabrikamuser01",
-	#[Parameter (Mandatory = $true)]
+
+	[Parameter (Mandatory = $true)]
 	[string]$SubscriptionName = "Azure Guidance",
 
+	[Parameter (Mandatory = $true)]
+    [String]$Location = "Central US",                 
+
+	[Parameter (Mandatory = $true)]
     [String]$ResourceGroupPrefix = "Fabrikam",
 
-    [Parameter(Mandatory=$True)][String]$StorageAccountName,
-     
-    [Parameter(Mandatory=$False)][String]$StreamAnalyticsJobName = "fabrikamstreamjob03",   
+    [String]$ResourceGroupName = $ResourceGroupPrefix + "-" + $Location.Replace(" ","-"),
+
+	[Parameter (Mandatory = $true)]
+    [String]$StreamAnalyticsJobName = "fabrikamstreamjob01",   
+
+    [ValidatePattern("^[A-Za-z][-A-Za-z0-9]*[A-Za-z0-9]$")]               # needs to start with letter or number, and contain only letters, numbers, and hyphens.
+	[Parameter (Mandatory = $true)]
+    [String]$ServiceBusNamespace="fabrikam-ns01",                                   
     
-    [ValidatePattern("^[A-Za-z][-A-Za-z0-9]*[A-Za-z0-9]$")] #needs to start with letter or number, and contain only letters, numbers, and hyphens.
-    [Parameter(Mandatory=$False)][String]$ServiceBusNamespace="fabrikam-ns01", 
+    [ValidatePattern("^[A-Za-z0-9]$|^[A-Za-z0-9][\w-\.\/]*[A-Za-z0-9]$")] # needs to start with letter or number, and contain only letters, numbers, periods, hyphens, and underscores.
+	[Parameter (Mandatory = $true)]
+    [String]$EventHubName = "eventhub01",                   
     
-    [ValidatePattern("^[A-Za-z0-9]$|^[A-Za-z0-9][\w-\.\/]*[A-Za-z0-9]$")] # needs to start with letter or number, and contain only letters, numbers, periods, hyphens, and underscores.                                   
-    [Parameter(Mandatory=$False)][String]$EventHubName = "eventhub01",
-                         
-    [Parameter(Mandatory=$False)][String]$ServiceBusRuleName = "ManagePolicy",
-                   
-    [Parameter(Mandatory=$False)][String]$ConsumerGroupName= "consumergroup01",
- 
-    [Parameter(Mandatory=$False)][String]$EventHubSharedAccessPolicyName = "ManagePolicy",
+	[Parameter (Mandatory = $true)]
+    [string]$DBName = "fabrikamdb01",
+
+	[Parameter (Mandatory = $true)]
+    [string]$DBPassword = "MyPassword",
+
+	[Parameter (Mandatory = $true)]
+    [string]$DBServer = "fabrikamdbserver01", #    you can also use "fabrikamdbserver01.database.windows.net"
+
+	[Parameter (Mandatory = $true)]
+    [string]$DBUser="fabrikamuser01",
+
+	[Parameter (Mandatory = $true)]
+    [String]$ConsumerGroupName= "consumergroup01", 
+
+	[Parameter (Mandatory = $true)]
+    [String]$EventHubSharedAccessPolicyName = "ManagePolicy",
+
+    #[ValidatePattern("^[a-z0-9]*$")]                         # don't use this, powershell script is case insensitive, uppercase letter still pass as valid 
+    [ValidateScript({
+      # we need to use cmathch which is case sensitive, don't use match
+      If ($_ -cmatch "^[a-z0-9]*$") {                         # needs contain only lower case letters and numbers.
+        $True
+      }else {
+        Throw "`n---Storage account name can only contain lowercase letters and numbers!---"
+      }
+    })]
+
+    [String]$StorageAccountName = "fabrikamstorage01",    
        
-    [Parameter(Mandatory=$False)][String]$StorageContainerName = "container01",
-   
-    [Parameter(Mandatory=$False)][String]$JobDefinitionPath = "StreamAnalyticsJobDefinition.json",# optional default to C:\StreamAnalyticsJobDefinition.json
-    
-    [Parameter(Mandatory=$False)][String]$Location = "Central US",
-    
-    [Parameter(Mandatory=$False)][String]$ResourceGroupName = $ResourceGroupPrefix + "-" + $Location.Replace(" ","-")
-)
+ 	[Parameter (Mandatory = $true)]
+    [string]$ContainerName = "container01",
+
+    [ValidatePattern("^[A-Za-z0-9]$|^[A-Za-z0-9][\w-\.\/]*[A-Za-z0-9]$")] 
+    [String]$JobDefinitionPath = "StreamAnalyticsJobDefinition.json"       # optional default to C:\StreamAnalyticsJobDefinition.json
+    ) 
         
 $VerbosePreference = "SilentlyContinue" 
 Switch-AzureMode -Name AzureServiceManagement
@@ -64,7 +90,7 @@ $sbr = Get-AzureSBAuthorizationRule -Namespace $ServiceBusNamespace
 $NamespaceManager = [Microsoft.ServiceBus.NamespaceManager]::CreateFromConnectionString($sbr.ConnectionString); 
 $EventHub = $NamespaceManager.GetEventHub($EventHubName);
 $Rule = $null
-if($EventHub.Authorization.TryGetSharedAccessAuthorizationRule($ServiceBusRuleName, [ref]$Rule))
+if($EventHub.Authorization.TryGetSharedAccessAuthorizationRule($EventHubSharedAccessPolicyName, [ref]$Rule))
 {
     $EventHubSharedAccessPolicyKey = $Rule.PrimaryKey
 }
@@ -76,6 +102,7 @@ else
 # Get Storage Account Key
 $storageAccountKey = Get-AzureStorageKey -StorageAccountName $StorageAccountName
 $storageAccountKeyPrimary = $storageAccountKey.Primary
+$RefdataContainerName = $ContainerName+"refdata"
 
 $JobDefinitionText = (get-content $JobDefinitionPath).
                     Replace("_StreamAnalyticsJobName",$StreamAnalyticsJobName).
@@ -87,7 +114,8 @@ $JobDefinitionText = (get-content $JobDefinitionPath).
                     Replace("_EventHubSharedAccessPolicyKey",$EventHubSharedAccessPolicyKey).
                     Replace("_AccountName",$StorageAccountName).
                     Replace("_AccountKey",$storageAccountKeyPrimary).
-                    Replace("_Container",$StorageContainerName).
+                    Replace("_Container",$ContainerName).
+                    Replace("_RefdataContainer",$RefdataContainerName).
                     Replace("_DBName",$DBName).
                     Replace("_DBPassword",$DBPassword).
                     Replace("_DBServer",$DBServer).

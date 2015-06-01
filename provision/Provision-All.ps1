@@ -27,13 +27,13 @@ Param
     [string]$DBName = "fabrikamdb01",
 
 	[Parameter (Mandatory = $true)]
-    [string]$DBPassword = "MyPassword",
+    [string]$DBServer = "fabrikamdbserver01.database.windows.net",
 
 	[Parameter (Mandatory = $true)]
-    [string]$DBServer = "fabrikamdbserver01",
+    [string]$DBUser="fabrikamdbuser01",
 
 	[Parameter (Mandatory = $true)]
-    [string]$DBUser="fabrikamuser01",
+    [string]$DBPassword = "fabrikamdbuser01password",
 
     [String]$Location = "Central US",               
 
@@ -58,7 +58,10 @@ Param
     [String]$HDInsightClusterName,
     
     [Parameter(Mandatory=$False)]
-    [int]$HDInsightClusterNodes = 2
+    [int]$HDInsightClusterNodes = 2,
+
+    [String]$ContainerName = "container01"
+>>>>>>> update stream analytics job to use sql with upsert logic
 )
 
 # Make the script stop on error
@@ -92,9 +95,9 @@ $VerbosePreference = "SilentlyContinue"
 
 .\Provision-EventHub.ps1 -SubscriptionName $SubscriptionName -Location $Location -Namespace $ServiceBusNamespace -EventHubName $EventHubName -ConsumerGroupName $ConsumerGroupName -EventHubSharedAccessPolicyName $EventHubSharedAccessPolicyName 
 
-.\Provision-StorageAccount.ps1 -SubscriptionName $SubscriptionName -Location $Location -Name $StorageAccountName -ContainerName $StorageContainerName
+.\Provision-StorageAccount.ps1 -SubscriptionName $SubscriptionName -Location $Location -StorageAccountName $StorageAccountName -ContainerName $ContainerName
 
-.\Provision-StreamAnalyticsJob.ps1 -SubscriptionName $SubscriptionName -Location $Location -ResourceGroupPrefix $ResourceGroupPrefix -ServiceBusNamespace $ServiceBusNamespace -EventHubName $EventHubName -ServiceBusRuleName $ServiceBusRuleName -ConsumerGroupName $ConsumerGroupName -EventHubSharedAccessPolicyName $EventHubSharedAccessPolicyName -StorageAccountName $StorageAccountName -StorageContainerName $StorageContainerName -StreamAnalyticsJobName $StreamAnalyticsJobName
+.\Provision-StreamAnalyticsJob.ps1 -SubscriptionName $SubscriptionName -Location $Location -ResourceGroupPrefix $ResourceGroupPrefix -ServiceBusNamespace $ServiceBusNamespace -EventHubName $EventHubName -ConsumerGroupName $ConsumerGroupName -EventHubSharedAccessPolicyName $EventHubSharedAccessPolicyName -StorageAccountName $StorageAccountName -ContainerName $ContainerName -StreamAnalyticsJobName $StreamAnalyticsJobName -DBName $DBName -DBPassword $DBPassword -DBServer $DBServer -DBUser $DBUser
 
 .\Provision-HDInsight.ps1 -SubscriptionName $SubscriptionName -StorageAccountName $StorageAccountName -StorageContainerName $HDInsightStorageContainerName -ClusterName $HDInsightClusterName -ClusterNodes $HDInsightClusterNodes -Location $Location
 

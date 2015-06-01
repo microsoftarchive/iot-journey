@@ -110,7 +110,7 @@
             "Name": "transformation01",
             "Properties": {
                 "StreamingUnits": 1,
-                "Query": "SELECT * INTO OUTPUT01 FROM input01 TIMESTAMP BY updateTime; SELECT AVG(I1.temperature) as temperature, Max(I1.updateTime) as endTime, I2.buildingId INTO output02 FROM input01 I1 TIMESTAMP BY updateTime JOIN input02 I2 On I1.deviceId = I2.deviceId GROUP BY TumblingWindow(s,5),  I2.buildingId"
+                "Query": "SELECT * INTO output01 FROM input01 TIMESTAMP BY TimeObserved;\r\n\r\nSELECT AVG(I1.Temperature) as Temperature, Max(I1.TimeObserved) as LastObservedTime, I2.BuildingId \r\nINTO output02 \r\nFROM input01 I1 TIMESTAMP BY TimeObserved \r\nJOIN input02 I2 On I1.DeviceId = I2.DeviceId  \r\nGROUP BY TumblingWindow(s,5), I2.BuildingId"
             }
         }
     }
