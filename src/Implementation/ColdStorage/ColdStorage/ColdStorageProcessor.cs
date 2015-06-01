@@ -195,7 +195,14 @@ namespace Microsoft.Practices.IoTJourney.ColdStorage
             var eventToPersist = new ColdStorageEvent();
             eventToPersist.Offset = eData.Offset;
             eventToPersist.Properties = GetStringDictionary(eData.Properties);
-            eventToPersist.Payload = Encoding.UTF8.GetString(eData.GetBytes());
+            try
+            {
+                eventToPersist.Payload = JsonConvert.DeserializeObject(Encoding.UTF8.GetString(eData.GetBytes()));
+            }
+            catch (JsonReaderException)
+            {
+                eventToPersist.Payload = Encoding.UTF8.GetString(eData.GetBytes());
+            }
             return Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(eventToPersist) + EventDelimiter);
         }
 

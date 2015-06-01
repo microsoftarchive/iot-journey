@@ -104,7 +104,7 @@ namespace Microsoft.Practices.IoTJourney.ColdStorage.Tests
             }
         }
 
-        private static string[] GetPayloadsFromBlock(BlockData blockData)
+        private static dynamic[] GetPayloadsFromBlock(BlockData blockData)
         {
             var serializedFrame = Encoding.UTF8.GetString(blockData.Frame, 0, blockData.FrameLength);
             return serializedFrame

@@ -50,9 +50,9 @@ Select-AzureSubscription -SubscriptionName $subscriptionName;
 Use-AzureHdInsightCluster $clusterName;
 
 $query = "DROP TABLE $tableName; CREATE EXTERNAL TABLE IF NOT EXISTS $tableName (json string) LOCATION '" + $location  + "';
- SELECT get_json_object(get_json_object($tableName.json, '$.Payload'), '$.DeviceId'), count(*) 
+ SELECT get_json_object($tableName.json, '$.Payload.DeviceId'), count(*) 
  FROM $tableName 
- GROUP BY get_json_object(get_json_object($tableName.json, '$.Payload'), '$.DeviceId');
+ GROUP BY get_json_object($tableName.json, '$.Payload.DeviceId')";
 
 $result = Invoke-Hive -Query $query;
 
