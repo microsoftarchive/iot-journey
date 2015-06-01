@@ -1,26 +1,33 @@
+[CmdletBinding()]
 Param
 (
-	[Parameter (Mandatory = $true)]
-    [string]$SubscriptionName = "Azure Guidance",
+	[ValidateNotNullOrEmpty()]
+	[Parameter (Mandatory = $True)]
+	[string]$SubscriptionName,                  
 
-	[Parameter (Mandatory = $true)]
-     [string]$Location = "Central US",                   
-
-    #[ValidatePattern("^[a-z0-9]*$")]                         # don't use this, powershell script is case insensitive, uppercase letter still pass as valid 
+ 	[ValidateNotNullOrEmpty()]
+	[Parameter (Mandatory = $True)]
     [ValidateScript({
       # we need to use cmatch which is case sensitive, don't use match
-      If ($_ -cmatch "^[a-z0-9]*$") {                         # needs contain only lower case letters and numbers.
+      If ($_ -cmatch "^[a-z0-9]*$") {                         # need contain only lower case letters and numbers.
         $True
       }else {
         Throw "`n---Storage account name can only contain lowercase letters and numbers!---"
       }
     })]
- 	[Parameter (Mandatory = $true)]
-    [string]$StorageAccountName = "fabrikamstorage01",            
+	[String]$StorageAccountName,               
 
- 	[Parameter (Mandatory = $true)]
-    [string]$ContainerName = "container01"  
+ 	[ValidateNotNullOrEmpty()]
+ 	[Parameter (Mandatory = $False)]
+    [ValidatePattern("^[A-Za-z][-A-Za-z0-9]*[A-Za-z0-9]$")] #needs to start with letter or number, and contain only letters, numbers, and hyphens.
+	[string]$ContainerName = "container01",
+	
+	[ValidateNotNullOrEmpty()]
+    [Parameter (Mandatory = $False)]
+	[String]$Location = "Central US"  
 )
+
+.\Init.ps1
 
 #Add-AzureAccount
 

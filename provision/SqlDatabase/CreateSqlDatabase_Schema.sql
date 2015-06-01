@@ -31,4 +31,3 @@ BEGIN
 		INSERT (BuildingId,LastObservedTime,Temperature) VALUES (S.BuildingId,S.LastObservedTime,S.Temperature);
 END
 GO
-
