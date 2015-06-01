@@ -1,4 +1,4 @@
-[CmdletBinding()]
+
 Param
 (
 	[Parameter (Mandatory = $true)]
@@ -48,7 +48,7 @@ Param
 
     [String]$EventHubSharedAccessPolicyName = "ManagePolicy",
                    
-    [String]$StorageContainerName = "container01",
+    [String]$ContainerName = "container01",
 
     [Parameter(Mandatory=$False)]
     [string]$HDInsightStorageContainerName = "iot-hdicontainer01",
@@ -58,10 +58,7 @@ Param
     [String]$HDInsightClusterName,
     
     [Parameter(Mandatory=$False)]
-    [int]$HDInsightClusterNodes = 2,
-
-    [String]$ContainerName = "container01"
->>>>>>> update stream analytics job to use sql with upsert logic
+    [int]$HDInsightClusterNodes = 2
 )
 
 # Make the script stop on error
@@ -92,7 +89,6 @@ if(-not(Get-Module -name "Azure"))
 Add-AzureAccount
 
 $VerbosePreference = "SilentlyContinue" 
-
 .\Provision-EventHub.ps1 -SubscriptionName $SubscriptionName -Location $Location -Namespace $ServiceBusNamespace -EventHubName $EventHubName -ConsumerGroupName $ConsumerGroupName -EventHubSharedAccessPolicyName $EventHubSharedAccessPolicyName 
 
 .\Provision-StorageAccount.ps1 -SubscriptionName $SubscriptionName -Location $Location -StorageAccountName $StorageAccountName -ContainerName $ContainerName
