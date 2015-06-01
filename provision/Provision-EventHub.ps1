@@ -1,5 +1,6 @@
 [CmdletBinding()] 
 Param( 
+<<<<<<< HEAD
     [Parameter(Mandatory=$True)][string]$SubscriptionName,
     
     [ValidatePattern("^[A-Za-z][-A-Za-z0-9]*[A-Za-z0-9]$")] #needs to start with letter or number, and contain only letters, numbers, and hyphens.
@@ -19,6 +20,44 @@ Param(
     [Parameter(Mandatory=$False)][int]$RetryDelaySeconds = 5,
     [Parameter(Mandatory=$False)][String]$Location = "Central US"
 )
+=======
+	[Parameter (Mandatory = $true)]
+    [string]$SubscriptionName = "Azure Guidance",
+
+	[Parameter (Mandatory = $true)]
+    [String]$Location = "Central US",                 
+
+    [ValidatePattern("^[A-Za-z][-A-Za-z0-9]*[A-Za-z0-9]$")]      # needs to start with letter or number, and contain only letters, numbers, and hyphens.
+	[Parameter (Mandatory = $true)]
+    [String]$Namespace="fabrikam-ns01",                                   
+
+    [ValidatePattern("^[A-Za-z0-9]$|^[A-Za-z0-9][\w-\.\/]*[A-Za-z0-9]$")] # needs to start with letter or number, and contain only letters, numbers, periods, hyphens, and underscores.
+	[Parameter (Mandatory = $true)]
+    [String]$EventHubName = "eventhub01",                   
+
+	[Parameter (Mandatory = $true)]
+    [String]$ConsumerGroupName= "consumergroup01", 
+
+	[Parameter (Mandatory = $true)]
+    [String]$EventHubSharedAccessPolicyName = "ManagePolicy",
+
+    [Int]$PartitionCount = 16,                     
+
+    [Int]$MessageRetentionInDays = 7,              
+
+    [String]$UserMetadata = $null,                 
+
+    [String]$ConsumerGroupUserMetadata = $null,     
+
+    [Bool]$CreateACSNamespace = $false, 
+
+    [int]$RetryCountMax = 5, 
+
+    [int]$RetryDelaySeconds = 5
+
+    ) 
+ 
+>>>>>>> update stream analytics job to use sql with upsert logic
 
 # Set the output level to verbose and make the script stop on error 
 $VerbosePreference = "SilentlyContinue" 
