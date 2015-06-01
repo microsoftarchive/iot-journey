@@ -1,7 +1,5 @@
-[CmdletBinding()]
 Param
 (
-
 	[Parameter (Mandatory = $true)]
     [string]$SubscriptionName = "Azure Guidance",
 
