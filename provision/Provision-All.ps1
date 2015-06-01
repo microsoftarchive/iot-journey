@@ -27,7 +27,7 @@ Param
     [string]$DBName = "fabrikamdb01",
 
 	[Parameter (Mandatory = $true)]
-    [string]$DBServer = "fabrikamdbserver01.database.windows.net",
+    [string]$DBServer = "fabrikamdbserver01", #    you can also use "fabrikamdbserver01.database.windows.net"
 
 	[Parameter (Mandatory = $true)]
     [string]$DBUser="fabrikamdbuser01",

@@ -61,6 +61,18 @@ else
     "The storage container {0} already exists." -f $ContainerName
 }
 
+$RefContainerName = $ContainerName + "refdata"
+$RefContainer = Get-AzureStorageContainer -Name $RefContainerName -ErrorAction SilentlyContinue -Context $context
+if (!$RefContainer)
+{
+    New-AzureStorageContainer -Context $context -Name $RefContainerName
+}
+else 
+{
+    "The storage container {0} already exists." -f $RefContainerName
+}
+
+
 # Configure options for storage account
 Set-AzureStorageAccount -StorageAccountName $StorageAccountName -Type "Standard_LRS" -Verbose;
 Write-Verbose ("Finished configuring storage account {0} in location {1}" -f $StorageAccountName, $Location);
