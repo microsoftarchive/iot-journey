@@ -9,6 +9,6 @@ namespace Microsoft.Practices.IoTJourney.ColdStorage
     {
         public Dictionary<string, string> Properties { get; set; }
         public string Offset { get; set; }
-        public string Payload { get; set; }
+        public dynamic Payload { get; set; }
     }
 }
