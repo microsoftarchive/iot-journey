@@ -4,8 +4,8 @@ Param
 	[Parameter(Mandatory=$True)][string]$SubscriptionName,
     
     [ValidateScript({
-      # we need to use cmathch which is case sensitive, don't use match
-      If ($_ -cmatch "^[a-z0-9]*$") {                         # needs contain only lower case letters and numbers.
+      # we need to use cmatch which is case sensitive, don't use match
+      If ($_ -cmatch "^[a-z0-9]*$") {                         # need contain only lower case letters and numbers.
         $True
       }else {
         Throw "`n---Storage account name can only contain lowercase letters and numbers!---"
@@ -34,7 +34,8 @@ Param
 
     [Parameter(Mandatory=$False)][string]$HDInsightStorageContainerName = "iot-hdicontainer01",
     
-    [Parameter(Mandatory=$False)][string]$HDInsightClusterName = "iot-hdicluster01",
+    [ValidatePattern("^[A-Za-z][-A-Za-z0-9]*[A-Za-z0-9]$")] #needs to start with letter or number, and contain only letters, numbers, and hyphens.
+    [Parameter(Mandatory=$true)][String]$HDInsightClusterName,
     
     [Parameter(Mandatory=$False)][int]$HDInsightClusterNodes = 2,
     
