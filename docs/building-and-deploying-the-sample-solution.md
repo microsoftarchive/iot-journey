@@ -4,17 +4,9 @@ This document describes how to build and run the sample IoT solution. The soluti
 
 The simulator enables you to test the following scenarios:
 
-***REMOVE OBSOLETE SCENARIOS FROM THIS LIST AND IN THE "RUNNING THE SIMULATOR" SECTION LATER IN THE DOC ONCE THEY HAVE BEEN REMOVED FROM THE CODE***
+1. All devices sending readings that are within the expected range. These readings simply need to be recorded so that they can be displayed on a dashboard or used for further analysis.
 
-1. All devices sending readings that are within expected ranges.
-
-2. Some devices send readings indicating that the temperature is excessive (over 30 degrees Celsius).
-
-3. *Devices send readings that are not handled - What does this actually mean?*.
-
-4. Devices send readings containing malformed data.
-
-5. *LONG RUNNING EVENTS?*
+2. Some devices send readings indicating that the temperature is excessive (over 30 degrees Celsius). As well as being recorded, these readings may prompt some more immediate action.
 
 You can download the code for the solution [here](https://github.com/mspnp/iot-journey/tree/master/src).
 
@@ -22,7 +14,7 @@ You should also download the [provisioning scripts](https://github.com/mspnp/iot
 
 The solution comprises the following projects:
 
-- ScenarioSimulator. This project contains the logic that implements each of the scenarios.
+- ScenarioSimulator. This project contains the logic that implements each of the scenarios. You can configure the parameters used by the simulator (number of devices, simulation duration, warm up time, and so on) by editing the mysettings.config file in this project.
 
 - Devices.Events. This project defines the events that the simulated devices for each of the scenarios can raise.
 
@@ -213,7 +205,7 @@ Perform the following steps to run the simulator:
 
 - Press Enter to return to the menu.
 
-- Repeat the previous three steps for options 2 to 5. As before, the simulator will generate and echo events. No exceptions should occur.
+- Repeat the previous three steps for option 2. As before, the simulator will generate and echo events. No exceptions should occur.
 
 - On the menu, select option 6 to quit the simulator.
 
@@ -229,7 +221,7 @@ Perform the following steps to verify that events are being processed correctly 
 
 - On the container01 contents, verify that the container has a folder named fabrikam.
 
-- Double-click the fabrikam folder and verify that it contains one or more JSON files (files with random named but with the .json suffix).
+- Double-click the fabrikam folder and verify that it contains at least two JSON files (files with random named but with the .json suffix). Running each scenario should generate a different file. Note that if you repeat a scenario, the system will generate a new file for that run.
 
 - Double-click the most recent file to download and view the contents. Verify that the file contains a number of JSON formatted event records (there should be one record for each event that was generated when the simulator ran, although you probably didn't count them at the time!)
 
