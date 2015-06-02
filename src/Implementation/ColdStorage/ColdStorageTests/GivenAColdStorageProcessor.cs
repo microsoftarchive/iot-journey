@@ -35,7 +35,6 @@ namespace Microsoft.Practices.IoTJourney.ColdStorage.Tests
             _processor =
                 new ColdStorageProcessor(
                     n => _writerMock.Object,
-                    CancellationToken.None,
                     CircuitBreakerWarningLevel,
                     CircuitBreakerStallLevel,
                     CircuitBreakerStallInterval,
@@ -476,7 +475,6 @@ namespace Microsoft.Practices.IoTJourney.ColdStorage.Tests
             var processor =
                new ColdStorageProcessor(
                    n => _writerMock.Object,
-                   CancellationToken.None,
                    CircuitBreakerWarningLevel,
                    CircuitBreakerStallLevel,
                    CircuitBreakerStallInterval,
