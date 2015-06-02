@@ -11,7 +11,6 @@ namespace Microsoft.Practices.IoTJourney.ColdStorage
     public class ColdStorageEventProcessorFactory : IEventProcessorFactory
     {
         private readonly Func<string, IBlobWriter> _blobWriterFactory = null;
-        private readonly CancellationToken _token = CancellationToken.None;
         private readonly int _warningLevel;
         private readonly int _tripLevel;
         private readonly TimeSpan _stallInterval;
@@ -20,7 +19,6 @@ namespace Microsoft.Practices.IoTJourney.ColdStorage
 
         public ColdStorageEventProcessorFactory(
             Func<string, IBlobWriter> blobWriterFactory,
-            CancellationToken token,
             int warningLevel,
             int tripLevel,
             TimeSpan stallInterval,
@@ -30,7 +28,6 @@ namespace Microsoft.Practices.IoTJourney.ColdStorage
 
             Guard.ArgumentNotNull(blobWriterFactory, "blobWriterFactory");
 
-            _token = token;
             _blobWriterFactory = blobWriterFactory;
             _warningLevel = warningLevel;
             _tripLevel = tripLevel;
@@ -43,7 +40,6 @@ namespace Microsoft.Practices.IoTJourney.ColdStorage
         {
             var processor = new ColdStorageProcessor(
                 _blobWriterFactory,
-                _token,
                 _warningLevel,
                 _tripLevel,
                 _stallInterval,
