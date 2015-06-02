@@ -31,7 +31,7 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
         {
             return new[]
                        {
-                           new EventEntry(EventFactory.TemperatureEventFactory, TimeSpan.FromMinutes(1), 0.1) 
+                           new EventEntry(EventFactory.TemperatureEventFactory, TimeSpan.FromSeconds(1), 0.1) 
                        };
         }
 
