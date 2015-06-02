@@ -23,7 +23,7 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
             return new UpdateTemperatureEvent
             {
                 DeviceId = device.Id,
-                TimeStamp = DateTime.UtcNow.Ticks,
+                TimeObserved = DateTime.UtcNow,
                 Temperature = device.CurrentTemperature.Value,
             };
         }
@@ -33,7 +33,7 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
             return new UpdateTemperatureEvent
             {
                 DeviceId = device.Id,
-                TimeStamp = DateTime.UtcNow.Ticks,
+                TimeObserved = DateTime.UtcNow,
                 Temperature = 30,
             };
         }
