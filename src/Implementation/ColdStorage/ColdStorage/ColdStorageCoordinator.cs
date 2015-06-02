@@ -53,7 +53,6 @@ namespace Microsoft.Practices.IoTJourney.ColdStorage
 
             var factory = new ColdStorageEventProcessorFactory(
                 blobWriterFactory,
-                CancellationToken.None,
                 configuration.CircuitBreakerWarningLevel,
                 configuration.CircuitBreakerTripLevel,
                 configuration.CircuitBreakerStallInterval,
