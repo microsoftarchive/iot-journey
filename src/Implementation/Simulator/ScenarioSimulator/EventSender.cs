@@ -26,12 +26,9 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
             this._eventHubClient = messagingFactory.CreateEventHubClient(config.EventHubPath);
         }
 
-        public static Tuple<string, int> DetermineTypeFromEvent(object evt)
+        public static string DetermineTypeFromEvent(object evt)
         {
-            // For the purposes of this simulation, we are defaulting
-            // all type version numbers to 1.
-            var type = evt.GetType().Name;
-            return new Tuple<string, int>(type, 1);
+            return evt.GetType().Name;
         }
 
         public async Task<bool> SendAsync(object evt)

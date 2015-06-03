@@ -18,19 +18,7 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator.Tests
             var expected = evt.GetType().Name;
             var actual = EventSender.DetermineTypeFromEvent(evt);
 
-            Assert.Equal(expected, actual.Item1);
-        }
-
-        [Fact]
-        [Trait("Running time", "Short")]
-        public void EventTypeVersionAlwaysReturns1()
-        {
-            // TODO: The final system should not be hard coded
-            var evt = new UpdateTemperatureEvent();
-
-            var actual = EventSender.DetermineTypeFromEvent(evt);
-
-            Assert.Equal(1, actual.Item2);
+            Assert.Equal(expected, actual);
         }
     }
 }
