@@ -31,7 +31,7 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
         {
             return new[]
                        {
-                           new EventEntry(EventFactory.TempuratureEventFactory, TimeSpan.FromMinutes(1), 0.1) 
+                           new EventEntry(EventFactory.TemperatureEventFactory, TimeSpan.FromSeconds(1), 0.1) 
                        };
         }
 
@@ -39,37 +39,7 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
         {
             return new[]
                        {
-                           new EventEntry(EventFactory.ThirtyDegreeTempuratureEventFactory, TimeSpan.FromSeconds(10), 0.1) 
-                       };
-        }
-
-        public static EventEntry[] EventsWithNoHandler()
-        {
-            return new[]
-                       {
-                           new EventEntry(
-                               (r,d) => new NoHandlerEvent(),
-                               TimeSpan.FromSeconds(60))
-                       };
-        }
-
-        public static EventEntry[] MalformedEvents()
-        {
-            return new[]
-                       {
-                           new EventEntry(
-                               (r,d) => new ThrowsExceptionEvent(),
-                               TimeSpan.FromSeconds(60))
-                       };
-        }
-
-        public static EventEntry[] LongRunningEvents()
-        {
-            return new[]
-                       {
-                           new EventEntry(
-                               (r,d) => new LongRunningEvent(),
-                               TimeSpan.FromSeconds(10))
+                           new EventEntry(EventFactory.ThirtyDegreeTemperatureEventFactory, TimeSpan.FromSeconds(10), 0.1) 
                        };
         }
 

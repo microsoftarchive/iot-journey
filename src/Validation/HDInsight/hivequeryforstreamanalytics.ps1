@@ -21,7 +21,7 @@ The name of an HDInsight cluster to use. You must provision the cluster before y
 The name of the directory inside the container. The directory you specify must have blobs in it.
 
 .EXAMPLE
-C:\PS> .\hivequery.ps1 -subscriptionName "{subscription-name}" -storageAccountName "{storage-account-name}" -containerName "{container-name}" -clusterName "{hdinsight-cluster-name}" -directoryName "{blobs-directory-name}"
+C:\PS> .\hivequeryforstreamanalytics.ps1 -subscriptionName "{subscription-name}" -storageAccountName "{storage-account-name}" -containerName "{container-name}" -clusterName "{hdinsight-cluster-name}" -directoryName "{blobs-directory-name}"
 #>
 
 Param
@@ -43,7 +43,7 @@ Param
 
 Add-AzureAccount
 
-$tableName = "iotjourneyhivetable";
+$tableName = "iotjourneyhivetable1";
 $location = "wasb://$containerName@$storageAccountName.blob.core.windows.net/$directoryName";
 
 Select-AzureSubscription -SubscriptionName $subscriptionName;
