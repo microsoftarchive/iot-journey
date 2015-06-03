@@ -8,33 +8,33 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
 {
     public static class EventFactory
     {
-        public static UpdateTemperatureEvent TempuratureEventFactory(Random random, Device device)
+        public static UpdateTemperatureEvent TemperatureEventFactory(Random random, Device device)
         {
-            if (!device.CurrentTempurature.HasValue)
+            if (!device.CurrentTemperature.HasValue)
             {
-                device.CurrentTempurature = random.Next(25);
+                device.CurrentTemperature = random.Next(25);
             }
             else
             {
                 var temperatureChange = random.Next(-2,3);
-                device.CurrentTempurature += temperatureChange;
+                device.CurrentTemperature += temperatureChange;
             }
 
             return new UpdateTemperatureEvent
             {
                 DeviceId = device.Id,
-                TimeStamp = DateTime.UtcNow.Ticks,
-                Tempurature = device.CurrentTempurature.Value,
+                TimeObserved = DateTime.UtcNow,
+                Temperature = device.CurrentTemperature.Value,
             };
         }
 
-        public static UpdateTemperatureEvent ThirtyDegreeTempuratureEventFactory(Random random, Device device)
+        public static UpdateTemperatureEvent ThirtyDegreeTemperatureEventFactory(Random random, Device device)
         {
             return new UpdateTemperatureEvent
             {
                 DeviceId = device.Id,
-                TimeStamp = DateTime.UtcNow.Ticks,
-                Tempurature = 30,
+                TimeObserved = DateTime.UtcNow,
+                Temperature = 30,
             };
         }
     }

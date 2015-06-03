@@ -24,7 +24,7 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
 
         public ISubject<int> ObservableEventCount { get; private set; }
 
-        public float? CurrentTempurature { get; set; }
+        public float? CurrentTemperature { get; set; }
 
         public string Id { get {return _deviceId;} }
 
