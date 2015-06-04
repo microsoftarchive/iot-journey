@@ -33,7 +33,7 @@ We intend this to be an interactive act of discovery.
 We've constructed a [scenario][] that reflects business requirements we've
 gathered from customers and advisors. The scenario is not meant to be
 realistic, but rather representative. That is, it should represent the most
-command needs and [challenges][] you will face.
+common needs and [challenges][] you will face.
 
 :memo: _We'd like your immediate feedback on the [scenario][] to help make sure
 that it is truly representative._
