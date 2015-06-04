@@ -107,6 +107,8 @@ In this diagram:
 
 - [IoT Security Fundamentals](http://channel9.msdn.com/Events/Ignite/2015/BRK4553)
 
+- [Service Assisted Communication principle](http://blogs.msdn.com/b/clemensv/archive/2014/02/10/service-assisted-communication-for-connected-devices.aspx)
+
 - [Glossary of Terms][]
  
 [Glossary of Terms]: ../reference/glossary.md
