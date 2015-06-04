@@ -50,6 +50,7 @@ Select-AzureSubscription -SubscriptionName $subscriptionName;
 Use-AzureHdInsightCluster $clusterName;
 
 $query = "DROP TABLE $tableName; CREATE EXTERNAL TABLE IF NOT EXISTS $tableName (json string) LOCATION '" + $location  + "';
+ SET fs.azure.io.read.tolerate.concurrent.append=true;
  SELECT get_json_object($tableName.json, '$.DeviceId'), count(*) 
  FROM $tableName GROUP BY get_json_object($tableName.json, '$.DeviceId')";
 
