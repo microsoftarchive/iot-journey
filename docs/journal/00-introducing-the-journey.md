@@ -109,14 +109,14 @@ The team proposed this logical architecture.
 
 - _Devices_ represent both the devices provided by Fabrikam as well as those legacy devices the customer has. 
 (We're going to simulate the events from the devices in our implementation.)
-- _Cloud Gateway_ is a cloud-hsoted service responsible for authenticating all devices. 
+- _Cloud Gateway_ is a cloud-hosted service responsible for authenticating all devices. 
 It is also where the system will translate for those devices that don't speak the standard language.
 - _Event Processing_ is the part of the system that ingests and processes the stream of events. 
 It is a composition point in the architecture allowing new downstream components to be added later.
 - _Warm Storage_ will only store the recent aggregated state for each building. 
 It will receive this state from Event Processing. It is "warm" because the data should be recent and easily accessible.
 - _Cold Storage_ is where all of the telemetry is stored indefinitely.
-- _Device Registry_ knows which devices are provisioned. Its data is used by the Cloud Gatewat as well as in the Dashboard.
+- _Device Registry_ knows which devices are provisioned. Its data is used by the Cloud Gateway as well as in the Dashboard.
 - _Provioning UI_ is a user interface for provisioing and deprovisioning devices.
 - _Dashboard_ is a user interface for exploring the recent aggregate state.
 - _Batch Analytics_ anticipates the Hive queries that the customer will want to run from time to time.
