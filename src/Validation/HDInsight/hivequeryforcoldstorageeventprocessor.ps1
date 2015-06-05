@@ -38,7 +38,7 @@ Param
 	[Parameter (Mandatory = $true)]
 	[string] $clusterName,
 
-	[string] $directoryName
+	[string] $directoryName = "fabrikam"
 )
 
 Add-AzureAccount
