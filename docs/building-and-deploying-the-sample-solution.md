@@ -303,6 +303,7 @@ Perform the following steps to verify that events are being processed correctly 
 
 ### Running the Cold Storage Processor
 
+***I AM NOT SURE THAT I UNDERSTAND WHAT THIS IS DOING, SO THESE STEPS COULD BE WRONG!!***
 Perform the following steps to run the cold storage processor. 
 
 1. Using Visual Studio, run the ColdProcessor.ConsoleHost project.
@@ -333,7 +334,7 @@ Perform the following steps to analyze the data in blob storage by using a Hive 
 
 - Run the following command:
 
-	`.\hivequery.ps1`
+	`.\hivequeryforstreamanalytics.ps1`
 
 - At the *subscriptionName* prompt, enter the name of the subscription that  owns the storage account holding the blob data used by the simulator.
 
@@ -345,6 +346,35 @@ Perform the following steps to analyze the data in blob storage by using a Hive 
 
 -  In the Sign in to Windows Azure Powershell dialog box, provide the credentials for your Azure account.
 
-- Verify that the message Successfully connected to cluster *cluster name* appears (where *cluster name* is the name of your Hadoop cluster)
+- Verify that the message Successfully connected to cluster *cluster name* appears (where *cluster name* is the name of your Hadoop cluster), and then wait for the Hive query to complete. The results should appear on the standard output. consisting of a series of pairs; the ID of a device and the number of events that the device generated.
 
-- ***NOTE: NEED TO VERIFY WHERE THE OUTPUT GOES - SHOULD BE STDOUT BUT DOES NOT SEEM TO BE APPEARING***
+### Analyzing the Data in Cold Storage by Using a Hive Query
+
+Perform the following steps to analyze the data in blob storage by using a Hive query:
+
+- Start Azure PowerShell as administrator.
+
+> **Note:** Windows Powershell must be configured to run scripts. You can do this by running the following PowerShell command before continuing:
+> 
+> `set-executionpolicy unrestricted`
+
+- Move to the folder containing the source code for the solution scripts, and then move to the Validation\HDInsight subfolder.
+
+- Run the following command:
+
+	`.\hivequeryforcoldstorageeventprocessor.ps1`
+
+- At the *subscriptionName* prompt, enter the name of the subscription that  owns the storage account holding the blob data used by the simulator.
+
+- At the *storageAccountName* prompt, enter the name of the storage account.
+
+- At the *containerName* prompt, type container01 (this is the name of the container that the simulator uses to hold the blob data).
+
+-  At the *clusterName* prompt, enter the name of the Hadoop cluster.
+
+-  In the Sign in to Windows Azure Powershell dialog box, provide the credentials for your Azure account.
+
+- Verify that the message Successfully connected to cluster *cluster name* appears (where *cluster name* is the name of your Hadoop cluster), and then wait for the Hive query to complete. 
+
+***I AM NOT GETTING ANY RESULTS OTHER THAN THE JOB ID***
+
