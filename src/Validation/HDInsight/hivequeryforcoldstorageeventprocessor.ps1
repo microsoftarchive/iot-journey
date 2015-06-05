@@ -38,7 +38,7 @@ Param
 	[Parameter (Mandatory = $true)]
 	[string] $clusterName,
 
-	[string] $directoryName = "fabrikam"
+	[string] $directoryName = "pnp-iotjourney"
 )
 
 Add-AzureAccount
