@@ -35,7 +35,7 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
                        };
         }
 
-        public static EventEntry[] ThrirtyDegreeReadings()
+        public static EventEntry[] ThirtyDegreeReadings()
         {
             return new[]
                        {
