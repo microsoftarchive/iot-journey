@@ -1,47 +1,53 @@
-[CmdletBinding(PositionalBinding=$True)] 
+[CmdletBinding()] 
 Param( 
 
-	[Parameter (Mandatory = $true)]
-	[string]$SubscriptionName = "Azure Guidance",
+	[ValidateNotNullOrEmpty()]
+	[Parameter (Mandatory = $True)]
+	[string]$SubscriptionName,          
 
-	[Parameter (Mandatory = $true)]
-    [String]$Location = "Central US",                 
+	[ValidateNotNullOrEmpty()]
+	[Parameter (Mandatory = $False)]
+	[String]$ResourceGroupPrefix = "fabrikam",
 
-	[Parameter (Mandatory = $true)]
-    [String]$ResourceGroupPrefix = "Fabrikam",
+	[ValidateNotNullOrEmpty()]
+	[Parameter (Mandatory = $False)]
+	[String]$StreamAnalyticsJobName = "fabrikamstreamjob01",
 
-    [String]$ResourceGroupName = $ResourceGroupPrefix + "-" + $Location.Replace(" ","-"),
-
-	[Parameter (Mandatory = $true)]
-    [String]$StreamAnalyticsJobName = "fabrikamstreamjob01",   
-
-    [ValidatePattern("^[A-Za-z][-A-Za-z0-9]*[A-Za-z0-9]$")]               # needs to start with letter or number, and contain only letters, numbers, and hyphens.
-	[Parameter (Mandatory = $true)]
-    [String]$ServiceBusNamespace="fabrikam-ns01",                                   
+	[ValidateNotNullOrEmpty()]
+	[Parameter (Mandatory = $True)]
+	[String]$ServiceBusNamespace,                                   
     
+	[ValidateNotNullOrEmpty()]
+	[Parameter (Mandatory = $False)]
     [ValidatePattern("^[A-Za-z0-9]$|^[A-Za-z0-9][\w-\.\/]*[A-Za-z0-9]$")] # needs to start with letter or number, and contain only letters, numbers, periods, hyphens, and underscores.
-	[Parameter (Mandatory = $true)]
-    [String]$EventHubName = "eventhub01",                   
+	[String]$EventHubName = "eventhub01",                  
     
-	[Parameter (Mandatory = $true)]
-    [string]$DBName = "fabrikamdb01",
+	[ValidateNotNullOrEmpty()]
+	[Parameter (Mandatory = $False)]
+	[string]$SqlDatabaseName = "fabrikamdb01",
 
-	[Parameter (Mandatory = $true)]
-    [string]$DBPassword = "MyPassword",
+	[ValidateNotNullOrEmpty()]
+	[Parameter (Mandatory = $True)]
+	[string]$SqlDatabasePassword,
 
-	[Parameter (Mandatory = $true)]
-    [string]$DBServer = "fabrikamdbserver01", #    you can also use "fabrikamdbserver01.database.windows.net"
+	[ValidateNotNullOrEmpty()]
+	[Parameter (Mandatory = $True)]
+	[string]$SqlServerName,
 
-	[Parameter (Mandatory = $true)]
-    [string]$DBUser="fabrikamuser01",
+	[ValidateNotNullOrEmpty()]
+	[Parameter (Mandatory = $False)]
+	[string]$SqlDatabaseUser="fabrikamdbuser01",
 
-	[Parameter (Mandatory = $true)]
-    [String]$ConsumerGroupName= "consumergroup01", 
+	[ValidateNotNullOrEmpty()]
+	[Parameter (Mandatory = $False)]
+	[String]$ConsumerGroupName= "consumergroup01", 
 
-	[Parameter (Mandatory = $true)]
-    [String]$EventHubSharedAccessPolicyName = "ManagePolicy",
+	[ValidateNotNullOrEmpty()]
+	[Parameter (Mandatory = $False)]
+	[String]$EventHubSharedAccessPolicyName = "ManagePolicy",
 
-    #[ValidatePattern("^[a-z0-9]*$")]                         # don't use this, powershell script is case insensitive, uppercase letter still pass as valid 
+    [ValidateNotNullOrEmpty()]
+	[Parameter (Mandatory = $True)]
     [ValidateScript({
       # we need to use cmathch which is case sensitive, don't use match
       If ($_ -cmatch "^[a-z0-9]*$") {                         # needs contain only lower case letters and numbers.
@@ -50,19 +56,29 @@ Param(
         Throw "`n---Storage account name can only contain lowercase letters and numbers!---"
       }
     })]
-
-    [String]$StorageAccountName = "fabrikamstorage01",    
+	[String]$StorageAccountName,   
        
- 	[Parameter (Mandatory = $true)]
-    [string]$ContainerName = "container01",
+	[ValidateNotNullOrEmpty()]
+ 	[Parameter (Mandatory = $False)]
+	[string]$ContainerName = "container01",
 
-    [ValidatePattern("^[A-Za-z0-9]$|^[A-Za-z0-9][\w-\.\/]*[A-Za-z0-9]$")] 
-    [String]$JobDefinitionPath = "StreamAnalyticsJobDefinition.json"       # optional default to C:\StreamAnalyticsJobDefinition.json
-    ) 
+	[ValidateNotNullOrEmpty()]
+    [Parameter (Mandatory = $False)]
+    [ValidatePattern("^[A-Za-z0-9]$|^[A-Za-z0-9][\w-\.\/]*[A-Za-z0-9]$")]
+	[String]$JobDefinitionPath = "StreamAnalyticsJobDefinition.json",       # optional default to C:\StreamAnalyticsJobDefinition.json
+
+	[ValidateNotNullOrEmpty()]
+    [Parameter (Mandatory = $False)]
+	[String]$Location = "Central US"
+)
+
+.\Init.ps1 
         
 $VerbosePreference = "SilentlyContinue" 
 Switch-AzureMode -Name AzureServiceManagement
 $VerbosePreference = "Continue" 
+
+$ResourceGroupName = $ResourceGroupPrefix + "-" + $Location.Replace(" ","-")
 
 Write-Verbose ("Resource Group Name: " + $ResourceGroupName)
 
@@ -104,7 +120,7 @@ $storageAccountKey = Get-AzureStorageKey -StorageAccountName $StorageAccountName
 $storageAccountKeyPrimary = $storageAccountKey.Primary
 $RefdataContainerName = $ContainerName+"refdata"
 
-$JobDefinitionText = (get-content $JobDefinitionPath).
+$JobDefinitionText = (Get-Content -LiteralPath $JobDefinitionPath).
                     Replace("_StreamAnalyticsJobName",$StreamAnalyticsJobName).
                     Replace("_Location",$Location).
                     Replace("_ConsumerGroupName",$ConsumerGroupName).
@@ -116,10 +132,10 @@ $JobDefinitionText = (get-content $JobDefinitionPath).
                     Replace("_AccountKey",$storageAccountKeyPrimary).
                     Replace("_Container",$ContainerName).
                     Replace("_RefdataContainer",$RefdataContainerName).
-                    Replace("_DBName",$DBName).
-                    Replace("_DBPassword",$DBPassword).
-                    Replace("_DBServer",$DBServer).
-                    Replace("_DBUser",$DBUser)
+                    Replace("_DBName",$SqlDatabaseName).
+                    Replace("_DBPassword",$SqlDatabasePassword).
+                    Replace("_DBServer",$SqlServerName).
+                    Replace("_DBUser",$SqlDatabaseUser)
 
 $TempFileName = [guid]::NewGuid().ToString() + ".json"
 
@@ -129,20 +145,7 @@ $VerbosePreference = "SilentlyContinue"
 Switch-AzureMode AzureResourceManager
 $VerbosePreference = "Continue" 
 
-# Check if the namespace already exists or needs to be created 
-try
-{ 
-    $ResourceGroup = Get-AzureResourceGroup -Name $ResourceGroupName
-    Write-Verbose "The ResourceGroup [$ResourceGroupName] already exists"  
-} 
-catch
-{ 
-    Write-Verbose "The [$ResourceGroupName] ResourceGroup does not exist." 
-    Write-Verbose "Creating the [$ResourceGroupName] ResourceGroup..." 
-    New-AzureResourceGroup -Name $ResourceGroupName -Location $Location
-    $ResourceGroup = Get-AzureResourceGroup -Name $ResourceGroupName
-    Write-Verbose "The [$ResourceGroupName] Resource Group in the [$Location] region has been successfully created." 
-} 
+New-AzureResourceGroupIfNotExists -ResourceGroupName $ResourceGroupName -Location $Location
 
 try
 {

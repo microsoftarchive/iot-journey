@@ -1,7 +1,12 @@
 [CmdletBinding()]
 Param (
-    [Parameter(Mandatory=$True)][string]$SubscriptionName,
     
+	[ValidateNotNullOrEmpty()]
+	[Parameter (Mandatory = $True)]
+	[string]$SubscriptionName,   
+    
+	[ValidateNotNullOrEmpty()]
+    [Parameter(Mandatory=$True)]
     [ValidateScript({
       # we need to use cmatch which is case sensitive, don't use match
       If ($_ -cmatch "^[a-z0-9]*$") {                         # need contain only lower case letters and numbers.
@@ -10,21 +15,26 @@ Param (
         Throw "`n---Storage account name can only contain lowercase letters and numbers!---"
       }
     })]
-    [Parameter(Mandatory=$True)][String]$StorageAccountName,
+	[String]$StorageAccountName,
 
+	[ValidateNotNullOrEmpty()]
+    [Parameter(Mandatory=$False)]
     [ValidatePattern("^[A-Za-z][-A-Za-z0-9]*[A-Za-z0-9]$")] #needs to start with letter or number, and contain only letters, numbers, and hyphens.
-    [Parameter(Mandatory=$False)][string]$StorageContainerName = "iot-hdicontainer01",
+	[string]$StorageContainerName = "iot-hdicontainer01",
 
-    [Parameter(Mandatory=$False)][string]$ClusterName = "iot-hdicluster01",
-    [Parameter(Mandatory=$False)][int]$ClusterNodes = 2,
-    [Parameter(Mandatory=$False)][string]$Location = "Central US"
+	[ValidateNotNullOrEmpty()]
+    [Parameter(Mandatory=$False)]
+	[string]$ClusterName = "iot-hdicluster01",
+
+    [Parameter(Mandatory=$False)]
+	[int]$ClusterNodes = 2,
+
+    [ValidateNotNullOrEmpty()]
+    [Parameter (Mandatory = $false)]
+	[String] $Location = "Central US"
 )
 
-############################
-##
-## Script start up
-##
-############################
+.\Init.ps1
 
 # Set the output level to verbose and make the script stop on error.
 $VerbosePreference = "SilentlyContinue" 

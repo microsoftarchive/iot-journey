@@ -1,9 +1,5 @@
 ![Microsoft patterns & practices](http://pnp.azurewebsites.net/images/pnp-logo.png)
 # Steps
-1. Create SQL Azure Database
-
-1. Run CreateBuildingTemperatureTable.sql in the above database
-
 1. Run Porvision-All
 
 1. in Windowsazure portal, open the stream analytics job provisioned, and test connections for input01, input02, output01, and output02

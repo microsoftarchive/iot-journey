@@ -1,10 +1,17 @@
-
+[CmdletBinding()]
 Param
 (
-	[Parameter (Mandatory = $true)]
-    [ValidatePattern("^[A-Za-z][-A-Za-z0-9]*[A-Za-z0-9]$")]               # needs to start with letter or number, and contain only letters, numbers, and hyphens.
-    [String]$ServiceBusNamespace ="fabrikam-ns01",                                   
+	[ValidateNotNullOrEmpty()]
+	[Parameter(Mandatory = $True)]
+	[string]$SubscriptionName,
 
+	[ValidateNotNullOrEmpty()]
+	[Parameter (Mandatory = $True)]
+    [ValidatePattern("^[A-Za-z][-A-Za-z0-9]*[A-Za-z0-9]$")] # needs to start with letter or number, and contain only letters, numbers, and hyphens.
+	[String]$ServiceBusNamespace,                                   
+    
+	[ValidateNotNullOrEmpty()]
+	[Parameter (Mandatory = $True)]
     # dont use this: [ValidatePattern("^[a-z0-9]*$")]  # don't use this, powershell script is case insensitive, uppercase letter still pass as valid 
     [ValidateScript({
       # we need to use cmathch which is case sensitive, don't use match
@@ -14,52 +21,69 @@ Param
         Throw "`n---Storage account name can only contain lowercase letters and numbers!---"
       }
     })]
-	[Parameter (Mandatory = $true)]
-    [String]$StorageAccountName = "fabrikamstorage01",    
+	[String]$StorageAccountName,    
 
-	[Parameter (Mandatory = $true)]
-    [String]$StreamAnalyticsJobName = "fabrikamstreamjob01",
+	[ValidateNotNullOrEmpty()]
+	[Parameter (Mandatory = $False)]
+	[String]$StreamAnalyticsJobName = "fabrikamstreamjob01",
 
-	[Parameter (Mandatory = $true)]
-	[string]$SubscriptionName = "Azure Guidance",
+	[ValidateNotNullOrEmpty()]
+	[Parameter (Mandatory = $True)]
+	[string]$SqlServerName,
 
-	[Parameter (Mandatory = $true)]
-    [string]$DBName = "fabrikamdb01",
+	[ValidateNotNullOrEmpty()]
+	[Parameter (Mandatory = $False)]
+	[string]$SqlDatabaseName = "fabrikamdb01",
 
-	[Parameter (Mandatory = $true)]
-    [string]$DBServer = "fabrikamdbserver01", #    you can also use "fabrikamdbserver01.database.windows.net"
+	[ValidateNotNullOrEmpty()]
+	[Parameter (Mandatory = $False)]
+	[string]$SqlDatabaseUser="fabrikamdbuser01",
 
-	[Parameter (Mandatory = $true)]
-    [string]$DBUser="fabrikamdbuser01",
+	[ValidateNotNullOrEmpty()]
+	[Parameter (Mandatory = $True)]
+	[string]$SqlDatabasePassword,             
 
-	[Parameter (Mandatory = $true)]
-    [string]$DBPassword = "fabrikamdbuser01password",
-
-    [String]$Location = "Central US",               
-
-    [String]$ResourceGroupPrefix = "fabrikam",
+	[ValidateNotNullOrEmpty()]
+    [Parameter (Mandatory = $False)]
+	[String]$ResourceGroupPrefix = "fabrikam",
     
+	[ValidateNotNullOrEmpty()]
+    [Parameter (Mandatory = $False)]
     [ValidatePattern("^[A-Za-z0-9]$|^[A-Za-z0-9][\w-\.\/]*[A-Za-z0-9]$")] # needs to start with letter or number, and contain only letters, numbers, periods, hyphens, and underscores.
-    [String]$EventHubName = "eventhub01",                   
+	[String]$EventHubName = "eventhub01",                  
+
+	[ValidateNotNullOrEmpty()]
+    [Parameter (Mandatory = $False)]
+	[String]$ConsumerGroupName= "consumergroup01", 
+
+	[ValidateNotNullOrEmpty()]
+    [Parameter (Mandatory = $False)]
+	[String]$EventHubSharedAccessPolicyName = "ManagePolicy",
     
-    [String]$ServiceBusRuleName = "ManagePolicy",      
-
-    [String]$ConsumerGroupName= "consumergroup01", 
-
-    [String]$EventHubSharedAccessPolicyName = "ManagePolicy",
-                   
-    [String]$ContainerName = "container01",
-
-    [Parameter(Mandatory=$False)]
-    [string]$HDInsightStorageContainerName = "iot-hdicontainer01",
-    
+	[ValidateNotNullOrEmpty()]               
+    [Parameter (Mandatory = $False)]
     [ValidatePattern("^[A-Za-z][-A-Za-z0-9]*[A-Za-z0-9]$")] #needs to start with letter or number, and contain only letters, numbers, and hyphens.
-    [Parameter(Mandatory=$true)]
-    [String]$HDInsightClusterName,
+	[String]$ContainerName = "container01",
+
+	[ValidateNotNullOrEmpty()]
+    [Parameter (Mandatory = $False)]
+    [ValidatePattern("^[A-Za-z][-A-Za-z0-9]*[A-Za-z0-9]$")] #needs to start with letter or number, and contain only letters, numbers, and hyphens.
+	[string]$HDInsightStorageContainerName = "iot-hdicontainer01",
     
-    [Parameter(Mandatory=$False)]
-    [int]$HDInsightClusterNodes = 2
+	[ValidateNotNullOrEmpty()]
+    [Parameter(Mandatory = $True)]
+    [ValidatePattern("^[A-Za-z][-A-Za-z0-9]*[A-Za-z0-9]$")] #needs to start with letter or number, and contain only letters, numbers, and hyphens.
+	[String]$HDInsightClusterName,
+    
+    [Parameter (Mandatory = $False)]
+	[int]$HDInsightClusterNodes = 2,
+
+	[ValidateNotNullOrEmpty()]
+    [Parameter (Mandatory = $False)]
+	[String]$Location = "Central US"
 )
+
+.\Init.ps1
 
 # Make the script stop on error
 # Set the output level to verbose and make the script stop on error 
@@ -71,31 +95,54 @@ $VerbosePreference = "Continue"
 $ErrorActionPreference = "Stop" 
 
 
-# Check the azure module is installed
-if(-not(Get-Module -name "Azure")) 
-{ 
-    if(Get-Module -ListAvailable | Where-Object { $_.name -eq "Azure" }) 
-    { 
-        Import-Module Azure
-    }
-    else
-    {
-        "Microsoft Azure Powershell has not been installed, or cannot be found."
-        Exit
-    }
-}
+
+Assert-AzureModuleIsInstalled
 
 
 Add-AzureAccount
 
-$VerbosePreference = "SilentlyContinue" 
-.\Provision-EventHub.ps1 -SubscriptionName $SubscriptionName -Location $Location -Namespace $ServiceBusNamespace -EventHubName $EventHubName -ConsumerGroupName $ConsumerGroupName -EventHubSharedAccessPolicyName $EventHubSharedAccessPolicyName 
+$VerbosePreference = "SilentlyContinue"
 
-.\Provision-StorageAccount.ps1 -SubscriptionName $SubscriptionName -Location $Location -StorageAccountName $StorageAccountName -ContainerName $ContainerName
+.\Provision-SQLDatabase.ps1 -SubscriptionName $SubscriptionName `
+							-ServerName $SqlServerName `
+							-ResourceGroupPrefix $ResourceGroupPrefix `
+							-ServerAdminLogin $SqlDatabaseUser `
+							-ServerAdminPassword $SqlDatabasePassword `
+							-DatabaseName $SqlDatabaseName
+ 
+.\Provision-EventHub.ps1 -SubscriptionName $SubscriptionName `
+                         -Location $Location `
+                         -ServiceBusNamespace $ServiceBusNamespace `
+                         -EventHubName $EventHubName `
+                         -ConsumerGroupName $ConsumerGroupName `
+                         -EventHubSharedAccessPolicyName $EventHubSharedAccessPolicyName 
 
-.\Provision-StreamAnalyticsJob.ps1 -SubscriptionName $SubscriptionName -Location $Location -ResourceGroupPrefix $ResourceGroupPrefix -ServiceBusNamespace $ServiceBusNamespace -EventHubName $EventHubName -ConsumerGroupName $ConsumerGroupName -EventHubSharedAccessPolicyName $EventHubSharedAccessPolicyName -StorageAccountName $StorageAccountName -ContainerName $ContainerName -StreamAnalyticsJobName $StreamAnalyticsJobName -DBName $DBName -DBPassword $DBPassword -DBServer $DBServer -DBUser $DBUser
+.\Provision-StorageAccount.ps1 -SubscriptionName $SubscriptionName `
+                               -Location $Location `
+                               -StorageAccountName $StorageAccountName `
+                               -ContainerName $ContainerName
 
-.\Provision-HDInsight.ps1 -SubscriptionName $SubscriptionName -StorageAccountName $StorageAccountName -StorageContainerName $HDInsightStorageContainerName -ClusterName $HDInsightClusterName -ClusterNodes $HDInsightClusterNodes -Location $Location
+.\Provision-StreamAnalyticsJob.ps1 -SubscriptionName $SubscriptionName `
+                                   -Location $Location `
+                                   -ResourceGroupPrefix $ResourceGroupPrefix `
+                                   -ServiceBusNamespace $ServiceBusNamespace `
+                                   -EventHubName $EventHubName `
+                                   -ConsumerGroupName $ConsumerGroupName `
+                                   -EventHubSharedAccessPolicyName $EventHubSharedAccessPolicyName `
+                                   -StorageAccountName $StorageAccountName `
+                                   -ContainerName $ContainerName `
+                                   -StreamAnalyticsJobName $StreamAnalyticsJobName `
+                                   -SqlDatabaseName $SqlDatabaseName `
+                                   -SqlDatabasePassword $SqlDatabasePassword `
+                                   -SqlServerName $SqlServerName `
+                                   -SqlDatabaseUser $SqlDatabaseUser
+
+.\Provision-HDInsight.ps1 -SubscriptionName $SubscriptionName `
+                          -StorageAccountName $StorageAccountName `
+                          -StorageContainerName $HDInsightStorageContainerName `
+                          -ClusterName $HDInsightClusterName `
+                          -ClusterNodes $HDInsightClusterNodes `
+                          -Location $Location
 
 $VerbosePreference = "Continue" 
 Write-Verbose "Provision-All completed"
