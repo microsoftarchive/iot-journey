@@ -1,6 +1,6 @@
 # Building and Running the IoT Sample Solution
 
-This document describes how to build and run the sample IoT solution. The solution simulates a large number of devices sending environmental readings for apartments in a smart building. The IoT system supports a number of configurations implementing a *hot path* for immediate capture of event data, a *warm path* that tracks events as they occur and performs some processing (this processing will take a finite time and the results might not be immediately available), and a *cold path* where the data is stored for further ad-hoc analysis. Click [here](https://github.com/mspnp/iot-journey/blob/master/docs/overview-of-architecture-and-components.md) for more information about these configurations.  
+This document describes how to build and run the sample IoT solution. The solution simulates a large number of devices sending environmental readings for apartments in a smart building. The IoT system supports a number of configurations implementing a *hot path* for immediate capture of event data, a *warm path* that tracks events as they occur and performs some intermediate processing (this processing will take a finite time and the results might not be immediately available), and a *cold path* where the data is stored for further ad-hoc analysis. Click [here](https://github.com/mspnp/iot-journey/blob/master/docs/overview-of-architecture-and-components.md) for more information about these configurations.  
 
 The simulator enables you to test the following scenarios:
 
