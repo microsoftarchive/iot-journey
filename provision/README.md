@@ -4,7 +4,7 @@
 
 > Note: These steps are a brief overview. For detailed instructions on building and provisioning the sample solution, see ![Building and Running the IoT Sample Solution](building-and-deploying-the-sample-solution.md)
 
-1. Build the solution to download the Nuget files (the build process will report that the file mysettings.config is missing).
+1. Build the solution to download the Nuget packages (the build process will report that the file mysettings.config is missing).
 
 1. Run `Provision-All` using Azure PowerShell.
 
@@ -14,7 +14,7 @@
 
 1. Update the mysettings.config file - set the `Simulator.EventHubConnectionString` and `Simulator.EventHubPath` with the values for the newly provisioned event hub.
 
-1. Start the Stream Analytics Job.
+1. Start the Stream Analytics job.
 
 1. Start running the simulator.
 
