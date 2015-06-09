@@ -60,7 +60,7 @@ Using-AzureResourceManagerMode ({
         $secPassword = ConvertTo-SecureString $ServerAdminPassword -AsPlainText -Force
         $credentials = New-Object System.Management.Automation.PSCredential($ServerAdminLogin, $secPassword)
 
-        $serverContext = New-AzureSqlServer -ResourceGroupName $ResourceGroupName -ServerName $ServerName -SqlAdminCredentials $credentials -location $Location
+        $serverContext = New-AzureSqlServer -ResourceGroupName $ResourceGroupName -ServerName $ServerName -SqlAdministratorCredentials $credentials -location $Location
     
         Write-Verbose ("Created server: {0}" -f $serverContext.ServerName)
     }
