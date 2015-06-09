@@ -5,9 +5,9 @@
 
 1. Build the solution to download the nuget files (the build process will report that the file mysettings.config is missing).
 
-1. Run Provision-All using Windows Azure PowerShell
+1. Run Provision-All using Azure PowerShell
 
-1. In the Windows Azure portal, open the stream analytics job fabrikamstreamjob01, and test the connections for input01, input02, output01, and output02
+1. In the Azure portal, open the stream analytics job fabrikamstreamjob01, and test the connections for input01, input02, output01, and output02
 
 1. Upload fabrikam_buildingdevice.json to the container01refdata of the storage account and rename it as as fabrikam/buildingdevice.json
 
