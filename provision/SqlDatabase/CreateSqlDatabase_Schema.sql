@@ -22,11 +22,21 @@ ON [dbo].[BuildingTemperature]
 INSTEAD OF INSERT 
 AS
 BEGIN 
+	WITH DistinctBuidlingBatch AS
+	(
+		SELECT AllData.* from INSERTED AllData
+		INNER JOIN
+		(
+			SELECT DISTINCT BuildingId, max(LastObservedTime) as LastObservedTime from INSERTED 
+			GROUP BY BuildingId 
+		) AS UniqueBuildingLatestedData
+		ON AllData.BuildingId = UniqueBuildingLatestedData.BuildingId AND AllData.LastObservedTime = UniqueBuildingLatestedData.LastObservedTime 
+	)
 	MERGE dbo.BuildingTemperature AS T  
-	USING INSERTED AS S 
-	ON T.BuildingId = S.BuildingId 
-	WHEN MATCHED THEN  
-		UPDATE SET T.LastObservedTime = S.LastObservedTime, T.Temperature = S.Temperature 
+	USING DistinctBuidlingBatch AS S 
+	ON T.BuildingId = S.BuildingId
+	WHEN MATCHED AND S.LastObservedTime >= T.LastObservedTime THEN  
+		UPDATE SET T.LastObservedTime = S.LastObservedTime, T.Temperature = S.Temperature
 	WHEN NOT MATCHED THEN  
 		INSERT (BuildingId,LastObservedTime,Temperature) VALUES (S.BuildingId,S.LastObservedTime,S.Temperature);
 END
