@@ -36,11 +36,16 @@ A well-balanced team for building an IoT solution is composed of several roles. 
 The people working at Fabrikam each bring their own unique perspective.
 
 - **Beth** is the _business manager_ for Fabrikam.
-	She understands Fabrikam's target market, the resources available to the company, and the goals that they need to meet. She has a strategic view and an interest in the day-to-day operations of the company. She is deeply concerned about customer experience.
+	She understands Fabrikam's target market, the resources available to the company, and the goals that they need to meet. She has a strategic view and an interest in the day-to-day operations of the company. She carefully monitors the operational cost of Fabrikam's solution, and is deeply interested in the customer experience.
 	
 	> ![Beth](media/PersonaBeth.png) 
-	"We need to take risks to be successful; but they need to be the right risks. 
-	I want to make sure that our team can respond quickly to customer needs without sacrificing future flexibility."
+	"We need to take risks to be successful; but they need to be the right risks to be cost effective. I want to make sure that our team can respond quickly to customer needs without sacrificing future flexibility."
+
+- **Gary** is the security expert responsible for ensuring the safety and security of the solution.
+	He has years of experiencing concerning protecting information flowing around a distributed environment, and is well read on the legal aspects of privacy, information disclosure, and data retainment. He also focusses on the safety requirements of the solution to ensure that data cannot be compromised and cause dangerous situations to arise.
+
+	> ![Gary](media/PersonaGary.png)
+	"To me, safety and security are all important. If something goes wrong people could get hurt or the company could be sued."
 
 - **Markus** is the software developer responsible for the _devices_.
 	He is analytical, detail-oriented, and methodical. He has a lot of experience with embedded systems. He is concerned about unnessary abstractions and inefficiencies in the code.
@@ -54,8 +59,8 @@ The people working at Fabrikam each bring their own unique perspective.
 	> ![Jana](media/PersonaJana.png) 
 	"We need to make this system available to the customer as soon as possible so that we can get feedback."
 
-- **Poe** is an IT professional who's an expert in deploying and running applications in the cloud.
-	He believes that it's important to work closely with the development team. He's also concerned with ensuring that Fabrikam's system meets it's published service-level agreements (SLA).
+- **Poe** is a DevOps professional who's an expert in deploying, monitoring, and maintaining applications in the cloud.
+	He understands how the cloud *works* and what the available services can and cannot do. He believes that it's important to work closely with the development team. He's also concerned with ensuring that Fabrikam's system meets it's published service-level agreements (SLA).
 	
 	> ![Poe](media/PersonaPoe.png) 
 	"Availability and reliability are critical to our customers. We can't afford to have downtime for upgrades."
@@ -93,32 +98,36 @@ The team proposed the following logical architecture:
 - _Dashboard_ is a user interface for exploring the recent aggregate state.
 - _Batch Analytics_ anticipates the Hive queries that the customer will want to run from time to time.
 
-## The Logical Process for Handling Events
+## The Steps for Handling Event Data
 
-The developers constructed a logical model to describe the sequence of operations for handling events. This model consists of 4 phases:
+The developers constructed a logical model to describe the sequence of operations for handling event information received from devices. This model consists of 4 steps:
 
-- **Ingestion** Receiving events from devices. Events must be received reliably and in good time (not necessarily real-time).
-- **Processing** Handling events once they have been received. Processing could include operations such as filtering and aggregating event data, or simply passing the received raw data through to another system for storage and analysis.
-- **Storage** Recording the processed event data in safe, reliable storage. The storage system must be capable of handling potentially large volumes of incoming data as well as supporting queries that can analyze this data.
+- **Ingestion** Receiving event data from devices. Events must be received reliably and in good time (not necessarily real-time).
+- **Processing** Processing event information once it has been received. Processing could include operations such as filtering and aggregating event data, or simply passing the received raw data through to another system for storage and analysis.
+- **Storage** Recording the processed event data in safe, reliable storage. The storage system must be capable of handling potentially large volumes of incoming data and be flexible enough to support complex queries efficiently.
 - **Interaction** Providing mechanisms to enable operators and data analysts to examine the event data and utilize this information to draw meaningful conclusions about the state of devices and buildings.
 
-The intention is that each of these operations can be implemented by using a variety of different technologies, and the developers did not want to be bound unnecessarily to a specific tool or service until they had established its suitability and capabilities.
+The intention is that each of these steps can be implemented by using a variety of different technologies, and the developers did not want to be bound unnecessarily to a specific tool or service until they had established its suitability and capabilities. However, these steps are not set in stone; they might evolve as the developers learn more about the capabilities of the solution they are building and the services that they select, and additional steps could be included to cover as-yet undiscovered use-cases and scenarios.
 
-## The Steps
+## The Implementation Phases
 
-The developers decided to approach the system design and implementation through a series of incremental steps. This strategy enables them to evaluate the appropriate technologies as well as build something concrete that can form part of the solution. The steps that they defined are:
+The developers decided to approach the system design and implementation through a series of incremental phases, each associated with building a functional part of the system. This strategy enables them to evaluate the appropriate technologies as well as quickly deploy something concrete that can form part of the solution. Note that these phases are orthogonal to the steps identified above for handling event data; a single phase may cover elements of more than one step, and a single step could be a feature of more than one phase.
 
-1. **[Capturing event data and saving it in its raw format to cold storage][01-cold-storage]**. This step enables developers to determine an approach to ingesting data, performing the simplest of processing, and saving it for subsequent analysis. Because the customer requires all event data to be stored indefinitely, the volume of data held in cold storage could become very large. Cold storage must therefore be inexpensive.
+The phases that they defined are:
 
-2. **[Saving event data to warm storage for ad-hoc exploration][02-warm-storage-ad-hoc]**. This step considers how to store data for warm processing. Analysts and operators performing ad-hoc queries are unlikely to require the details of every historical event, so warm storage will only record the data for *recent* events. This will enable queries to run more quickly, and be more cost effective for expensive data stores that support the features required to run complex queries.
+1. **[Capturing event data and saving it in its raw format to cold storage][01-cold-storage]**. The purpose of this phase is to determine an approach to ingesting data, performing the simplest of processing, and saving it for subsequent analysis. Because the customer requires all event data to be stored indefinitely, the volume of data held in cold storage could become very large. Cold storage must therefore be inexpensive.
 
-3. **[Saving event data to warm storage for generating aggregated streams][03-warm-storage-aggregated]**. This step is concerned with saving event data for warm processing that can generate derivative events, such as raising an alert if the average temperature in an apartment consistently exceeds a pre-defined limit over a specified time (for example, an apartment reports temperatures in excess of 30 degrees Celsius for the last 5 minutes). This information could indicate a fault in the system, such as a broken air conditioning unit, and an alert could be raised to send an engineer to investigate. As with the previous step, these queries only require access to recent data, but the processing is more defined.
+2. **[Saving event data to warm storage for ad-hoc exploration][02-warm-storage-ad-hoc]**. This phase is concerned storing data for warm processing. Analysts and operators performing ad-hoc queries are unlikely to require the details of every historical event, so warm storage will only record the data for *recent* events. This will enable queries to run more quickly, and be more cost effective for expensive data stores that support the features required to run complex queries.
+
+3. **[Saving event data to warm storage for generating aggregated streams][03-warm-storage-aggregated]**. This phase considers the issues around generating information derived from the original event data. Initially, this derivative information is a rolling record of the average temperature reported by all devices in each building over the previous 5 minutes, but additional aggregations may be added as required by the client. As with the previous phase, these queries only require access to recent data, but the processing is more defined.
 
 4. **[Provisioning new devices][04-provisioning-devices]**. TBD
 
 5. **[Translating event data for legacy devices][05-translating-event-data]**. TBD
 
-As we progress on this journey, we will fill out the details of each step by adding new [milestones][]. Each milestone will have a specific set of goals, deliverables, and target date. We'll also create an entry in this journal for each milestone.
+Other phases may be added as development progresses.
+
+As we proceed on this journey, we will fill out the details of each phase by adding new [milestones][]. Each milestone will have a specific set of goals, deliverables, and target date. We'll also create an entry in this journal for each milestone, describing the decisions that Fabrikam made, why they made these decisions, and any specific issues that they uncovered.
 
 [intro-to-iot]: ../articles/what-is-an-IoT-solution.md
 [backlog]: https://github.com/mspnp/iot-journey/issues
