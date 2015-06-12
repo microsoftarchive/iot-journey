@@ -15,8 +15,6 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
 
         public string EventHubPath { get; set; }
 
-        public TimeSpan ScenarioDuration { get; set; }
-
         public int SenderCountPerInstance { get; set; }
 
         public TimeSpan WarmupDuration { get; set; }
@@ -28,7 +26,6 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
                 EventHubConnectionString = ConfigurationHelper.GetConfigValue<string>("Simulator.EventHubConnectionString"),
                 EventHubPath = ConfigurationHelper.GetConfigValue<string>("Simulator.EventHubPath"),
                 NumberOfDevices = ConfigurationHelper.GetConfigValue<int>("Simulator.NumberOfDevices"),
-                ScenarioDuration = ConfigurationHelper.GetConfigValue("Simulator.ScenarioDuration", TimeSpan.FromMinutes(10)),
                 SenderCountPerInstance = ConfigurationHelper.GetConfigValue("Simulator.SenderCountPerInstance", 5),
                 WarmupDuration = ConfigurationHelper.GetConfigValue("Simulator.WarmupDuration", TimeSpan.FromSeconds(30)),
                 Scenario = ConfigurationHelper.GetConfigValue<string>("Simulator.Scenario", String.Empty)
@@ -38,10 +35,9 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
         public override string ToString()
         {
             return String.Format(
-                "Simulation SimulatorConfiguration; device count = {0} event hub name = {1}, duration = {2}",
+                "Simulation SimulatorConfiguration; device count = {0} event hub name = {1}",
                 NumberOfDevices,
-                EventHubPath,
-                ScenarioDuration);
+                EventHubPath);
         }
     }
 }
