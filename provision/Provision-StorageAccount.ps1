@@ -81,3 +81,5 @@ else
 # Configure options for storage account
 Set-AzureStorageAccount -StorageAccountName $StorageAccountName -Type "Standard_LRS" -Verbose;
 Write-Verbose ("Finished configuring storage account {0} in location {1}" -f $StorageAccountName, $Location);
+
+@{"AccountName" = $StorageAccountName; "AccountKey" = $key.Primary }

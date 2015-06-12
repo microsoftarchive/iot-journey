@@ -83,6 +83,62 @@ Param
 	[String]$Location = "Central US"
 )
 
+function CreateOrUpdateSettingsFile
+{
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory=$True)][string]$SimulatorEventHubConnectionString,
+        [Parameter(Mandatory=$True)][string]$SimulatorEventHubPath,
+        [Parameter(Mandatory=$True)][string]$ColdStorageCheckpointStorageAccount,
+        [Parameter(Mandatory=$True)][string]$ColdStorageEventHubConnectionString,
+        [Parameter(Mandatory=$True)][string]$ColdStorageEventHubName,
+        [Parameter(Mandatory=$True)][string]$ColdstorageBlobWriterStorageAccount
+    )
+    PROCESS
+    {
+        $MySettingsTemplateFilePath = (Split-Path $PSScriptRoot -Parent) + "\src\RunFromConsole\mysettings-template.config"
+
+        if(!(Test-Path $MySettingsTemplateFilePath))
+        {
+            throw "Cannot find 'mysettings-template.config' file in [$MySettingsTemplateFilePath]."
+        }
+
+        $MySettingsFilePath = (Split-Path $PSScriptRoot -Parent) + "\src\RunFromConsole\mysettings.config"
+
+        Copy-Item $MySettingsTemplateFilePath $MySettingsFilePath
+
+        $xml = [xml](Get-Content $MySettingsFilePath)
+
+        $node = $xml.appSettings.add | where {$_.key -eq 'Simulator.EventHubConnectionString'}
+        $node.Value = $SimulatorEventHubConnectionString
+
+        $node = $xml.appSettings.add | where {$_.key -eq 'Simulator.EventHubPath'}
+        $node.Value = $SimulatorEventHubPath
+
+        $node = $xml.appSettings.add | where {$_.key -eq 'Coldstorage.CheckpointStorageAccount'}
+        $node.Value = $ColdStorageCheckpointStorageAccount
+
+        $node = $xml.appSettings.add | where {$_.key -eq 'Coldstorage.EventHubConnectionString'}
+        $node.Value = $ColdStorageEventHubConnectionString
+
+        $node = $xml.appSettings.add | where {$_.key -eq 'Coldstorage.EventHubName'}
+        $node.Value = $ColdStorageEventHubName
+
+        $node = $xml.appSettings.add | where {$_.key -eq 'Coldstorage.BlobWriterStorageAccount'}
+        $node.Value = $ColdstorageBlobWriterStorageAccount
+
+        Write-Verbose "Updating [$MySettingsFilePath] configuration file."
+
+        $xml.Save($MySettingsFilePath)
+    }
+}
+
+############################
+##
+## Script start up
+##
+############################
+
 .\Init.ps1
 
 # Make the script stop on error
@@ -110,14 +166,14 @@ $VerbosePreference = "SilentlyContinue"
 							-ServerAdminPassword $SqlDatabasePassword `
 							-DatabaseName $SqlDatabaseName
  
-.\Provision-EventHub.ps1 -SubscriptionName $SubscriptionName `
+$EventHubCreationInfo = .\Provision-EventHub.ps1 -SubscriptionName $SubscriptionName `
                          -Location $Location `
                          -ServiceBusNamespace $ServiceBusNamespace `
                          -EventHubName $EventHubName `
                          -ConsumerGroupName $ConsumerGroupName `
                          -EventHubSharedAccessPolicyName $EventHubSharedAccessPolicyName 
 
-.\Provision-StorageAccount.ps1 -SubscriptionName $SubscriptionName `
+$StorageAccountCreationInfo = .\Provision-StorageAccount.ps1 -SubscriptionName $SubscriptionName `
                                -Location $Location `
                                -StorageAccountName $StorageAccountName `
                                -ContainerName $ContainerName
@@ -143,6 +199,17 @@ $VerbosePreference = "SilentlyContinue"
                           -ClusterName $HDInsightClusterName `
                           -ClusterNodes $HDInsightClusterNodes `
                           -Location $Location
+
+
+$EventHubConnectionString = $EventHubCreationInfo.EventHubConnectionString + ";TransportType=Amqp"
+$StorageAccountConnectionString = "DefaultEndpointsProtocol=https;AccountName={0};AccountKey={1}" -f $StorageAccountCreationInfo.AccountName, $StorageAccountCreationInfo.AccountKey
+
+CreateOrUpdateSettingsFile -SimulatorEventHubConnectionString $EventHubConnectionString `
+                           -SimulatorEventHubPath $EventHubCreationInfo.EventHubName `
+                           -ColdStorageCheckpointStorageAccount  $StorageAccountConnectionString `
+                           -ColdStorageEventHubConnectionString $EventHubConnectionString `
+                           -ColdStorageEventHubName $EventHubCreationInfo.EventHubName `
+                           -ColdstorageBlobWriterStorageAccount $StorageAccountConnectionString
 
 $VerbosePreference = "Continue" 
 Write-Verbose "Provision-All completed"
