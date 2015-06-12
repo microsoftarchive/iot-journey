@@ -32,7 +32,15 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator.ConsoleHost
                     scenario => "Run " + scenario,
                     scenario => (Func<CancellationToken, Task>)(token => deviceSimulator.RunSimulationAsync(scenario, token)));
 
-            Tests.Common.ConsoleHost.WithOptions(options, configuration.ScenarioDuration);
+            if (args.Length == 0)
+            {
+                var runner = new DefaultScenarioRunner();
+                runner.Start();
+            }
+            else
+            {
+                Tests.Common.ConsoleHost.WithOptions(options, configuration.ScenarioDuration);
+            }
         }
     }
 }
