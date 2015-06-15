@@ -24,7 +24,7 @@ Now they now have a few months to roll out a system to production.
 
 ## The Journal
 
-The purpose of this journal is to record the steps that the developers at Fabrikam took, document the decisions that they made, and keep a log of any issues that they encountered. The result is intended to a story that tells of the trials and tribulations of the developers as they implemented the system.
+The purpose of this journal is to record the steps that the team at Fabrikam took, document the decisions that they made, and keep a log of any issues that they encountered. The result is intended to be a story that tells of the trials and tribulations of the team as they implemented the system.
 
 Note that the purpose of this journal is not necessarily to record a _realistic_ scenario, but rather focus on the issues that are _representative_ of the actual challenges that are likely to be met by most organizations faced with building an IoT system for the first time. Additionally, the specification of the system being developed by Fabrikam is not yet fixed; features might be removed or replaced and new features added. We aim to use the [backlog][] to record and drive these changes.
 
@@ -54,13 +54,18 @@ The people working at Fabrikam each bring their own unique perspective.
 	"The devices we deploy are likely to be in the field for years. I want to get this right the first time."
 
 - **Jana** is the software developer responsible for the _cloud-hosted services_.
-	She has a background with high-scale consumer-facing systems. She favors composable designs and that be evolved over time. She is constantly looking for ways to improve the development process.
+	She has a background with high-scale consumer-facing systems. She favors composable designs that can be evolved over time. She is constantly looking for ways to improve the development process.
 
 	> ![Jana](media/PersonaJana.png) 
 	"We need to make this system available to the customer as soon as possible so that we can get feedback."
 
+<<<<<<< HEAD
 - **Poe** is a DevOps professional who's an expert in deploying, monitoring, and maintaining applications in the cloud.
 	He understands how the cloud *works* and what the available services can and cannot do. He believes that it's important to work closely with the development team. He's also concerned with ensuring that Fabrikam's system meets it's published service-level agreements (SLA).
+=======
+- **Poe** is an IT professional who's an expert in deploying and running applications in the cloud.
+	He believes that it's important to work closely with the development team. He's also concerned with ensuring that Fabrikam's system meets its published service-level agreements (SLA).
+>>>>>>> upstream/master
 	
 	> ![Poe](media/PersonaPoe.png) 
 	"Availability and reliability are critical to our customers. We can't afford to have downtime for upgrades."
@@ -73,7 +78,7 @@ The people working at Fabrikam each bring their own unique perspective.
 
 ## The Initial Release
 
-The engineering team has established the following high-level goals for the initial production deployment for their first customer.
+The engineering team has established the following high-level goals for the _initial_ production deployment for their first customer.
 
 - Based on the number of apartment buildings and number of devices needed per building, the system needs to support **100,000 provisioned devices**.
 - Each device will be sending approximately **1 event per minute**. This means the system will need to ingest **~ 1,667 events per second**.
@@ -102,9 +107,15 @@ The team proposed the following logical architecture:
 
 The developers constructed a logical model to describe the sequence of operations for handling event information received from devices. This model consists of 4 steps:
 
+<<<<<<< HEAD
 - **Ingestion** Receiving event data from devices. Events must be received reliably and in good time (not necessarily real-time).
 - **Processing** Processing event information once it has been received. Processing could include operations such as filtering and aggregating event data, or simply passing the received raw data through to another system for storage and analysis.
 - **Storage** Recording the processed event data in safe, reliable storage. The storage system must be capable of handling potentially large volumes of incoming data and be flexible enough to support complex queries efficiently.
+=======
+- **Ingestion** Receiving events from devices. Events must be received reliably and in good time (not necessarily real time).
+- **Processing** Handling events once they have been received. Processing could include operations such as filtering and aggregating event data, or simply passing the received raw data through to another system for storage and analysis.
+- **Storage** Recording the processed event data in safe, reliable storage. The storage system must be capable of handling potentially large volumes of incoming data as well as supporting queries that can analyze this data.
+>>>>>>> upstream/master
 - **Interaction** Providing mechanisms to enable operators and data analysts to examine the event data and utilize this information to draw meaningful conclusions about the state of devices and buildings.
 
 The intention is that each of these steps can be implemented by using a variety of different technologies, and the developers did not want to be bound unnecessarily to a specific tool or service until they had established its suitability and capabilities. However, these steps are not set in stone; they might evolve as the developers learn more about the capabilities of the solution they are building and the services that they select, and additional steps could be included to cover as-yet undiscovered use-cases and scenarios.
@@ -132,8 +143,8 @@ As we proceed on this journey, we will fill out the details of each phase by add
 [intro-to-iot]: ../articles/what-is-an-IoT-solution.md
 [backlog]: https://github.com/mspnp/iot-journey/issues
 [milestones]: https://github.com/mspnp/iot-journey/milestones
-[01-cold-storage]: https://github.com/mspnp/iot-journey/docs/journal/01-cold-storage.md
-[02-warm-storage-ad-hoc]: https://github.com/mspnp/iot-journey/docs/journal/02-warm-storage-ad-hoc.md
-[03-warm-storage-aggregated]: https://github.com/mspnp/iot-journey/docs/journal/03-warm-storage-aggregated
-[04-provisioning-devices]: https://github.com/mspnp/iot-journey/docs/journal/04-provisioning-devices
-[05-translating-event-data]: https://github.com/mspnp/iot-journey/docs/journal/05-translating-event-data
+[01-cold-storage]: 01-cold-storage.md
+[02-warm-storage-ad-hoc]: 02-warm-storage-ad-hoc.md
+[03-warm-storage-aggregated]: 03-warm-storage-aggregated
+[04-provisioning-devices]: 04-provisioning-devices
+[05-translating-event-data]:05-translating-event-data

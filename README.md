@@ -1,5 +1,6 @@
 ![Microsoft patterns & practices](http://pnp.azurewebsites.net/images/pnp-logo.png)
 # IoT Journey
+_An exploration into building a solution in the cloud_
 
 [![Build status](https://ci.appveyor.com/api/projects/status/7oj0ufqarqmgfqim/branch/master?svg=true)](https://ci.appveyor.com/project/mspnp/iot-journey)
 

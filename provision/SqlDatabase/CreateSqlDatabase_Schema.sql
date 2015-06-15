@@ -6,7 +6,7 @@ CREATE TABLE [dbo].[BuildingTemperature](
     [Id] [int] IDENTITY(1,1) PRIMARY KEY,
     [BuildingId] varchar(100) NOT NULL,
     [LastObservedTime] datetime NOT NULL,
-    [Temperature] decimal(3,1) NOT NULL,
+    [Temperature] decimal(4,1) NOT NULL,
 )
 GO
 
