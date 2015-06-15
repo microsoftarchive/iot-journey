@@ -33,33 +33,7 @@
                         }
                     }
                 }
-            },
-            {
-                "Name": "input02",
-                "Properties": {
-                    "Type": "Reference",
-                    "DataSource": {
-                        "Type": "Microsoft.Storage/Blob",
-                        "Properties": {
-                            "Container": "_RefdataContainer",
-                            "BlobName": "fabrikam/buildingdevice.json",
-                            "StorageAccounts": [
-                                {
-                                    "AccountName": "_AccountName",
-                                    "AccountKey": "_AccountKey"
-                                }
-                            ]
-                        }
-                    },
-                    "Serialization": {
-                        "Properties": {
-                            "Encoding": "UTF8"
-                        },
-                        "Type": "Json"
-                    }
-                }
             }
-
         ],
 
         "Outputs": [
@@ -87,22 +61,6 @@
                         }
                     }
                 }
-            },
-            {
-                "Name": "output02",
-                "Properties": {
-                    "DataSource": {
-                        "Properties": {
-                            "Database": "_DBName",
-                            "Password": "_DBPassword",
-                            "Server": "_DBServer",
-                            "Table": "BuildingTemperature",
-                            "User": "_DBUser"
-                        },
-                        "Type": "Microsoft.Sql/Server/Database"
-                    },
-                    "Serialization": null
-                }
             }
         ],
 
@@ -110,7 +68,7 @@
             "Name": "transformation01",
             "Properties": {
                 "StreamingUnits": 1,
-                "Query": "SELECT * INTO output01 FROM input01 TIMESTAMP BY TimeObserved;\r\n\r\nSELECT AVG(I1.Temperature) as Temperature, Max(I1.TimeObserved) as LastObservedTime, I2.BuildingId \r\nINTO output02 \r\nFROM input01 I1 TIMESTAMP BY TimeObserved \r\nJOIN input02 I2 On I1.DeviceId = I2.DeviceId  \r\nGROUP BY TumblingWindow(s,5), I2.BuildingId"
+                "Query": "SELECT * INTO output01 FROM input01 TIMESTAMP BY TimeObserved;"
             }
         }
     }
