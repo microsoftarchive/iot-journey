@@ -16,7 +16,12 @@ Param (
 	[ValidateNotNullOrEmpty()]
 	[Parameter (Mandatory = $False)]
     [ValidatePattern("^[A-Za-z][-A-Za-z0-9]*[A-Za-z0-9]$")]      # needs to start with letter or number, and contain only letters, numbers, and hyphens.
-	[String]$ConsumerGroupName= "consumergroup01", 
+	[String]$ConsumerGroupNameSQL= "consumergroupSQL01", 
+
+	[ValidateNotNullOrEmpty()]
+	[Parameter (Mandatory = $False)]
+    [ValidatePattern("^[A-Za-z][-A-Za-z0-9]*[A-Za-z0-9]$")]      # needs to start with letter or number, and contain only letters, numbers, and hyphens.
+	[String]$ConsumerGroupNameCold= "consumergroupCold01", 
 
 	[ValidateNotNullOrEmpty()]
 	[Parameter (Mandatory = $False)]
@@ -146,12 +151,19 @@ else
     }
 } 
  
-# Create the consumer group if not exists 
-Write-Verbose "Creating the consumer group [$ConsumerGroupName] for the [$EventHubName] event hub..." 
-$ConsumerGroupDescription = New-Object -TypeName Microsoft.ServiceBus.Messaging.ConsumerGroupDescription -ArgumentList $EventHubName, $ConsumerGroupName 
+# Create the consumer groups if not exists 
+Write-Verbose "Creating the consumer group [$ConsumerGroupNameSQL] for the [$EventHubName] event hub..." 
+$ConsumerGroupDescription = New-Object -TypeName Microsoft.ServiceBus.Messaging.ConsumerGroupDescription -ArgumentList $EventHubName, $ConsumerGroupNameSQL 
 $ConsumerGroupDescription.UserMetadata = $ConsumerGroupUserMetadata 
 $NamespaceManager.CreateConsumerGroupIfNotExists($ConsumerGroupDescription); 
-Write-Verbose "The consumer group [$ConsumerGroupName] for the [$EventHubName] event hub has been successfully created." 
+Write-Verbose "The consumer group [$ConsumerGroupNameSQL] for the [$EventHubName] event hub has been successfully created." 
+
+Write-Verbose "Creating the consumer group [$ConsumerGroupNameCold] for the [$EventHubName] event hub..." 
+$ConsumerGroupDescription = New-Object -TypeName Microsoft.ServiceBus.Messaging.ConsumerGroupDescription -ArgumentList $EventHubName, $ConsumerGroupNameCold 
+$ConsumerGroupDescription.UserMetadata = $ConsumerGroupUserMetadata 
+$NamespaceManager.CreateConsumerGroupIfNotExists($ConsumerGroupDescription); 
+Write-Verbose "The consumer group [$ConsumerGroupNameCold] for the [$EventHubName] event hub has been successfully created." 
+
 
 # Mark the finish time of the script execution 
 $finishTime = Get-Date 

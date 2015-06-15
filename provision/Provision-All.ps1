@@ -53,8 +53,14 @@ Param
 	[String]$EventHubName = "eventhub01",                  
 
 	[ValidateNotNullOrEmpty()]
-    [Parameter (Mandatory = $False)]
-	[String]$ConsumerGroupName= "consumergroup01", 
+	[Parameter (Mandatory = $False)]
+    [ValidatePattern("^[A-Za-z][-A-Za-z0-9]*[A-Za-z0-9]$")]      # needs to start with letter or number, and contain only letters, numbers, and hyphens.
+	[String]$ConsumerGroupNameSQL= "consumergroupSQL01", 
+
+	[ValidateNotNullOrEmpty()]
+	[Parameter (Mandatory = $False)]
+    [ValidatePattern("^[A-Za-z][-A-Za-z0-9]*[A-Za-z0-9]$")]      # needs to start with letter or number, and contain only letters, numbers, and hyphens.
+	[String]$ConsumerGroupNameCold= "consumergroupCold01", 
 
 	[ValidateNotNullOrEmpty()]
     [Parameter (Mandatory = $False)]
@@ -114,7 +120,8 @@ $VerbosePreference = "SilentlyContinue"
                          -Location $Location `
                          -ServiceBusNamespace $ServiceBusNamespace `
                          -EventHubName $EventHubName `
-                         -ConsumerGroupName $ConsumerGroupName `
+                         -ConsumerGroupNameSQL $ConsumerGroupNameSQL `
+                         -ConsumerGroupNameCold $ConsumerGroupNameCold `
                          -EventHubSharedAccessPolicyName $EventHubSharedAccessPolicyName 
 
 .\Provision-StorageAccount.ps1 -SubscriptionName $SubscriptionName `
@@ -127,11 +134,11 @@ $VerbosePreference = "SilentlyContinue"
                                    -ResourceGroupPrefix $ResourceGroupPrefix `
                                    -ServiceBusNamespace $ServiceBusNamespace `
                                    -EventHubName $EventHubName `
-                                   -ConsumerGroupName $ConsumerGroupName `
+			                       -ConsumerGroupNameSQL $ConsumerGroupNameSQL `
+						           -ConsumerGroupNameCold $ConsumerGroupNameCold `
                                    -EventHubSharedAccessPolicyName $EventHubSharedAccessPolicyName `
                                    -StorageAccountName $StorageAccountName `
                                    -ContainerName $ContainerName `
-                                   -StreamAnalyticsJobName $StreamAnalyticsJobName `
                                    -SqlDatabaseName $SqlDatabaseName `
                                    -SqlDatabasePassword $SqlDatabasePassword `
                                    -SqlServerName $SqlServerName `
