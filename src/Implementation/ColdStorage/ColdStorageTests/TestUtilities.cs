@@ -13,13 +13,13 @@ namespace Microsoft.Practices.IoTJourney.ColdStorage.Tests
         public static CloudStorageAccount GetStorageAccount()
         {
             CloudStorageAccount storageAccount;
-            var connectionString = ConfigurationManager.AppSettings["storageconnectionstring"];
+            var connectionString = ConfigurationManager.AppSettings["ColdStorage.Tests.StorageConnectionString"];
             if (string.IsNullOrEmpty(connectionString)
                 || connectionString.Contains("YourStorageAccountName")
                 || !CloudStorageAccount.TryParse(connectionString, out storageAccount))
             {
                 throw new ConfigurationErrorsException(
-                    "Ensure the app setting with key 'storageconnectionstring' has a valid storage connection string as its value in the App.config file. It must be set in order to run integration tests.");
+                    "Ensure the app setting with key 'ColdStorage.Tests.StorageConnectionString' has a valid storage connection string as its value in the mysettings.config file. It must be set in order to run integration tests.");
             }
 
             return storageAccount;
