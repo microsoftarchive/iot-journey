@@ -15,16 +15,11 @@ namespace Microsoft.Practices.IoTJourney.Tests.Common
     {
         public static void WithOptions(Dictionary<string, Func<CancellationToken, Task>> actions)
         {
-            WithOptions(actions, Timeout.InfiniteTimeSpan);
-        }
-
-        public static void WithOptions(Dictionary<string, Func<CancellationToken, Task>> actions, TimeSpan timeout)
-        {
             actions.Add("Exit", token => { Environment.Exit(0); return default(Task); });
 
             while (true)
             {
-                var tokenSource = new CancellationTokenSource(timeout);
+                var tokenSource = new CancellationTokenSource(Timeout.InfiniteTimeSpan);
 
                 using (Color(ConsoleColor.Yellow))
                 {
