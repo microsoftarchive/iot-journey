@@ -91,74 +91,124 @@ In this configuration, devices post event data to a Service Bus topic. Worker ro
 
 ### Use Azure Event Hub to ingest events and a worker role to process them
 
-[Azure Event Hub][event-hubs] is a cloud-scale telemetry ingestion service. It is designed to capture millions of events per second in near real time. Devices connections are brokered by using Azure Service Bus.
+[Azure Event Hub][event-hubs] is a cloud-scale telemetry ingestion service. It is designed to capture millions of events per second in near real time. Device connections are brokered by using Azure Service Bus.
 
 **Pros:**
 
-- **Reliability.** As described in the previous approach, the AMQP protocol provides reliability guarantees, helping to ensure that event data is not lost prior to ingestion. Data received by event hub is retained for a specified period (which can be measured in days). If a worker role fails when processing the data for an event, it can be restarted and data is not lost.
+- **Reliability.** As described in the previous approach, the AMQP protocol provides reliability guarantees, helping to ensure that event data is not lost prior to ingestion. Data received by Event Hub is retained for a specified period (which can be measured in days). If a worker role fails when processing the data for an event, it can be restarted and data is not lost.
 
-- **Scalability.** Event Hub is highly scalable through partitioning. 
+- **Scalability.** Event Hub is highly scalable through partitioning. An event hub can contain up to 32 partitions; each partition can receive messages in parallel with other partitions. Event Hub is designed to handle a continuing, large influx of events and is capable of processing up to 1MB/second of data per partition; this is well beyond the current requirements of the system that Fabrikam are proposing and allows the same architecture to be used for much larger systems in the future.
 
-- **Security.** You can set security policies to help protect the event hub and authenticate message senders. AMQP provides transport-level security to protect messages in-flight.
+- **Security.** You can set security policies to help protect Event Hub and authenticate message senders. AMQP provides transport-level security to protect messages in-flight. Event Hub also supports blacklisting of devices; if a device is compromised or stolen, data transmitted by the device can be blocked on receipt by Event Hub.
 
 **Concerns:**
 
 - **Immaturity.** This is a new technology and the developers at Fabrikam need to invest time in learning its capabilities and how to use them.
 
-- **Complexity.** Receiving data from an event hub is a significantly different process from retrieving a message from a Service Bus queue. The [Event Hubs Programming Guide][event-hubs-programming-guide] contains the details.
+- **Complexity.** Receiving data from Event Hub is a significantly different process from retrieving a message from a Service Bus queue. The [Event Hubs Programming Guide][event-hubs-programming-guide] contains the details.
 
 > ![Jana](media/PersonaJana.png) 
 "Getting to grips with new technology always take time, and sometimes requires a few iterations to understand how to use it properly."
 
-- **Throughput.** Event Hub is priced in terms of throughput units. A throughput unit specifies the rate at which data can be sent and received by using Event Hub. If an application exceeds the number of purchased throughput, performance will be throttled and may trigger exceptions. 
+- **Throughput.** Event Hub is priced in terms of throughput units. A throughput unit specifies the rate at which data can be sent and received by using Event Hub. If an application exceeds the number of purchased throughput units, performance will be throttled and may trigger exceptions. The DevOps team must constantly monitor the event hub to ensure that sufficient throughput units are available.
 
-- **Scalability.** Although Event Hub is highly scalable, the same concerns with the scalability of worker roles outlined in the previous approach are still present.
+- **Scalability.** Although Event Hub is highly scalable, the same concerns with the scalability of worker roles outlined in the previous approach are still present.; will they be able to keep up with the outflow of data from Event Hub?
 
 ![cloud service solution based on Event Hub and Work Roles](media/01-cold-storage/physical-architecture-worker-role-and-event-hub.png)
 
 ### Use Azure Event Hub to ingest events and Azure Stream Analytics to process them
 
-*TBD*
+[Azure Stream Analytics][stream-analytics] is a real-time stream processing service. It can capture incoming streams of data from many sources, combine them, and arrange for these streams to be processed and send the results to be sent to one or more destinations.
 
-*DESCRIPTION*
+**Pros:**
 
-[Azure Stream Analytics][stream-analytics] is a real-time stream processing service.
+- **Ease of Use:** Stream Analytics uses a declarative model for specifying the input and output streams, and the transformations to be performed by the processing. It can gather data directly from Event Hub as well as sources such as Blob storage, and it can emit data to Event Hub, Blob storage, Table storage, and Azure SQL Database.
 
-**Pros:** *TBD*
+- **Scalability:** As with Event Hub, Stream Analytics is designed to be highly scalable, capable of supporting event handling throughput of up to 1GB/second. Stream Analytics will automatically scale based on the event ingestion rate, complexity of processing, and expected latencies.
 
-**Concerns:** *TBD*
+- **Reliability:**  The Stream Analytics service is built to persist state and cache output efficiently. These features provide fast recovery from processing node failures, quickly reprocessing lost state.
 
+**Concerns:**
 
-Fabrikam decided to to use Event Hub and Stream Analytics *TBD Why? What were the factor(s) that swung the decision this way?*. 
+- **Immaturity.** As with Event Hub, this is a new technology. The developers at Fabrikam need to invest time in learning its capabilities and how to use them.
 
-The simulator (and later on, the real devices) will send events directly to Event Hub. A Stream Analytics job will fetch the data for every event and send it to cold storage. The data for each event will be saved as a line-delimited JSON object for ease of use.
+- *OTHERS?*
+
+### Event Processing - Selected Technologies
+
+Fabrikam decided to to use Event Hub and Stream Analytics to ingest and process event data. Although these technologies are very new, the scalability, reliability, and securability (the ability to verify and protect event information as it is received), and ease of use swung the decision (the maintenance and monitoring costs of this solution are far less than those concerned with using web and worker roles)
+
+The simulator (and later on, the real devices) will send events directly to Event Hub. A Stream Analytics job will fetch the data for every event and send it to cold storage. The data for each event will be saved as a line-delimited JSON object for maximum interoperability.
 
 ![cloud service solution based on Service Bus Topics and Work Roles](media/01-cold-storage/physical-architecture-stream-analytics-and-event-hub.png)
 
 ## Cold Storage
 
-TBD - Follow same pattern as above:
+Have elected to use Event Hub and Stream Analytics, the next decision that Fabrikam had to make concerned the storage to use for holding the event data after it has been received. The choice of Stream Analytics narrows the choice of storage technology to Event Hub, Azure SQL Database, Table storage, and Blob storage.
 
-Options: 
-Blob storage (fast, cheap, but less easy to pose complex queries)
-Azure SQL Database (more expensive, but easier to query)
-Table Storage
-Elastic Storage
-Others?
+Using Event Hub as a destination was quickly discounted due to the requirement to store data indefinitely; Remember that the primary requirements are that cold storage has to record an indeterminate amount of data very quickly and for an indefinite period. The following sections briefly summarize the discussions that the developers had concerning the remaining possibilities.
+
+### Azure SQL Database
+
+[Azure SQL Database][sql] is an excellent choice for storing structured data that can be easily queried by using SQL. Azure SQL Database is priced according to the service tier/performance level selected. Each service tier/performance level provides different performance and storage capabilities, ranging from 16,600 transactions per second and a 2GB database up to 735 transactions per second and 500GB of database storage at the top end. This may not be sufficient to record the details for the anticipated 1667 events per second (assuming that the data for each event is passed to storage as a single operation by Stream Analytics). Additionally, although 500GB sounds significant it only provides storage for a finite amount of data; if each event record consumes 20 bytes of storage (estimated), then a 500GB database can save data for approximately 175 days worth of events.
+
+There is one further point to consider. Databases are held on a shared database server infrastructure which might be utilized by other clients. Although databases are protected from each other to prevent accidental exposure of data, the infrastructure has to ensure that resources are balanced carefully. You purchase database resources in terms of Database Throughput Units (DTUs). DTUs are based on a blended measure of CPU, memory, reads, and writes. If an application exceeds its quota of DTUs it will be throttled.
+
+> ![Beth](media/PersonaBeth.png) 
+"The operational costs of using Azure SQL database for this solution could be excessive given the throughput and storage requirements. We simply don't need all of the rich features that Azure SQL Database provides to store event data; we just want to save the data quickly and efficiently."
+
+> ![Poe](media/PersonaPoe.png) 
+"Azure SQL Database is not ideally suited to chatty applications or systems that perform a large number of data access operations that are sensitive to network latency." 
+
+### Table Storage
+
+[Table storage][table-storage] is a key/value store that provides a suitable environment for saving large volumes of structured data. A table stores multiple rows, each of which can be up to 1MB in size, and you can store up to 500TB of data in a table (this equates to approximately 950 years of event data if each record is 20 bytes in size). The documented [scalability targets][storage-scalability-targets] for Azure Storage specify that the system should be able to handle up to 20000 messages per second (this is for messages that are 1KB in size), and a total inbound bandwidth of between 10 and 20GB per second.
+
+You should consider using Azure Table Storage when:
+
+- Your application must store significantly large data volumes (expressed in multiple terabytes) while keeping costs down.
+
+- Your application stores and retrieves large data sets and does not have complex relationships that require server-side joins, secondary indexes, or complex server-side logic.
+
+- Your application requires flexible data schema to store non-uniform objects, the structure of which may not be known at design time.
+
+- Your business requires disaster recovery capabilities across geographical locations in order to meet certain compliance needs. Azure tables are geo-replicated between two data centers hundreds of miles apart on the same continent. This replication provides additional data durability in the case of a major disaster.
+
+- You need to store more data than you can hold by using Azure SQL Database without the need for implementing sharding or partioning logic.
+
+- You need to achieve a high level of scaling without having to manually shard your dataset.
+
+> ![Beth](media/PersonaBeth.png)
+"Using Table storage to hold information about device events should be cost effective. Table storage is relatively cheap compared to some other options."
+
+> ![Jana](media/PersonaJana.png)
+"Table storage is fast, but if we simply want to blast the data into a data store for later processing do we really need to save it in a structured manner? The data is being provided from Stream Analytics as a JSON string, so the quickest way to save that information would be in its native format rather than parsing it into a set of fields and allocating a unique key for each record."
+
+### Blob Storage
+
+[Blob storage][blob-storage] enables you to store large amounts of unstructured information, such as text or binary data, quickly and efficiently. It doesn't provide the search and filtering capabilities of table storage, but is ideal for saving a high-volume stream of data. Each stream can be handled and named like a file, and a new stream could be created each for working day (or for each hour, possibly). The scalability targets are the same as for table storage; Fabrikam should be able to store up to 950 years worth of data at a rate of up to 20000 records per second.
+
+### Cold Storage - Selected Technology
+
+Fabrikam selected Blob storage as the cold storage technology. Stream Analytics outputs the event data as a JSON formatted string which is streamed to a file held in Blob storage. This choice meets their requirements for throughput and capacity, and has relatively low costs. Data durability in the event of a disaster can be guaranteed by configuring blobs to use geo-replication across data centers.
+
+> ![Carlos](media/PersonaCarlos.png) 
+"While it might have been useful to store the event data in a format that makes it easy to analyze, I am satisfied that I can use BI tools to retrieve the data from Blob storage and examine it offline." 
 
 ## Lessons Learned - What Fabrikam discovered
-> TODO List the insights, points of confusion, and challenges that we encountered during this step of the journey
+*TODO List the insights, points of confusion, and challenges that we encountered during this step of the journey*
+
 
 [00-intro]: https://github.com/mspnp/iot-journey/docs/journal/00-introducing-the-journey.md
 [traffic-manager]: https://azure.microsoft.com/documentation/articles/traffic-manager-overview/
 [AMQP]: https://www.amqp.org/
 [event-hubs-programming-guide]: https://msdn.microsoft.com/library/azure/dn789972.aspx
-
-
 [sql]: http://azure.microsoft.com/en-us/services/sql-database/
-[blob-storage]: http://azure.microsoft.com/en-us/documentation/articles/storage-dotnet-how-to-use-blobs/
-[event-hubs]: http://azure.microsoft.com/en-us/services/event-hubs/
-[stream-analytics]: http://azure.microsoft.com/en-us/services/stream-analytics/
+[table-storage]: https://azure.microsoft.com/documentation/articles/storage-dotnet-how-to-use-tables/
+[storage-scalability-targets]: https://azure.microsoft.com/documentation/articles/storage-scalability-targets/
+[blob-storage]: http://azure.microsoft.com/documentation/articles/storage-dotnet-how-to-use-blobs/
+[event-hubs]: http://azure.microsoft.com/services/event-hubs/
+[stream-analytics]: http://azure.microsoft.com/services/stream-analytics/
 [milestone]: https://github.com/mspnp/iot-journey/milestones/Milestone%2001
 [orientation]: https://github.com/mspnp/iot-journey/issues/20
 [cold-storage]: https://github.com/mspnp/iot-journey/issues/26

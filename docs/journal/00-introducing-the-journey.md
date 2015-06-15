@@ -10,16 +10,15 @@ Fabrikam is a startup software development company with a dozen employees. The d
 
 The company vision is to become a "smart-building service provider"; a company that provides "environmental monitoring services" on a contractual basis. Initially, they intend to offer their services to owners of high-end apartment buildings. Once contracted, they will install devices in the apartments to be monitored. These devices will report on temperature, humidity, smoke alarm and other environmental conditions.
 
-Fabrikam will use the data collected from the devices to provide various services to the building owners. They imagine services that include:
-- Cost-saving on utilities
-- Fire alerts
-- Flood alerts (broken pipes, slow leaks, etc.)
-- Unexpected temperature changes (indicating a broken HVAC)
+Fabrikam will use the data collected from the devices to provide various services to the building owners. They imagine services that include the following alerts:
+- Fire
+- Flood (broken pipes, slow leaks, water seepage)
+- Unexpected temperature changes (possibly indicating a broken HVAC, or a more serious situation)
 
-In addition, Fabrikam wants to give individual tenants the ability to view
+Aside from improving the safety in buildings, Fabrikam hope to demonstrate that constant monitoring and adjustment of the environment can lead to saving on utilities costs. In addition, Fabrikam wants to give individual tenants the ability to view
 the current state of their own apartment through a mobile app.
 
-Fabrikam landed their first contact before they even wrote a line of code.
+Fabrikam landed their first contact before they even wrote their first line of code.
 Now they now have a few months to roll out a system to production.
 
 ## The Journal
@@ -59,14 +58,9 @@ The people working at Fabrikam each bring their own unique perspective.
 	> ![Jana](media/PersonaJana.png) 
 	"We need to make this system available to the customer as soon as possible so that we can get feedback."
 
-<<<<<<< HEAD
 - **Poe** is a DevOps professional who's an expert in deploying, monitoring, and maintaining applications in the cloud.
 	He understands how the cloud *works* and what the available services can and cannot do. He believes that it's important to work closely with the development team. He's also concerned with ensuring that Fabrikam's system meets it's published service-level agreements (SLA).
-=======
-- **Poe** is an IT professional who's an expert in deploying and running applications in the cloud.
-	He believes that it's important to work closely with the development team. He's also concerned with ensuring that Fabrikam's system meets its published service-level agreements (SLA).
->>>>>>> upstream/master
-	
+
 	> ![Poe](media/PersonaPoe.png) 
 	"Availability and reliability are critical to our customers. We can't afford to have downtime for upgrades."
 
@@ -107,15 +101,9 @@ The team proposed the following logical architecture:
 
 The developers constructed a logical model to describe the sequence of operations for handling event information received from devices. This model consists of 4 steps:
 
-<<<<<<< HEAD
 - **Ingestion** Receiving event data from devices. Events must be received reliably and in good time (not necessarily real-time).
 - **Processing** Processing event information once it has been received. Processing could include operations such as filtering and aggregating event data, or simply passing the received raw data through to another system for storage and analysis.
 - **Storage** Recording the processed event data in safe, reliable storage. The storage system must be capable of handling potentially large volumes of incoming data and be flexible enough to support complex queries efficiently.
-=======
-- **Ingestion** Receiving events from devices. Events must be received reliably and in good time (not necessarily real time).
-- **Processing** Handling events once they have been received. Processing could include operations such as filtering and aggregating event data, or simply passing the received raw data through to another system for storage and analysis.
-- **Storage** Recording the processed event data in safe, reliable storage. The storage system must be capable of handling potentially large volumes of incoming data as well as supporting queries that can analyze this data.
->>>>>>> upstream/master
 - **Interaction** Providing mechanisms to enable operators and data analysts to examine the event data and utilize this information to draw meaningful conclusions about the state of devices and buildings.
 
 The intention is that each of these steps can be implemented by using a variety of different technologies, and the developers did not want to be bound unnecessarily to a specific tool or service until they had established its suitability and capabilities. However, these steps are not set in stone; they might evolve as the developers learn more about the capabilities of the solution they are building and the services that they select, and additional steps could be included to cover as-yet undiscovered use-cases and scenarios.
