@@ -59,6 +59,7 @@ $ErrorActionPreference = "Stop"
 #Add-AzureAccount
 Select-AzureSubscription -SubscriptionName $SubscriptionName
 
+
 try
 {
     # WARNING: Make sure to reference the latest version of the \Microsoft.ServiceBus.dll 
@@ -159,3 +160,5 @@ $finishTime = Get-Date
 # Output the time consumed in seconds 
 $TotalTime = ($finishTime - $startTime).TotalSeconds 
 Write-Verbose "The script completed in $TotalTime seconds."
+
+@{"EventHubName" = $EventHubName; "EventHubConnectionString" = $sbr.ConnectionString }
