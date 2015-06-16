@@ -1,6 +1,14 @@
 # Building and Running the IoT Sample Solution
 
-This document describes how to build and run the sample IoT solution. The solution simulates a large number of devices sending environmental readings for apartments in a smart building. The IoT system supports a number of configurations implementing a *hot path* for immediate capture of event data, a *warm path* that tracks events as they occur and performs some intermediate processing (this processing will take a finite time and the results might not be immediately available), and a *cold path* where the data is stored for further ad-hoc analysis. Click [here](https://github.com/mspnp/iot-journey/blob/master/docs/overview-of-architecture-and-components.md) for more information about these configurations.  
+This document describes how to build and run the sample IoT solution. The solution simulates a large number of devices sending environmental readings for apartments in a smart building. The IoT system implements a number of data flows:
+
+- Capturing the raw event data and quickly saving it to storage, 
+
+- Implementing a *warm path* that performs some intermediate processing and summarizes the raw event data (this processing will take a finite time and the results might not be immediately available),
+
+- Implementing a *cold path* where the data is stored for further ad-hoc analysis. 
+
+Click [here](./overview-of-architecture-and-components.md) for more information about these flows.  
 
 The simulator enables you to test the following scenarios:
 
@@ -8,19 +16,19 @@ The simulator enables you to test the following scenarios:
 
 2. Some devices send readings indicating that the temperature is excessive (over 30 degrees Celsius). As well as being recorded, these readings may prompt some more immediate action.
 
-You can download the code for the solution [here](https://github.com/mspnp/iot-journey/tree/master/src).
+You can download the code for the solution [here](../src).
 
-You should also download the [provisioning scripts](https://github.com/mspnp/iot-journey/tree/master/provision) that create the Azure assets required by the solution.
+You should also download the [provisioning scripts](../provision) that create the Azure assets required by the solution.
 
 The solution comprises the following projects:
 
-- ScenarioSimulator.ConsoleHost. This project contains the logic that implements each of the scenarios. You can configure the parameters used by the simulator (number of devices, simulation duration, warm up time, and so on) by editing the mysettings.config file in this project.
+- ScenarioSimulator. This project contains the logic that implements each of the scenarios. You can configure the parameters used by the simulator (number of devices, simulation duration, warm up time, and so on) by editing the mysettings.config file in this project.
 
 - Devices.Events. This project defines the events that the simulated devices for each of the scenarios can raise.
 
-- ScenarioSimulator.ConsoleHost. This project provides the user interface to the simulator. It implements a menu that enables the user to run each of the scenarios described above.
+- ScenarioSimulator.ConsoleHost (in the RunFromConsole folder). This project provides the user interface to the simulator. It implements a menu that enables the user to run each of the scenarios described above.
 
-- ColdStorage.ConsoleHost and ColdStorage. These projects implement a cold storage processor that captures event data and sends it to blob storage for later analysis.
+- ColdStorage.ConsoleHost (in the RunFromConsole folder) and ColdStorage. These projects implement a cold storage processor that captures event data directly from Event Hub and sends it to blob storage for later analysis.
 
 - Core. This project implements generic, reusable logic that is referenced by the other projects in the solution.
 
@@ -60,6 +68,7 @@ The following sections describe these steps in more detail.
 
 - Rebuild the solution. This action downloads the various NuGet packages referenced by the solution and installs the appropriate assemblies.
 
+***THE MESSAGE HIGHLIGHTED BELOW WILL BE CHANGED TO SOMETHING MORE MEANINGFUL***
 > **Note:** The rebuild process should report an error: *Before building this project, please copy mysettings-template.config to mysettings.config ...* You will do this in a later step. If the rebuild process displays any other errors then clean the solution and rebuild it again.
 
 ### Creating the Required Azure Assets and Services
@@ -88,8 +97,6 @@ The following sections describe these steps in more detail.
 
 - At the *HDInsightClusterName* prompt, enter the name of the HDInsight Cluster you wish to create to process event data.
 
-- At the *ResourceGroup* prompt, enter the name of the resource group that will be used to contain the Azure SQL Database server.
-
 - In the Sign in to Windows Azure Powershell dialog box, provide the credentials for your Azure account. 
 
 - Wait while the script creates the Azure resources.
@@ -102,7 +109,7 @@ The following sections describe these steps in more detail.
 
 ### Verifying the Azure Storage Configuration
 
-The provisioning script uses Azure blob storage to store data after it has been captured by the hot path for further analysis. The cold path also writes data to blob storage. Furthermore, the warm path retrieves reference data used for generating reporting data from blob storage. Perform the following steps to verify the configuration Azure storage:
+The provisioning script generates Azure blob storage to hold the raw event store data after it has been captured by Stream Analytics. This data can be subjected to further analysis separately. A second Stream Analytics job utilizes reference data held in blob storage used for generating summary information. Perform the following steps to verify the configuration Azure storage:
 
 - Using the Visual Studio Server Explorer window, connect to your Azure account.
 
@@ -118,13 +125,14 @@ The provisioning script uses Azure blob storage to store data after it has been 
 
 - Double-click container01refdata to display the contents pane.
 
+***TBD - THE PROVISIONING SCRIPT NEEDS CREATE THE FOLDER AND FILE SHOWN BY THESE NEXT TWO STEPS***
 - On the contents pane, verify that the container has a folder named fabrikam.
 
-- Double-click the fabrikam folder and verify that it contains a file named buildingdevice.json. This file contains the reference data used by the warm path.
+- Double-click the fabrikam folder and verify that it contains a file named buildingdevice.json. This file contains the reference data used by the summarizing element of the solution.
 
 ### Verifying the Azure SQL Database Configuration
 
-The provisioning script creates an Azure SQL Database to hold the rolling summary data of the average temperature in each building generated by the warm path analysis. Perform the following steps to verify the configuration of the database and server:
+The provisioning script creates an Azure SQL Database to hold the rolling summary data of the average temperature in each building. Perform the following steps to verify the configuration of the database and server:
 
 - Using the Azure web portal, open the SQL Databases page.
 
@@ -148,12 +156,13 @@ The provisioning script creates an Azure SQL Database to hold the rolling summar
 
 ### Verifying the Stream Analytics Configuration
 
-The provisioning script should configure Stream Analytics automatically to receive information from two input sources; event data from the event hub and JSON formatted reference data held in the container01refdata container in blob storage (the JSON data is used by the warm path to provide lookups that can make the raw event data more understandable). The stream analytics job writes records of each event to blob storage using JSON format, and a summary showing the average temperature observed by all devices in each building during a 5 minute time window to the BuildingTemperature table in the fabrikamdb01 Azure SQL Database.
+The provisioning script should configure Stream Analytics automatically to receive information from two input sources; event data from the event hub and JSON formatted reference data held in the container01refdata container in blob storage (the JSON data is used by the summary job in Stream Analytics to provide lookups that can make the raw event data more understandable). The stream analytics job writes records of each event to blob storage using JSON format, and a summary showing the average temperature observed by all devices in each building during a 5 minute time window to the BuildingTemperature table in the fabrikamdb01 Azure SQL Database.
 
 To verify that the configuration was successful, perform the following steps:
 
 - Using the Azure web portal, open the Stream Analytics page.
 
+***TBD - THE JOB WILL BE SPLIT INTO TWO PIECES***
 - On the Stream Analytics page, verify that a Stream Analytics job called fabrikamstreamjob01 has been created.
 
 - Click the job, and then in the menu bar click Configure
@@ -255,37 +264,15 @@ The provisioning script creates an HDInsight cluster that uses Hadoop services r
 
 - On the Scale page, verify that the instance count is set to 2.
 
-### Creating the Configuration File and Building the Solution
+### Updating the Configuration File for the Unit Tests
 
-***This section might become obsolete if the configuration is moved to the provisioning script***
+- In Visual Studio, open the *app.config* file in the ColdStorage.Tests project in the UnitTests folder. 
 
-- Using File Explorer copy the file named *mysettings-template.config* in the RunFromConsole folder to *mysettings.config*
-
-- In Visual Studio, open the *mysettings.config* file in the ScenarioSimulator.ConsoleHost project. 
-
-- Using the Azure portal, find the connection string for the eventhub01 event hub in the Service Bus namespace that was created by the provisioning script.
-
-- In Visual Studio, set the value of the Simulator.EventHubConnectionString key to the connection string for the eventhub01 event hub. Append the text `;TransportType=Amqp` to the end of the string.
-
-> **Note:** It is important to specify the transport type because the default protocol is not supported by Azure Event Hub and will trigger exceptions at runtime.
-
-- Set the value of the Simulator.EventHubPath key to eventhub01.
+- In the <appSettings> section, in the value for the storageconnectionstring key, replace the text *[YourStorageAccountName]* with the name of the storage account that you specified when you ran the provisioning script.
 
 - Using the Azure portal, find the primary account key for the storage account that was created by the provisioning script.
 
-- In Visual Studio, set the value of the Coldstorage.CheckpointStorageAccount key using the name of the storage account and the primary account key.
-
-- Repeat the previous step to set the value of the Coldstorage.BlobWriterStorageAccount key.
-
-- Using the Azure portal, find the connection string for the Service Bus namespace that was created by the provisioning script.
-
-> **Note:** This is not the same as the event hub connection string retrieved earlier.
-
-- In Visual Studio, set the value of the Coldstorage.EventHubConnectionString key to the connection string for the eventhub01 event hub. Append the text `;TransportType=Amqp` to the end of the string.
-
-- Set the value of the Coldstorage.EventHubName key to eventhub01.
-
-- (Optional) Modify the values of the other parameters, such as the number of devices or the duration of the simulation if required (the default values are perfectly acceptable, but you can experiment with different settings).
+- In Visual Studio, replace the text *[YourStorageAccountKey]* with the primary account key.
 
 - Save the configuration file and rebuild the solution. It should now build successfully.
 
@@ -319,7 +306,7 @@ Perform the following steps to run the simulator:
 
 - Leave the simulator running.
 
-### Verifying the Hot Path Stream Analytics output
+### Verifying the Raw Event Data Output by Stream Analytics
 
 Perform the following steps to verify that events are being processed correctly by Stream Analytics:
 
@@ -343,9 +330,9 @@ Perform the following steps to verify that events are being processed correctly 
 
 > **Note:** The data for each event comprises the ID of the device that reported the temperature, the value of the temperature, the date and time at which the data was processed, the event hub partition used to process the data, and the date and time at which the data was received by the event hub.
 
-### Analyzing the Hot Path Data by Using a Hive Query
+### Analyzing the Raw Event Data by Using a Hive Query
 
-Perform the following steps to analyze the hot path data by using a Hive query:
+Perform the following steps to analyze the raw event data by using a Hive query:
 
 - Start Azure PowerShell as administrator.
 
@@ -371,9 +358,9 @@ Perform the following steps to analyze the hot path data by using a Hive query:
 
 - Verify that the message Successfully connected to cluster *cluster name* appears (where *cluster name* is the name of your Hadoop cluster), and then wait for the Hive query to complete. The results should appear on the standard output consisting of a series of pairs; the ID of a device and the number of events that the device generated.
 
-### Analyzing the Warm Path Data by Using a SQL Query
+### Analyzing the Summary Data by Using a SQL Query
 
-Perform the following steps to examine the data generated by the warm path:
+Perform the following steps to examine the summary data generated by Stream Analytics:
 
 - Using the Azure web portal, open the SQL Databases page.
 
