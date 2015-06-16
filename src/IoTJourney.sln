@@ -27,6 +27,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ColdStorage.Tests", "Implem
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ColdStorage", "Implementation\ColdStorage\ColdStorage\ColdStorage.csproj", "{6D15D1EF-A00C-4E2E-AEFB-6DA23BEA107F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WarmStorage.ConsoleHost", "RunFromConsole\WarmStorage.ConsoleHost\WarmStorage.ConsoleHost.csproj", "{204F4DFB-54F9-414B-A34F-BC6214E4204F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WarmStorage", "Implementation\WarmStorage\WarmStorage\WarmStorage.csproj", "{57590971-00E1-4898-85A6-B6A967D78437}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WarmStorage.Tests", "Implementation\WarmStorage\WarmStorageTests\WarmStorage.Tests.csproj", "{722E54FE-CE5A-460E-B74B-0410443A13F2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -73,6 +79,18 @@ Global
 		{6D15D1EF-A00C-4E2E-AEFB-6DA23BEA107F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6D15D1EF-A00C-4E2E-AEFB-6DA23BEA107F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6D15D1EF-A00C-4E2E-AEFB-6DA23BEA107F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{204F4DFB-54F9-414B-A34F-BC6214E4204F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{204F4DFB-54F9-414B-A34F-BC6214E4204F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{204F4DFB-54F9-414B-A34F-BC6214E4204F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{204F4DFB-54F9-414B-A34F-BC6214E4204F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{57590971-00E1-4898-85A6-B6A967D78437}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{57590971-00E1-4898-85A6-B6A967D78437}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{57590971-00E1-4898-85A6-B6A967D78437}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{57590971-00E1-4898-85A6-B6A967D78437}.Release|Any CPU.Build.0 = Release|Any CPU
+		{722E54FE-CE5A-460E-B74B-0410443A13F2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{722E54FE-CE5A-460E-B74B-0410443A13F2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{722E54FE-CE5A-460E-B74B-0410443A13F2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{722E54FE-CE5A-460E-B74B-0410443A13F2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -83,5 +101,10 @@ Global
 		{3143B976-6447-4337-A868-5457CEC540ED} = {A6F98EEB-4AF8-463D-A966-38E2261A6A46}
 		{1E5949F1-8E52-4791-8FBE-CE38DBD00DC5} = {29023AFB-F4E5-4088-BB92-3EDDAD30DD77}
 		{5990E15A-7239-4B4A-B59B-495C73063B4B} = {A6F98EEB-4AF8-463D-A966-38E2261A6A46}
+		{204F4DFB-54F9-414B-A34F-BC6214E4204F} = {29023AFB-F4E5-4088-BB92-3EDDAD30DD77}
+		{722E54FE-CE5A-460E-B74B-0410443A13F2} = {A6F98EEB-4AF8-463D-A966-38E2261A6A46}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		EnterpriseLibraryConfigurationToolBinariesPath = packages\TransientFaultHandling.Core.5.1.1209.1\lib\NET4
 	EndGlobalSection
 EndGlobal

@@ -195,6 +195,7 @@ namespace Microsoft.Practices.IoTJourney.ColdStorage
             eventToPersist.Properties = GetStringDictionary(eData.Properties);
             try
             {
+                //We are asuming serialization and encoding from the sender.
                 eventToPersist.Payload = JsonConvert.DeserializeObject(Encoding.UTF8.GetString(eData.GetBytes()));
             }
             catch (JsonReaderException)
