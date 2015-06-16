@@ -214,8 +214,6 @@ $VerbosePreference = "SilentlyContinue"
 Switch-AzureMode AzureResourceManager
 $VerbosePreference = "Continue" 
 
-New-AzureResourceGroupIfNotExists -ResourceGroupName $ResourceGroupName -Location $Location
-
 try
 {
     New-AzureStreamAnalyticsJob -ResourceGroupName $ResourceGroupName  -File $TempFileName -Force
