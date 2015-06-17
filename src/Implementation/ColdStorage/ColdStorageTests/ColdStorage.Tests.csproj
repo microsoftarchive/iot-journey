@@ -120,6 +120,10 @@
     <Compile Include="GivenAColdStorageEventSource.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\..\..\RunFromConsole\mysettings.config">
+      <Link>mysettings.config</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
