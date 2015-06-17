@@ -16,9 +16,14 @@ to help you ask the right questions.
 
 ## What
 
-We will be constructing an IoT solution hosted in Azure. We will be using the
-same tools and services that are available to you. Instead of a single final
-snapshot of our source code, we'll be sharing the history and intermediate
+We will be constructing an IoT solution hosted in Azure. 
+Our focus will be on problems related to the back-end architecture, such as:
+- high-scale event ingestion
+- event stream processing
+- facilitation of analysis
+
+We will be using the same tools and services that are available to you. 
+Instead of a single final snapshot of our source code, we'll be sharing the history and intermediate
 [releases][]. We'll grow the _reference implementation_ (our fancy name for an
 end-to-end sample) over time; responding to new business requirements and
 taking advantage of new services as they are released.
@@ -54,19 +59,14 @@ welcome.
 
 ## Who
 
-Our intended audience for this guidance is any senior developer or architect
-interested in developing an IoT solution. Our reference implementation will
-primarily target the .NET platform, however we will aim to make the written
-guidance as _platform agnostic_ as we reasonably can. It is likely that we will
-be discussing various open source and non-.NET technologies as well.
-If you feel that there is anything more that we can do to make this guidance
-accessible to a broader audience, you are encouraged to share.
+Our intended audience for this guidance is any senior developer or architect interested in developing an IoT solution. 
+We want all developers, regardless of their preferred development stack, to benefit from the written guidance.
+If you feel that there is anything more that we can do to make this guidance accessible to a broader audience, you are encouraged to share.
 
 ## Next Step
 
 - Go to the [docs](docs) folder and review the readme.
 - Start reading the [journal](docs/journal).
-
 
 ## Problems, Concerns, and Feedback
 If something doesn't make sense, start with the [FAQ](FAQ.md).
