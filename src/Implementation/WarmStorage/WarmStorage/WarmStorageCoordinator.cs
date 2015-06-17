@@ -56,8 +56,7 @@ namespace Microsoft.Practices.IoTJourney.WarmStorage
             {
                 MaxBatchSize = configuration.MaxBatchSize,
                 PrefetchCount = configuration.PreFetchCount,
-                ReceiveTimeOut = configuration.ReceiveTimeout,
-                InvokeProcessorAfterReceiveTimeout = true
+                ReceiveTimeOut = configuration.ReceiveTimeout
             };
 
             options.ExceptionReceived += 

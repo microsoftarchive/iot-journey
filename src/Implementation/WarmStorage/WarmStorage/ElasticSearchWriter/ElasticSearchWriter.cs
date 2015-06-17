@@ -48,6 +48,11 @@ namespace Microsoft.Practices.IoTJourney.WarmStorage.ElasticSearchWriter
         {
             Guard.ArgumentNotNull(events, "events");
 
+            if(!events.Any())
+            {
+                return false;
+            }
+
             try
             {
                 string logMessages;
