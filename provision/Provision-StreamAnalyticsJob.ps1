@@ -11,7 +11,12 @@ Param(
 
 	[ValidateNotNullOrEmpty()]
 	[Parameter (Mandatory = $False)]
-	[String]$StreamAnalyticsJobName = "fabrikamstreamjob01",
+	[String]$StreamAnalyticsSQLJobName = "fabrikamstreamjob01",
+
+	[ValidateNotNullOrEmpty()]
+	[Parameter (Mandatory = $False)]
+	[String]$StreamAnalyticsColdStorageJobName = "fabrikamcoldstoragejob02",
+
 
 	[ValidateNotNullOrEmpty()]
 	[Parameter (Mandatory = $True)]
@@ -40,7 +45,13 @@ Param(
 
 	[ValidateNotNullOrEmpty()]
 	[Parameter (Mandatory = $False)]
-	[String]$ConsumerGroupName= "consumergroup01", 
+    [ValidatePattern("^[A-Za-z][-A-Za-z0-9]*[A-Za-z0-9]$")]      # needs to start with letter or number, and contain only letters, numbers, and hyphens.
+	[String]$ConsumerGroupNameSQL= "consumergroupSQL01", 
+
+	[ValidateNotNullOrEmpty()]
+	[Parameter (Mandatory = $False)]
+    [ValidatePattern("^[A-Za-z][-A-Za-z0-9]*[A-Za-z0-9]$")]      # needs to start with letter or number, and contain only letters, numbers, and hyphens.
+	[String]$ConsumerGroupNameCold= "consumergroupCold01", 
 
 	[ValidateNotNullOrEmpty()]
 	[Parameter (Mandatory = $False)]
@@ -65,7 +76,12 @@ Param(
 	[ValidateNotNullOrEmpty()]
     [Parameter (Mandatory = $False)]
     [ValidatePattern("^[A-Za-z0-9]$|^[A-Za-z0-9][\w-\.\/]*[A-Za-z0-9]$")]
-	[String]$JobDefinitionPath = "StreamAnalyticsJobDefinition.json",       # optional default to C:\StreamAnalyticsJobDefinition.json
+	[String]$JobDefinitionPathSQL = "StreamAnalyticsJobDefinitionSQL.json",       # optional default to C:\StreamAnalyticsJobDefinition.json
+
+	[ValidateNotNullOrEmpty()]
+    [Parameter (Mandatory = $False)]
+    [ValidatePattern("^[A-Za-z0-9]$|^[A-Za-z0-9][\w-\.\/]*[A-Za-z0-9]$")]
+	[String]$JobDefinitionPathCold = "StreamAnalyticsJobDefinitionColdStorage.json",       # optional default to C:\StreamAnalyticsJobDefinition.json
 
 	[ValidateNotNullOrEmpty()]
     [Parameter (Mandatory = $False)]
@@ -120,10 +136,13 @@ $storageAccountKey = Get-AzureStorageKey -StorageAccountName $StorageAccountName
 $storageAccountKeyPrimary = $storageAccountKey.Primary
 $RefdataContainerName = $ContainerName+"refdata"
 
-$JobDefinitionText = (Get-Content -LiteralPath $JobDefinitionPath).
-                    Replace("_StreamAnalyticsJobName",$StreamAnalyticsJobName).
+# Create SQL Job Definition
+
+
+$JobDefinitionText = (Get-Content -LiteralPath $JobDefinitionPathSQL).
+                    Replace("_StreamAnalyticsJobName",$StreamAnalyticsSQLJobName).
                     Replace("_Location",$Location).
-                    Replace("_ConsumerGroupName",$ConsumerGroupName).
+                    Replace("_ConsumerGroupName",$ConsumerGroupNameSQL).
                     Replace("_EventHubName",$EventHubName).
                     Replace("_ServiceBusNamespace",$ServiceBusNamespace).
                     Replace("_EventHubSharedAccessPolicyName",$EventHubSharedAccessPolicyName).
@@ -165,6 +184,58 @@ finally
         Remove-Item $TempFileName
     }
 }
+
+Write-Verbose "Completed created Azure Stream Analytics Job for SQL"
+Write-Verbose "Create Azure Stream Analytics Job for Cold Storage"
+
+
+$JobDefinitionText = (Get-Content -LiteralPath $JobDefinitionPathCold).
+                    Replace("_StreamAnalyticsJobName",$StreamAnalyticsColdStorageJobName).
+                    Replace("_Location",$Location).
+                    Replace("_ConsumerGroupName",$ConsumerGroupNameCold).
+                    Replace("_EventHubName",$EventHubName).
+                    Replace("_ServiceBusNamespace",$ServiceBusNamespace).
+                    Replace("_EventHubSharedAccessPolicyName",$EventHubSharedAccessPolicyName).
+                    Replace("_EventHubSharedAccessPolicyKey",$EventHubSharedAccessPolicyKey).
+                    Replace("_AccountName",$StorageAccountName).
+                    Replace("_AccountKey",$storageAccountKeyPrimary).
+                    Replace("_Container",$ContainerName).
+                    Replace("_RefdataContainer",$RefdataContainerName).
+                    Replace("_DBName",$SqlDatabaseName).
+                    Replace("_DBPassword",$SqlDatabasePassword).
+                    Replace("_DBServer",$SqlServerName).
+                    Replace("_DBUser",$SqlDatabaseUser)
+
+$TempFileName = [guid]::NewGuid().ToString() + ".json"
+
+$JobDefinitionText > $TempFileName
+
+$VerbosePreference = "SilentlyContinue" 
+Switch-AzureMode AzureResourceManager
+$VerbosePreference = "Continue" 
+
+try
+{
+    New-AzureStreamAnalyticsJob -ResourceGroupName $ResourceGroupName  -File $TempFileName -Force
+}
+catch [Exception]
+{
+    Write-Verbose $_.Exception.Message
+    throw
+}
+finally
+{
+    if (Test-Path $TempFileName) 
+    {
+        Write-Verbose "deleting the temp file ... "
+        Clear-Content $TempFileName
+        Remove-Item $TempFileName
+    }
+}
+
+
+
+
 
 $VerbosePreference = "SilentlyContinue" 
 Switch-AzureMode -Name AzureServiceManagement
