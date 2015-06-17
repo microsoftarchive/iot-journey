@@ -87,6 +87,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AsyncPump.cs" />
     <Compile Include="ConfigurationHelper.cs" />
     <Compile Include="Guard.cs" />
     <Compile Include="Logging\ScenarioSimulatorEventSource.cs" />
