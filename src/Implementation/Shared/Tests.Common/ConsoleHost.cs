@@ -13,7 +13,7 @@ namespace Microsoft.Practices.IoTJourney.Tests.Common
 {
     public static class ConsoleHost
     {
-        public static void WithOptions(Dictionary<string, Func<CancellationToken, Task>> actions)
+        public static async Task RunWithOptionsAsync(Dictionary<string, Func<CancellationToken, Task>> actions)
         {
             actions.Add("Exit", token => { Environment.Exit(0); return default(Task); });
 
@@ -54,31 +54,78 @@ namespace Microsoft.Practices.IoTJourney.Tests.Common
                     Console.WriteLine(selection.Key);
                 }
 
-                var running = selection
-                    .Value(tokenSource.Token)
-                    .ContinueWith(ReportTaskStatus);
-
                 using (Color(ConsoleColor.DarkGreen))
                 {
                     Console.WriteLine("press `q` to signal termination");
                 }
 
-                var input = Console.ReadKey();
-                if (input.KeyChar == 'q')
-                {
-                    using (Color(ConsoleColor.DarkGreen))
-                    {
-                        Console.WriteLine();
-                        Console.WriteLine("termination signal sent");
-                    }
-                    tokenSource.Cancel();
-                }
+                var ct = tokenSource.Token;
 
-                running.Wait();
+                var consoleTask = Task.Run(async () =>
+                {
+                    while (!ct.IsCancellationRequested)
+                    {
+                        var keyChar = await GetKeyCharAsync(ct);
+                        if (keyChar != 'q' && keyChar != 'Q')
+                            continue;
+
+                        using (Color(ConsoleColor.Red))
+                        {
+                            Console.WriteLine();
+                            Console.WriteLine("termination signal sent");
+                            Console.WriteLine();
+                        }
+
+                        tokenSource.Cancel();
+                        break;
+                    }
+                }, ct);
+
+                var simulatorTask = selection.Value(ct);
+
+                await Task.WhenAny(consoleTask, simulatorTask);
+
+                tokenSource.Cancel();
+                ReportTaskStatus(simulatorTask);
 
                 Console.ReadKey();
                 Console.Clear();
             }
+        }
+
+        private static Task<char> GetKeyCharAsync(CancellationToken ct)
+        {
+            var tcs = new TaskCompletionSource<char>();
+
+            Task.Run(() =>
+            {
+                try
+                {
+                    while (!ct.IsCancellationRequested)
+                    {
+                        if (!Console.KeyAvailable)
+                        {
+                            Thread.Sleep(100);
+                            continue;
+                        }
+
+                        var result = Console.ReadKey(intercept: true);
+                        tcs.SetResult(result.KeyChar);
+                        return;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    tcs.SetException(ex);
+                }
+
+                if (ct.IsCancellationRequested)
+                {
+                    tcs.SetCanceled();
+                }
+            }, ct);
+
+            return tcs.Task;
         }
 
         private static void ReportTaskStatus(Task task)
