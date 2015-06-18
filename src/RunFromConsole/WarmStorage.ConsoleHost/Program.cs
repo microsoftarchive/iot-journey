@@ -8,6 +8,7 @@ using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Practices.EnterpriseLibrary.SemanticLogging;
+using Microsoft.Practices.IoTJourney;
 using Microsoft.Practices.IoTJourney.WarmStorage.Logging;
 using Microsoft.ServiceBus;
 using Microsoft.WindowsAzure.Storage;
@@ -21,6 +22,11 @@ namespace WarmStorage.ConsoleHost
     {
         private static void Main(string[] args)
         {
+            AsyncPump.Run(() => MainAsync(args));
+        }
+
+        private static async Task MainAsync(string[] args)
+        {
             var observableEventListener = new ObservableEventListener();
 
             observableEventListener.EnableEvents(
@@ -28,7 +34,7 @@ namespace WarmStorage.ConsoleHost
 
             observableEventListener.LogToConsole();
 
-            CommonConsoleHost.WithOptions(new Dictionary<string, Func<CancellationToken, Task>>
+            await CommonConsoleHost.RunWithOptionsAsync(new Dictionary<string, Func<CancellationToken, Task>>
             {
                 { "Provision Resources", ProvisionResourcesAsync },
                 { "Run Warm Storage Consumer", RunAsync }

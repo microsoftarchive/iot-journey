@@ -18,6 +18,11 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator.ConsoleHost
 
         private static void Main(string[] args)
         {
+            AsyncPump.Run(() => MainAsync(args));
+        }
+
+        private static async Task MainAsync(string[] args)
+        {
             var observableEventListener = new ObservableEventListener();
 
             observableEventListener.EnableEvents(
@@ -40,7 +45,7 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator.ConsoleHost
                     ? GetWebJobCancellationToken()
                     : CancellationToken.None;
 
-                deviceSimulator.RunSimulationAsync(scenario, ct).Wait(); // todo, use await after #138 is merged
+                await deviceSimulator.RunSimulationAsync(scenario, ct);
                 return;
             }
 
@@ -51,7 +56,7 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator.ConsoleHost
                     scenario => "Run " + scenario,
                     scenario => (Func<CancellationToken, Task>)(token => deviceSimulator.RunSimulationAsync(scenario, token)));
 
-            Tests.Common.ConsoleHost.WithOptions(options);
+            await Tests.Common.ConsoleHost.RunWithOptionsAsync(options);
         }
         
         private static CancellationToken GetWebJobCancellationToken()
