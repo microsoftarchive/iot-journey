@@ -4,7 +4,7 @@ _If you want to understand the intent of this project as well as some of the bas
 
 The documentation for this project is organized as follows:
 
-1. :notebook: The [journal](journal) folder contains _journal entries_ that chronicle our efforts as we build the system described in our [scenario][]. The entries will will with the project's [milestones][]. They are episodes in a larger story.
+1. :notebook: The [journal](journal) folder contains _journal entries_ that chronicle our efforts as we build the system described in our [scenario][]. The entries will align with the project's [milestones][]. They are episodes in a larger story.
 They will discuss:
     - The goals for the milestone.
     - The challenges we faced while pursuing the goals.
