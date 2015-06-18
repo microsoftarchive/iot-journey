@@ -26,7 +26,7 @@ namespace Microsoft.Practices.IoTJourney.ColdStorage.ConsoleHost
 
             observableEventListener.LogToConsole();
 
-            Tests.Common.ConsoleHost.WithOptions(new Dictionary<string, Func<CancellationToken, Task>>
+            Tests.Common.ConsoleHost.RunWithOptionsAsync(new Dictionary<string, Func<CancellationToken, Task>>
             {
                 { "Provision Resources", ProvisionResourcesAsync },
                 { "Run Cold Storage Consumer", RunAsync }
