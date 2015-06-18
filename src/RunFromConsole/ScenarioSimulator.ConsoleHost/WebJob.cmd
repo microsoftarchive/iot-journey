@@ -1,0 +1,1 @@
+Microsoft.Practices.IoTJourney.ScenarioSimulator.ConsoleHost.exe /default /webjob
