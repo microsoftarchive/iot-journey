@@ -98,7 +98,10 @@ function CreateOrUpdateSettingsFile
         [Parameter(Mandatory=$True)][string]$ColdStorageCheckpointStorageAccount,
         [Parameter(Mandatory=$True)][string]$ColdStorageEventHubConnectionString,
         [Parameter(Mandatory=$True)][string]$ColdStorageEventHubName,
-        [Parameter(Mandatory=$True)][string]$ColdstorageBlobWriterStorageAccount
+        [Parameter(Mandatory=$True)][string]$ColdstorageBlobWriterStorageAccount,
+        [Parameter(Mandatory=$True)][string]$WarmstorageEventHubConnectionString,
+        [Parameter(Mandatory=$True)][string]$WarmstorageEventHubName,
+        [Parameter(Mandatory=$True)][string]$WarmstorageCheckpointStorageAccount
     )
     PROCESS
     {
@@ -121,6 +124,7 @@ function CreateOrUpdateSettingsFile
         $node = $xml.appSettings.add | where {$_.key -eq 'Simulator.EventHubPath'}
         $node.Value = $SimulatorEventHubPath
 
+        
         $node = $xml.appSettings.add | where {$_.key -eq 'Coldstorage.CheckpointStorageAccount'}
         $node.Value = $ColdStorageCheckpointStorageAccount
 
@@ -132,6 +136,16 @@ function CreateOrUpdateSettingsFile
 
         $node = $xml.appSettings.add | where {$_.key -eq 'Coldstorage.BlobWriterStorageAccount'}
         $node.Value = $ColdstorageBlobWriterStorageAccount
+
+
+        $node = $xml.appSettings.add | where {$_.key -eq 'Warmstorage.EventHubConnectionString'}
+        $node.Value = $WarmstorageEventHubConnectionString
+
+        $node = $xml.appSettings.add | where {$_.key -eq 'Warmstorage.EventHubName'}
+        $node.Value = $WarmstorageEventHubName
+
+        $node = $xml.appSettings.add | where {$_.key -eq 'Warmstorage.CheckpointStorageAccount'}
+        $node.Value = $WarmstorageCheckpointStorageAccount
 
         Write-Verbose "Updating [$MySettingsFilePath] configuration file."
 
@@ -216,7 +230,11 @@ CreateOrUpdateSettingsFile -SimulatorEventHubConnectionString $EventHubConnectio
                            -ColdStorageCheckpointStorageAccount  $StorageAccountConnectionString `
                            -ColdStorageEventHubConnectionString $EventHubConnectionString `
                            -ColdStorageEventHubName $EventHubCreationInfo.EventHubName `
-                           -ColdstorageBlobWriterStorageAccount $StorageAccountConnectionString
+                           -ColdstorageBlobWriterStorageAccount $StorageAccountConnectionString `
+                           -WarmstorageEventHubConnectionString $EventHubConnectionString `
+                           -WarmstorageEventHubName $EventHubCreationInfo.EventHubName `
+                           -WarmstorageCheckpointStorageAccount $StorageAccountConnectionString
+
 
 $VerbosePreference = "Continue" 
 Write-Verbose "Provision-All completed"
