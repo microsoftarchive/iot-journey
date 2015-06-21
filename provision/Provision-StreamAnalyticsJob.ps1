@@ -88,11 +88,28 @@ Param(
 	[String]$Location = "Central US"
 )
 
-.\Init.ps1 
+function Upload-ReferenceData
+{
+    $key = Get-AzureStorageKey -StorageAccountName $StorageAccountName
+    $context = New-AzureStorageContext -StorageAccountName $StorageAccountName -StorageAccountKey $key.Primary;
+    Set-AzureStorageBlobContent -Blob fabrikam/buildingdevice.json -Container container01refdata -File .\fabrikam_buildingdevice.json -Context $context -Force
+}
+
+############################
+##
+## Script start up
+##
+############################  
+
+.\Init.ps1
         
 $VerbosePreference = "SilentlyContinue" 
 Switch-AzureMode -Name AzureServiceManagement
-$VerbosePreference = "Continue" 
+$VerbosePreference = "Continue"
+
+Assert-AzureModuleIsInstalled
+
+Select-AzureSubscription -SubscriptionName $SubscriptionName
 
 $ResourceGroupName = $ResourceGroupPrefix + "-" + $Location.Replace(" ","-")
 
@@ -233,12 +250,10 @@ finally
     }
 }
 
-
-
-
-
 $VerbosePreference = "SilentlyContinue" 
 Switch-AzureMode -Name AzureServiceManagement
-$VerbosePreference = "Continue" 
+$VerbosePreference = "Continue"
+
+Upload-ReferenceData
 
 Write-Verbose "Create Azure StreamAnalyticsJob Completed"

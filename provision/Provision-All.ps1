@@ -170,10 +170,7 @@ $VerbosePreference = "Continue"
 
 $ErrorActionPreference = "Stop" 
 
-
-
 Assert-AzureModuleIsInstalled
-
 
 Add-AzureAccount
 
