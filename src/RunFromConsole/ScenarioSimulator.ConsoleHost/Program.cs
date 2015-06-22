@@ -25,12 +25,11 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator.ConsoleHost
         {
             var observableEventListener = new ObservableEventListener();
 
-            observableEventListener.EnableEvents(
-              ScenarioSimulatorEventSource.Log, EventLevel.Informational);
+            var configuration = SimulatorConfiguration.GetCurrentConfiguration();
+
+            observableEventListener.EnableEvents(ScenarioSimulatorEventSource.Log, configuration.EventLevel);
 
             observableEventListener.LogToConsole();
-
-            var configuration = SimulatorConfiguration.GetCurrentConfiguration();
 
             var deviceSimulator = new SimulationProfile("Console", 1, configuration);
 

@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
+using System.Diagnostics.Tracing;
 
 namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
 {
@@ -19,6 +20,8 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
 
         public TimeSpan WarmupDuration { get; set; }
 
+        public EventLevel EventLevel { get; set; }
+
         public static SimulatorConfiguration GetCurrentConfiguration()
         {
             return new SimulatorConfiguration
@@ -28,7 +31,8 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
                 NumberOfDevices = ConfigurationHelper.GetConfigValue<int>("Simulator.NumberOfDevices"),
                 SenderCountPerInstance = ConfigurationHelper.GetConfigValue("Simulator.SenderCountPerInstance", 5),
                 WarmupDuration = ConfigurationHelper.GetConfigValue("Simulator.WarmupDuration", TimeSpan.FromSeconds(30)),
-                Scenario = ConfigurationHelper.GetConfigValue<string>("Simulator.Scenario", String.Empty)
+                Scenario = ConfigurationHelper.GetConfigValue<string>("Simulator.Scenario", String.Empty),
+                EventLevel = ConfigurationHelper.GetConfigValue<EventLevel>("Simulator.LogLevel", EventLevel.Informational)
             };
         }
 
