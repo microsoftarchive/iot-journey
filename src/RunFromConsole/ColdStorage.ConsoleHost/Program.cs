@@ -16,8 +16,12 @@ namespace Microsoft.Practices.IoTJourney.ColdStorage.ConsoleHost
 {
     internal class Program
     {
-
         private static void Main(string[] args)
+        {
+            AsyncPump.Run(() => MainAsync(args));
+        }
+
+        private static async Task MainAsync(string[] args)
         {
             var observableEventListener = new ObservableEventListener();
 
@@ -26,7 +30,7 @@ namespace Microsoft.Practices.IoTJourney.ColdStorage.ConsoleHost
 
             observableEventListener.LogToConsole();
 
-            Tests.Common.ConsoleHost.RunWithOptionsAsync(new Dictionary<string, Func<CancellationToken, Task>>
+            await Tests.Common.ConsoleHost.RunWithOptionsAsync(new Dictionary<string, Func<CancellationToken, Task>>
             {
                 { "Provision Resources", ProvisionResourcesAsync },
                 { "Run Cold Storage Consumer", RunAsync }
