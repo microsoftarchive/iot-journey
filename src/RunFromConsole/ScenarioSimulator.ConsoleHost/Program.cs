@@ -9,6 +9,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Practices.EnterpriseLibrary.SemanticLogging;
 using Microsoft.Practices.IoTJourney.Logging;
+using Newtonsoft.Json;
+using System.Collections.Generic;
 
 namespace Microsoft.Practices.IoTJourney.ScenarioSimulator.ConsoleHost
 {
@@ -31,7 +33,7 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator.ConsoleHost
 
             observableEventListener.LogToConsole();
 
-            var deviceSimulator = new SimulationProfile("Console", 1, configuration);
+            var deviceSimulator = new SimulationProfile("Console", configuration);
 
             // check for scenario specified on the command line
             if (args.Length > 0)

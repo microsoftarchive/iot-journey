@@ -10,6 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Practices.IoTJourney.Logging;
 using Microsoft.ServiceBus.Messaging;
+using Microsoft.ServiceBus;
 
 namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
 {
@@ -19,23 +20,59 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
 
         private readonly string _hostName;
 
-        private readonly int _devicesPerInstance;
-
         private readonly ISubject<int> _observableTotalCount = new Subject<int>();
+
+        private readonly IList<Device> _devices = new List<Device>();
 
         public SimulationProfile(
             string hostName,
-            int instanceCount,
             SimulatorConfiguration simulatorConfiguration)
         {
+            Guard.ArgumentNotNullOrEmpty(hostName, "hostName");
+            Guard.ArgumentNotNull(simulatorConfiguration, "simulatorConfiguration");
+
             _hostName = hostName;
             _simulatorConfiguration = simulatorConfiguration;
+        }
 
-            _devicesPerInstance = simulatorConfiguration.NumberOfDevices / instanceCount;
+        public void ProvisionDevices(bool force)
+        {
+            //ScenarioSimulatorEventSource.Log.ProvisionDevicesSatarted();
+
+            if (_devices.Any() && !force)
+            {
+                throw new InvalidOperationException("Devices already provisioned. Use force option to reprovision.");
+            }
+
+            _devices.Clear();
+
+            for (int i = 0; i < _simulatorConfiguration.NumberOfDevices; i++)
+            {
+                // Use the short form of the host or instance name to generate the device id.
+                var deviceId = String.Format("{0}-{1}", ConfigurationHelper.InstanceName, i);
+
+                var endpoint = ServiceBusEnvironment.CreateServiceUri("sb", _simulatorConfiguration.EventHubNamespace, string.Empty);
+                var eventHubName = _simulatorConfiguration.EventHubPath;
+
+                // Generate token for the device.
+                string deviceToken = SharedAccessSignatureTokenProvider.GetPublisherSharedAccessSignature
+                (
+                    endpoint,
+                    eventHubName,
+                    deviceId,
+                    _simulatorConfiguration.EventHubSasKeyName,
+                    _simulatorConfiguration.EventHubPrimaryKey,
+                    TimeSpan.FromDays(_simulatorConfiguration.EventHubTokenLifetimeDays)
+                );
+
+                _devices.Add(new Device(deviceId, endpoint, eventHubName, i) { Token = deviceToken });
+            }
         }
 
         public async Task RunSimulationAsync(string scenario, CancellationToken token)
         {
+            ProvisionDevices(true);
+
             ScenarioSimulatorEventSource.Log.SimulationStarted(_hostName, scenario);
 
             var produceEventsForScenario = SimulationScenarios.GetScenarioByName(scenario);
@@ -43,12 +80,12 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
             var simulationTasks = new List<Task>();
 
             var warmup = _simulatorConfiguration.WarmupDuration;
-            var warmupPerDevice = warmup.Ticks / _devicesPerInstance;
+            var warmupPerDevice = warmup.Ticks;
 
-            var messagingFactories =
-                Enumerable.Range(0, _simulatorConfiguration.SenderCountPerInstance)
-                    .Select(i => MessagingFactory.CreateFromConnectionString(_simulatorConfiguration.EventHubConnectionString))
-                    .ToArray();
+            //var messagingFactories =
+            //    Enumerable.Range(0, _simulatorConfiguration.SenderCountPerInstance)
+            //        .Select(i => MessagingFactory.CreateFromConnectionString(_simulatorConfiguration.EventHubConnectionString))
+            //        .ToArray();
 
             _observableTotalCount
                 .Sum()
@@ -59,56 +96,53 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
                 .Scan(0, (total, next) => total + next.Sum())
                 .Subscribe(total => ScenarioSimulatorEventSource.Log.CurrentEventCountForAllDevices(total));
 
-            try
+            //try
+            //{
+            foreach (var device in _devices)
             {
-                for (int i = 0; i < _devicesPerInstance; i++)
-                {
-                    // Use the short form of the host or instance name to generate the vehicle ID
-                    var deviceId = String.Format("{0}-{1}", ConfigurationHelper.InstanceName, i);
+                var eventSender = new EventSender(
+                    device: device,
+                    config: _simulatorConfiguration,
+                    serializer: Serializer.ToJsonUTF8
+                );
 
-                    var eventSender = new EventSender(
-                        messagingFactory: messagingFactories[i % messagingFactories.Length],
-                        config: _simulatorConfiguration,
-                        serializer: Serializer.ToJsonUTF8
-                    );
+                var deviceTask = SimulateDeviceAsync(
+                    device: device,
+                    produceEventsForScenario: produceEventsForScenario,
+                    sendEventsAsync: eventSender.SendAsync,
+                    waitBeforeStarting: TimeSpan.FromTicks(warmupPerDevice * device.StartupOrder),
+                    totalCount: _observableTotalCount,
+                    token: token
+                );
 
-                    var deviceTask = SimulateDeviceAsync(
-                        deviceId: deviceId,
-                        produceEventsForScenario: produceEventsForScenario,
-                        sendEventsAsync: eventSender.SendAsync,
-                        waitBeforeStarting: TimeSpan.FromTicks(warmupPerDevice * i),
-                        totalCount: _observableTotalCount,
-                        token: token
-                    );
-
-                    simulationTasks.Add(deviceTask);
-                }
-
-                await Task.WhenAll(simulationTasks.ToArray());
-
-                _observableTotalCount.OnCompleted();
+                simulationTasks.Add(deviceTask);
             }
-            finally
-            {
-                // cannot await on a finally block to do CloseAsync
-                foreach (var factory in messagingFactories)
-                {
-                    factory.Close();
-                }
-            }
+
+            await Task.WhenAll(simulationTasks.ToArray());
+
+            _observableTotalCount.OnCompleted();
+            //}
+            //finally
+            //{
+            //    // cannot await on a finally block to do CloseAsync
+            //    foreach (var factory in messagingFactories)
+            //    {
+            //        factory.Close();
+            //    }
+            //}
 
             ScenarioSimulatorEventSource.Log.SimulationEnded(_hostName);
         }
 
         private static async Task SimulateDeviceAsync(
-            string deviceId,
+            Device device,
             Func<EventEntry[]> produceEventsForScenario,
             Func<object, Task<bool>> sendEventsAsync,
             TimeSpan waitBeforeStarting,
             IObserver<int> totalCount,
             CancellationToken token)
         {
-            ScenarioSimulatorEventSource.Log.WarmingUpFor(deviceId, waitBeforeStarting.Ticks);
+            ScenarioSimulatorEventSource.Log.WarmingUpFor(device.Id, waitBeforeStarting.Ticks);
 
             try
             {
@@ -120,16 +154,15 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
             }
 
             var messagingEntries = produceEventsForScenario();
-            var device = new Device(deviceId, messagingEntries, sendEventsAsync);
 
             device.ObservableEventCount
                 .Sum()
-                .Subscribe(total => ScenarioSimulatorEventSource.Log.FinalEventCount(deviceId, total));
+                .Subscribe(total => ScenarioSimulatorEventSource.Log.FinalEventCount(device.Id, total));
 
             device.ObservableEventCount
                 .Subscribe(totalCount.OnNext);
 
-            await device.RunSimulationAsync(token);
+            await device.RunSimulationAsync(messagingEntries, sendEventsAsync, token);
         }
     }
 }
