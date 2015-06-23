@@ -71,7 +71,11 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
 
         public async Task RunSimulationAsync(string scenario, CancellationToken token)
         {
-            ProvisionDevices(true);
+            //TODO: we need to find a friendlier way to show this.
+            if(!_devices.Any())
+            {
+                throw new InvalidOperationException("No devices found. Please execute device provisioning first.");
+            }
 
             ScenarioSimulatorEventSource.Log.SimulationStarted(_hostName, scenario);
 
