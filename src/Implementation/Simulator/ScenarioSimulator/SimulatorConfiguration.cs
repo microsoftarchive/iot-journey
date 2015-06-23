@@ -12,11 +12,17 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
 
         public int NumberOfDevices { get; set; }
 
+        public string EventHubNamespace { get; set; }
+
+        public string EventHubSasKeyName { get; set; }
+
+        public string EventHubPrimaryKey { get; set; }
+
+        public int EventHubTokenLifetimeDays { get; set; }
+
         public string EventHubConnectionString { get; set; }
 
         public string EventHubPath { get; set; }
-
-        public int SenderCountPerInstance { get; set; }
 
         public TimeSpan WarmupDuration { get; set; }
 
@@ -26,10 +32,13 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
         {
             return new SimulatorConfiguration
             {
+                EventHubNamespace = ConfigurationHelper.GetConfigValue<string>("Simulator.EventHubNamespace"),
+                EventHubSasKeyName = ConfigurationHelper.GetConfigValue<string>("Simulator.EventHubSasKeyName"),
+                EventHubPrimaryKey = ConfigurationHelper.GetConfigValue<string>("Simulator.EventHubPrimaryKey"),
+                EventHubTokenLifetimeDays = ConfigurationHelper.GetConfigValue<int>("Simulator.EventHubTokenLifetimeDays", 7),
                 EventHubConnectionString = ConfigurationHelper.GetConfigValue<string>("Simulator.EventHubConnectionString"),
                 EventHubPath = ConfigurationHelper.GetConfigValue<string>("Simulator.EventHubPath"),
                 NumberOfDevices = ConfigurationHelper.GetConfigValue<int>("Simulator.NumberOfDevices"),
-                SenderCountPerInstance = ConfigurationHelper.GetConfigValue("Simulator.SenderCountPerInstance", 5),
                 WarmupDuration = ConfigurationHelper.GetConfigValue("Simulator.WarmupDuration", TimeSpan.FromSeconds(30)),
                 Scenario = ConfigurationHelper.GetConfigValue<string>("Simulator.Scenario", String.Empty),
                 EventLevel = ConfigurationHelper.GetConfigValue<EventLevel>("Simulator.LogLevel", EventLevel.Informational)

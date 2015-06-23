@@ -7,23 +7,31 @@ using System.Threading.Tasks;
 using Microsoft.Practices.IoTJourney.Devices.Events;
 using Microsoft.Practices.IoTJourney.Logging;
 using Microsoft.ServiceBus.Messaging;
+using Microsoft.ServiceBus;
 
 namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
 {
     public class EventSender : IEventSender
     {
-        private readonly EventHubClient _eventHubClient;
+        private readonly EventHubSender _eventHubSender;
 
         private readonly Func<object, byte[]> _serializer;
 
         public EventSender(
-            MessagingFactory messagingFactory,
+            Device device,
             SimulatorConfiguration config,
             Func<object, byte[]> serializer)
         {
             this._serializer = serializer;
 
-            this._eventHubClient = messagingFactory.CreateEventHubClient(config.EventHubPath);
+            var connectionString = ServiceBusConnectionStringBuilder.CreateUsingSharedAccessSignature(
+                                         device.Endpoint,
+                                         device.EventHubName,
+                                         device.Id,
+                                         device.Token
+                                   );
+
+            _eventHubSender = EventHubSender.CreateFromConnectionString(connectionString);
         }
 
         public static string DetermineTypeFromEvent(object evt)
@@ -41,7 +49,7 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
                 {
                     var stopwatch = Stopwatch.StartNew();
 
-                    await this._eventHubClient.SendAsync(eventData);
+                    await _eventHubSender.SendAsync(eventData);
                     stopwatch.Stop();
 
                     ScenarioSimulatorEventSource.Log.EventSent(stopwatch.ElapsedTicks);
