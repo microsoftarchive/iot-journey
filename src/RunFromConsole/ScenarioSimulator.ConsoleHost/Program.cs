@@ -18,6 +18,8 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator.ConsoleHost
     {
         private static FileSystemWatcher _fileSystemWatcher;
 
+        private static SimulationProfile _deviceSimulator;
+
         private static void Main(string[] args)
         {
             AsyncPump.Run(() => MainAsync(args));
@@ -33,7 +35,7 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator.ConsoleHost
 
             observableEventListener.LogToConsole();
 
-            var deviceSimulator = new SimulationProfile("Console", configuration);
+            _deviceSimulator = new SimulationProfile("Console", configuration);
 
             // check for scenario specified on the command line
             if (args.Length > 0)
@@ -46,19 +48,37 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator.ConsoleHost
                     ? GetWebJobCancellationToken()
                     : CancellationToken.None;
 
-                await deviceSimulator.RunSimulationAsync(scenario, ct);
+                await _deviceSimulator.RunSimulationAsync(scenario, ct);
                 return;
             }
 
-            // no command line arguments, so prompt with a menu
-            var options = SimulationScenarios
-                .AllScenarios
-                .ToDictionary(
-                    scenario => "Run " + scenario,
-                    scenario => (Func<CancellationToken, Task>)(token => deviceSimulator.RunSimulationAsync(scenario, token)));
+            var options = new Dictionary<string, Func<CancellationToken, Task>>();
+            
+            options.Add("Provision Devices", ProvisionDevicesAsync);
+
+            // no command line arguments, so prompt with a menu.
+            foreach(var scenario in  SimulationScenarios.AllScenarios)
+            {
+                options.Add("Run " + scenario, (Func<CancellationToken, Task>)(token => _deviceSimulator.RunSimulationAsync(scenario, token)));
+            }
+
+            //options.Add("Deprovision Devices", DeprovisionDevicesAsync);
 
             await Tests.Common.ConsoleHost.RunWithOptionsAsync(options);
         }
+
+        private static async Task ProvisionDevicesAsync(CancellationToken token)
+        {
+            _deviceSimulator.ProvisionDevices(true);
+
+            await Task.Delay(0);
+        }
+
+        //Uncomment this code when implementing deprovisioning.
+        //private static async Task DeprovisionDevicesAsync(CancellationToken token)
+        //{
+            
+        //}
         
         private static CancellationToken GetWebJobCancellationToken()
         {
