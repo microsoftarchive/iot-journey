@@ -52,7 +52,7 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
                 var deviceId = String.Format("{0}-{1}", ConfigurationHelper.InstanceName, i);
 
                 var endpoint = ServiceBusEnvironment.CreateServiceUri("sb", _simulatorConfiguration.EventHubNamespace, string.Empty);
-                var eventHubName = _simulatorConfiguration.EventHubPath;
+                var eventHubName = _simulatorConfiguration.EventHubName;
 
                 // Generate token for the device.
                 string deviceToken = SharedAccessSignatureTokenProvider.GetPublisherSharedAccessSignature
@@ -82,11 +82,6 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
             var warmup = _simulatorConfiguration.WarmupDuration;
             var warmupPerDevice = warmup.Ticks;
 
-            //var messagingFactories =
-            //    Enumerable.Range(0, _simulatorConfiguration.SenderCountPerInstance)
-            //        .Select(i => MessagingFactory.CreateFromConnectionString(_simulatorConfiguration.EventHubConnectionString))
-            //        .ToArray();
-
             _observableTotalCount
                 .Sum()
                 .Subscribe(total => ScenarioSimulatorEventSource.Log.FinalEventCountForAllDevices(total));
@@ -96,8 +91,6 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
                 .Scan(0, (total, next) => total + next.Sum())
                 .Subscribe(total => ScenarioSimulatorEventSource.Log.CurrentEventCountForAllDevices(total));
 
-            //try
-            //{
             foreach (var device in _devices)
             {
                 var eventSender = new EventSender(
@@ -121,15 +114,6 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
             await Task.WhenAll(simulationTasks.ToArray());
 
             _observableTotalCount.OnCompleted();
-            //}
-            //finally
-            //{
-            //    // cannot await on a finally block to do CloseAsync
-            //    foreach (var factory in messagingFactories)
-            //    {
-            //        factory.Close();
-            //    }
-            //}
 
             ScenarioSimulatorEventSource.Log.SimulationEnded(_hostName);
         }
