@@ -20,9 +20,7 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
 
         public int EventHubTokenLifetimeDays { get; set; }
 
-        public string EventHubConnectionString { get; set; }
-
-        public string EventHubPath { get; set; }
+        public string EventHubName { get; set; }
 
         public TimeSpan WarmupDuration { get; set; }
 
@@ -32,15 +30,14 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
         {
             return new SimulatorConfiguration
             {
+                Scenario = ConfigurationHelper.GetConfigValue<string>("Simulator.Scenario", String.Empty),
+                NumberOfDevices = ConfigurationHelper.GetConfigValue<int>("Simulator.NumberOfDevices"),
                 EventHubNamespace = ConfigurationHelper.GetConfigValue<string>("Simulator.EventHubNamespace"),
+                EventHubName = ConfigurationHelper.GetConfigValue<string>("Simulator.EventHubName"),
                 EventHubSasKeyName = ConfigurationHelper.GetConfigValue<string>("Simulator.EventHubSasKeyName"),
                 EventHubPrimaryKey = ConfigurationHelper.GetConfigValue<string>("Simulator.EventHubPrimaryKey"),
                 EventHubTokenLifetimeDays = ConfigurationHelper.GetConfigValue<int>("Simulator.EventHubTokenLifetimeDays", 7),
-                EventHubConnectionString = ConfigurationHelper.GetConfigValue<string>("Simulator.EventHubConnectionString"),
-                EventHubPath = ConfigurationHelper.GetConfigValue<string>("Simulator.EventHubPath"),
-                NumberOfDevices = ConfigurationHelper.GetConfigValue<int>("Simulator.NumberOfDevices"),
                 WarmupDuration = ConfigurationHelper.GetConfigValue("Simulator.WarmupDuration", TimeSpan.FromSeconds(30)),
-                Scenario = ConfigurationHelper.GetConfigValue<string>("Simulator.Scenario", String.Empty),
                 EventLevel = ConfigurationHelper.GetConfigValue<EventLevel>("Simulator.LogLevel", EventLevel.Informational)
             };
         }
@@ -50,7 +47,7 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
             return String.Format(
                 "Simulation SimulatorConfiguration; device count = {0} event hub name = {1}",
                 NumberOfDevices,
-                EventHubPath);
+                EventHubName);
         }
     }
 }
