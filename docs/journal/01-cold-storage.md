@@ -140,11 +140,6 @@ In this configuration, devices post event data to a Service Bus topic. Worker ro
 
 - **Immaturity.** As with Event Hub, this is a new technology. The developers at Fabrikam need to invest time in learning its capabilities and how to use them.
 
-- **Blob Storage.** The developers uncovered the following issues when using Stream Analytics to save data to blob storage:
-	- HDInsight Hive queries will fail when running against data held in blob files being actively written to by Stream Analytics. It is possible to workaround this problem by ignoring blob access exceptions.
-
-	- HDInsights requires the data held in blob storage to be JSON formatted with each record on a new line. This requires configuring the Stream Analytics output format appropriately.
-
 - **Event Metadata.** The event stream passed to Stream Analytics does not include the event metadata that is captured by Event Hub. This metadata can be valuable and can include information not available in the main payload of the event data. If this metadata is required, it might be necessary to connect directly to Event Hub and use an alternative approach to Stream Analytics.
 
 ### Event Processing - Selected Technologies
@@ -213,7 +208,13 @@ Fabrikam selected Blob storage as the cold storage technology. Stream Analytics 
 "While it might have been useful to store the event data in a format that makes it easy to analyze, I am satisfied that I can use BI tools to retrieve the data from Blob storage and examine it offline." 
 
 ## Lessons Learned - What Fabrikam discovered
-*TODO List the insights, points of confusion, and challenges that we encountered during this step of the journey*
+
+The developers uncovered the following issues when using Stream Analytics to save data to blob storage:
+- HDInsight Hive queries will fail when running against data held in blob files being actively written to by Stream Analytics. It is possible to workaround this problem by ignoring blob access exceptions.
+
+- HDInsights requires the data held in blob storage to be JSON formatted with each record on a new line. This requires configuring the Stream Analytics output format appropriately.
+
+*TODO Others?*
 
 
 [00-intro]: .\00-introducing-the-journey.md
