@@ -20,7 +20,7 @@ They need a basic implementation that maps to the highlighted components of the 
 
 ## Devices
 
-Initially, Fabrikam don't have access to the buildings, so they have elected to build a simple simulator that emits temperature events representing the readings for each device. These events are generated at a realistic rate, and the simulator can be configured to imitate a variable number of devices. The simulator has already been developed using the .NET Framework and is implemented as a class library. A console application provides a simple user interface, but it is also possible to host the simulator in a cloud service to provide an environment for long-lived, unattended running.
+Initially, Fabrikam don't have access to the buildings, so they have elected to build a simple simulator that emits temperature events representing the readings for each device. These events are generated at a realistic rate, and the simulator can be configured to imitate a variable number of devices. The simulator has already been developed using the .NET Framework. A console application provides a simple user interface, but it is also possible to host the simulator as a web job to provide an environment for long-lived, unattended running.
 
 > ![Markus](media/PersonaMarkus.png) 
 "We invested a significant amount of time and effort in creating the simulator. It is important that we are able to simulate a realistic number of devices sending events at the expected rate."
@@ -29,7 +29,11 @@ Initially, Fabrikam don't have access to the buildings, so they have elected to 
 
 Per the customer requirements, the system needs to capture event information emanating from 100,000 devices, each device sending 1 reading every minute. This equates to approximately 1,667 events per second. The Event Processing component must be capable of capturing this volume of information without introducing any backlog into the system; events raised by devices could be time critical.
 
-There are several ways you can implement this component. The developers at Fabrikam considered the options described in the following sections:
+The system must also be capable of provisioning and deprovisioning devices. This process is two-stage; the physical device must be installed, and then it must be registered with the Event Processing component. Events from unregistered devices should be ignored.
+
+The event data stream must also be protected. This means not only securing the content of the events, but actually hiding or camouflaging the event stream itself. For example, if an observer can see that motion detectors in a house are not registering any events then there is probably nobody home.
+
+There are several ways you can implement the Event Processing component. The developers at Fabrikam considered the options described in the following sections:
 
 ### Build a cloud service that receives events posted as HTTP requests
 
@@ -47,11 +51,13 @@ The cloud service could be implemented as a web role that parses and saves the e
 - **Connectivity**. Many simple devices just emit signals that indicate status and don't necessarily send out HTTP packets. Additionally, those devices that can create HTTP messages are unlikely to all use the same schema. It may be necessary to incorporate local field gateways to perform message translation and formatting.
 
 > ![Markus](media/PersonaMarkus.png) 
-"Many devices are designed to be simple; they output signals indicating events that have occured, and they can receive signals that indicate commands to be performed. They might not be capable of translating this data into different formats for integration into an IoT solution; this process typically requires some auxiliary hardware and software."
+"Many devices are designed to be simple; they output signals indicating events that have occurred, and they can receive signals that indicate commands to be performed. They might not be capable of translating this data into different formats for integration into an IoT solution; this process typically requires some auxiliary hardware and/or software."
 
 ![cloud service solution based on web roles](media/01-cold-storage/physical-architecture-cloud-service.png)
 
 - **Resilience and reliability.** If an instance of the service fails, then any messages that it is processing might be lost.
+
+- **Scalability.** Event data might need to be handled in multiple ways, such as copying to cold storage, performing warm analysis and aggregation, or for raising alerts. If all of these tasks become the responsibility of the cloud service it might not be capable of handling this work together with the large ingress of event information.
 
 - **Safety and security.** *THOUGHTS - How easy/difficult is it to protect the event data? How prone is a service to attack? What are the attack surfaces? TBD*
 
@@ -72,6 +78,8 @@ In this configuration, devices post event data to a Service Bus topic. Worker ro
 
 - **Reliability.** The AMQP protocol supports reliability guarantees, helping to ensure that event data is not lost when sent to a topic. Additionally, a subscription can be transactional; if a worker role fails while processing the data for an event this data is not lost but is instead returned to the Service Bus topic from whence it can be retrieved again.
 
+- **Scalability.** Different worker roles could be created to handle different types of event processing (copying to cold storage, performing warm analysis and aggregation, raising alerts).
+
 - **Security**. The worker role has a reduced attack surface. It only retrieves messages from a well-known subscription and does not accept unsolicited incoming traffic. Additionally, you can set security policies to help protect the Service Bus topic and authenticate message senders. AMQP provides transport-level security to protect messages in-flight.
 
 > ![Gary](media/PersonaGary.png) 
@@ -91,7 +99,7 @@ In this configuration, devices post event data to a Service Bus topic. Worker ro
 
 ### Use Azure Event Hub to ingest events and a worker role to process them
 
-[Azure Event Hub][event-hubs] is a cloud-scale telemetry ingestion service. It is designed to capture millions of events per second in near real time. Device connections are brokered by using Azure Service Bus.
+[Azure Event Hub][event-hubs] is a cloud-scale telemetry ingestion service. It is designed to capture millions of events per second in near real-time.
 
 **Pros:**
 
@@ -118,13 +126,13 @@ In this configuration, devices post event data to a Service Bus topic. Worker ro
 
 ### Use Azure Event Hub to ingest events and Azure Stream Analytics to process them
 
-[Azure Stream Analytics][stream-analytics] is a real-time stream processing service. It can capture incoming streams of data from many sources, combine them, and arrange for these streams to be processed and send the results to be sent to one or more destinations.
+[Azure Stream Analytics][stream-analytics] is a real-time stream processing service. It can capture incoming streams of data from many sources, combine them, and arrange for these streams to be processed and send the results to one or more destinations.
 
 **Pros:**
 
 - **Ease of Use:** Stream Analytics uses a declarative model for specifying the input and output streams, and the transformations to be performed by the processing. It can gather data directly from Event Hub as well as sources such as Blob storage, and it can emit data to Event Hub, Blob storage, Table storage, and Azure SQL Database.
 
-- **Scalability:** As with Event Hub, Stream Analytics is designed to be highly scalable, capable of supporting event handling throughput of up to 1GB/second. Stream Analytics will automatically scale based on the event ingestion rate, complexity of processing, and expected latencies.
+- **Scalability:** As with Event Hub, Stream Analytics is designed to be highly scalable, capable of supporting event handling throughput of up to 50Mb/second. Stream Analytics will automatically scale based on the event ingestion rate, complexity of processing, and expected latencies.
 
 - **Reliability:**  The Stream Analytics service is built to persist state and cache output efficiently. These features provide fast recovery from processing node failures, quickly reprocessing lost state.
 
@@ -132,13 +140,22 @@ In this configuration, devices post event data to a Service Bus topic. Worker ro
 
 - **Immaturity.** As with Event Hub, this is a new technology. The developers at Fabrikam need to invest time in learning its capabilities and how to use them.
 
-- *OTHERS?*
+- **Blob Storage.** The developers uncovered the following issues when using Stream Analytics to save data to blob storage:
+	- HDInsight Hive queries will fail when running against data held in blob files being actively written to by Stream Analytics. It is possible to workaround this problem by ignoring blob access exceptions.
+
+	- HDInsights requires the data held in blob storage to be JSON formatted with each record on a new line. This requires configuring the Stream Analytics output format appropriately.
+
+- **Event Metadata.** The event stream passed to Stream Analytics does not include the event metadata that is captured by Event Hub. This metadata can be valuable and can include information not available in the main payload of the event data. If this metadata is required, it might be necessary to connect directly to Event Hub and use an alternative approach to Stream Analytics.
 
 ### Event Processing - Selected Technologies
 
-Fabrikam decided to to use Event Hub and Stream Analytics to ingest and process event data. Although these technologies are very new, the scalability, reliability, and securability (the ability to verify and protect event information as it is received), and ease of use swung the decision (the maintenance and monitoring costs of this solution are far less than those concerned with using web and worker roles)
+Fabrikam decided to use Event Hub and Stream Analytics to ingest and process event data. Although these technologies are very new, the scalability, reliability, and securability (the ability to verify and protect event information as it is received), and ease of use swung the decision; the maintenance and monitoring costs of this solution are far less than those concerned with using web and worker roles.
+
+***TODO: Would be good to show table of costs, comparing web/work roles to EH, Stream Analytics***
 
 The simulator (and later on, the real devices) will send events directly to Event Hub. A Stream Analytics job will fetch the data for every event and send it to cold storage. The data for each event will be saved as a line-delimited JSON object for maximum interoperability.
+
+Fabrikam also decided to implement a secondary batch processor for handling events directly from Event Hub. This batch processor has access to the event metadata that is not available to Stream Analytics and can perform additional processing based on this information. The results are also directed towards cold storage.
 
 ![cloud service solution based on Service Bus Topics and Work Roles](media/01-cold-storage/physical-architecture-stream-analytics-and-event-hub.png)
 
@@ -150,12 +167,12 @@ Using Event Hub as a destination was quickly discounted due to the requirement t
 
 ### Azure SQL Database
 
-[Azure SQL Database][sql] is an excellent choice for storing structured data that can be easily queried by using SQL. Azure SQL Database is priced according to the service tier/performance level selected. Each service tier/performance level provides different performance and storage capabilities, ranging from 16,600 transactions per second and a 2GB database up to 735 transactions per second and 500GB of database storage at the top end. This may not be sufficient to record the details for the anticipated 1667 events per second (assuming that the data for each event is passed to storage as a single operation by Stream Analytics). Additionally, although 500GB sounds significant it only provides storage for a finite amount of data; if each event record consumes 20 bytes of storage (estimated), then a 500GB database can save data for approximately 175 days worth of events.
+[Azure SQL Database][sql] is an excellent choice for storing structured data that can be easily queried by using SQL. Azure SQL Database is priced according to the service tier/performance level selected. Each service tier/performance level provides different performance and storage capabilities, ranging from 16,600 transactions per hour (4.6 transactions per second) and a 2GB database for the basic performance level up to 735 transactions per second and 500GB of database storage at the top end. This may not be sufficient to record the details for the anticipated 1667 events per second (assuming that the data for each event is passed to storage as a single operation by Stream Analytics). Additionally, although 500GB sounds significant it only provides storage for a finite amount of data; if each event record consumes 20 bytes of storage (estimated), then a 500GB database can save data for approximately 175 days worth of events. Also, 1667 events per second is purely the baseline that Fabrikam expect for their first implementation. In subsequent rollouts the volume might increase by orders of magnitude. 
 
 There is one further point to consider. Databases are held on a shared database server infrastructure which might be utilized by other clients. Although databases are protected from each other to prevent accidental exposure of data, the infrastructure has to ensure that resources are balanced carefully. You purchase database resources in terms of Database Throughput Units (DTUs). DTUs are based on a blended measure of CPU, memory, reads, and writes. If an application exceeds its quota of DTUs it will be throttled.
 
 > ![Beth](media/PersonaBeth.png) 
-"The operational costs of using Azure SQL database for this solution could be excessive given the throughput and storage requirements. We simply don't need all of the rich features that Azure SQL Database provides to store event data; we just want to save the data quickly and efficiently."
+"The operational costs of using Azure SQL database for this solution could be excessive given the throughput and storage requirements. We simply don't need all of the rich features that Azure SQL Database provides to store event data; the information is not relational and we just want to save the data quickly and efficiently."
 
 > ![Poe](media/PersonaPoe.png) 
 "Azure SQL Database is not ideally suited to chatty applications or systems that perform a large number of data access operations that are sensitive to network latency." 
@@ -199,7 +216,7 @@ Fabrikam selected Blob storage as the cold storage technology. Stream Analytics 
 *TODO List the insights, points of confusion, and challenges that we encountered during this step of the journey*
 
 
-[00-intro]: https://github.com/mspnp/iot-journey/docs/journal/00-introducing-the-journey.md
+[00-intro]: .\00-introducing-the-journey.md
 [traffic-manager]: https://azure.microsoft.com/documentation/articles/traffic-manager-overview/
 [AMQP]: https://www.amqp.org/
 [event-hubs-programming-guide]: https://msdn.microsoft.com/library/azure/dn789972.aspx
