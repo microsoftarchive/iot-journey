@@ -10,12 +10,16 @@ Param(
 	[String]$ResourceGroupPrefix = "fabrikam",
 
 	[ValidateNotNullOrEmpty()]
-	[Parameter (Mandatory = $False)]
-	[String]$StreamAnalyticsSQLJobName = "fabrikamstreamjob01",
+	[Parameter (Mandatory = $True)]
+	[String]$StreamAnalyticsJobName,
 
-	[ValidateNotNullOrEmpty()]
-	[Parameter (Mandatory = $False)]
-	[String]$StreamAnalyticsColdStorageJobName = "fabrikamcoldstoragejob02",
+#	[ValidateNotNullOrEmpty()]
+#	[Parameter (Mandatory = $False)]
+#	[String]$StreamAnalyticsSQLJobName = "fabrikamstreamjob01",
+
+#	[ValidateNotNullOrEmpty()]
+#	[Parameter (Mandatory = $False)]
+#	[String]$StreamAnalyticsColdStorageJobName = "fabrikamcoldstoragejob02",
 
 
 	[ValidateNotNullOrEmpty()]
@@ -102,6 +106,10 @@ function Upload-ReferenceData
 ############################  
 
 .\Init.ps1
+
+[String]$StreamAnalyticsSQLJobName = $StreamAnalyticsJobName + "WriteToSql"
+
+[String]$StreamAnalyticsColdStorageJobName = $StreamAnalyticsJobName + "WriteToBlob"
         
 $VerbosePreference = "SilentlyContinue" 
 Switch-AzureMode -Name AzureServiceManagement

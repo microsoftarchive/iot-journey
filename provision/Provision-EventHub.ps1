@@ -173,4 +173,8 @@ $finishTime = Get-Date
 $TotalTime = ($finishTime - $startTime).TotalSeconds 
 Write-Verbose "The script completed in $TotalTime seconds."
 
-@{"EventHubName" = $EventHubName; "EventHubConnectionString" = $sbr.ConnectionString }
+$EventHubRuleName = "RootManageSharedAccessKey"
+$index = $sbr.ConnectionString.IndexOf("SharedAccessKey=") + 16;
+$EventHubRuleKey = $sbr.ConnectionString.Substring($index,44);
+
+@{"EventHubName" = $EventHubName; "EventHubConnectionString" = $sbr.ConnectionString; "EventHubRuleName" = $EventHubRuleName;"EventHubRuleKey" = $EventHubRuleKey}
