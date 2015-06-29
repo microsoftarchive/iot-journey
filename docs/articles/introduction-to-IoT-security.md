@@ -2,7 +2,7 @@
 
 IoT systems can contain many moving parts, each of which need to communicate and coordinate with each other in a secure manner. In a highly connected environment, security is not simply a matter of protecting individual resources, but is also concerned with protecting the information that is transferred between those resources.
 
-In an IoT solution, security and safety are commonly intertwined. In a business environment, data emanating from business processes is commercially valuable and is often a target for large-scale industrial espionage. Software developers have traditionally been more concerned with hardening systems to make the action of mounting an attack commercially unattractive (it can cost a third party more in resources to break into the system and steal information than is profitable). Software engineers constructing IoT solutions have much broader security concerns. Many IoT systems control critical operations and the core of industrial and civil infrastructure. These are prime targets for politically motivated attacks (terrorism)rather than those driven by profit. Consequently, digital security will be increasingly interwoven with the physical safety of life and equipment. This should provide deep motivation for ensuring that security is addressed in a robust and thorough manner.  
+In an IoT solution, security and safety are commonly intertwined. Many IoT systems control critical operations and the core of industrial and civil infrastructure. A lack of security that could lead to unauthorized actions in a business system that might cause a degree of inconvenience. The same issue could could have lethal consequences if it occurs in an IoT solution. Consequently, digital security is increasingly interwoven with the physical safety of life and equipment.
 
 Privacy is also a major concern. Many IoT systems provide very deep and near-real time insight into industrial and business processes, as well as into homes and the immediate personal environment. Leakage of personal data can be embarrassing (and costly), but might also be life-threatening; if the whereabouts of a vulnerable or important person is easily tracked then that person becomes a sitting target. 
 
@@ -12,7 +12,7 @@ The purpose of this document is not to describe how to protect information, devi
 
 A good starting point for considering IoT security is to ensure that you are aware of the potential points of weakness in the system. The following diagram illustrates a generic IoT architecture, encompassing many devices interacting with a set of monitoring and control services running in the cloud.
 
-In this diagram, devices are the individual items of hardware that are located in the field. They can have varying levels of complexity, but typically report status information and may respond to commands. A field gateway is a device, appliance, or more general-purpose server that acts as a communications enabler, device control system, or local data processing hub. As an example, a smart car could be considered to be a field gateway with its own local control software gathering data from individual devices located on the vehicle, monitoring them, and sending commands back to them. A field gateway, or individual devices, might need to communicate with a remote control system that controls and coordinates actions across different sites. This could be achieved by connecting to the services that implement this control system directly or through a cloud gateway. A cloud gateway can act as a regional hub implementing some autonomous regional services. The connection between a field gateway and/or local devices with a cloud gateway could be static or dynamic. For example, a field gateway that roams (such as a smart car) might switch to different cloud gateways as it changes location.
+This diagram is an abstraction of the system described in the document [What is an IoT Solution?][what-is-an-iot-solution]. The data from devices is typically passed to the services that comprise the IoT system through a field gateway and/or a cloud gateway. Commands from the IoT system services flow in the other direction. As an example, a smart car could be considered to be a field gateway with its own local control software gathering data from individual devices located on the vehicle, monitoring them, and sending commands back to them. The connection between a field gateway and/or local devices with a cloud gateway could be static or dynamic. For example, a field gateway that roams (such as a smart car) might switch to different cloud gateways as it changes location.
 
 ![Generic IoT Architecture][generic-iot-model]
 
@@ -24,7 +24,9 @@ Devices will be deployed to observe or control processes in environments that mi
 
 Even if a device is physically secured, spoofing and impersonation could still occur, especially if communications with a field gateway are wireless. Many devices are cheap commodity items that do not include the capability to encrypt data so it could be easy to introduce a rogue device that assumes the identity of a valid one into the local network and starts to present bad data. Additionally, a DoS attack could be staged by using a transmitter that interferes with the frequency used by the local wireless network without requiring any other form of entry into the system. Furthermore, it could be possible for an observer to silently intercept traffic, resulting in disclosure of sensitive or valuable information. Some form of shielding may be necessary.
 
-Devices that listen for incoming connections can be especially vulnerable unless these connections are authenticated in some way. Even then, a device can be made the target of a DoS attack simply by bombarding it with a large number of connection requests; even if these requests are recognized as invalid by the device, it can still be overwhelmed by the processing involved.
+Devices that listen for incoming connections can be especially vulnerable unless these connections are authenticated in some way. Even then, a device can be made the target of a DoS attack simply by bombarding it with a large number of connection requests; even if these requests are recognized as invalid by the device, it can still be overwhelmed by the processing involved. 
+
+To some extent, you can address these issues by following the [Service Assisted Communication][service-assisted-communication] pattern
 
 Attacks do not have to be hi-tech. If a device exposes a physical control interface (such as a set of switches) it is necessary to ensure that this interface remains inaccessible to unauthorized access (don't let a stranger fiddle with the buttons). Even if a device does not have such an interface but measures some aspect of the physical environment, the device must be protected. For example, a fire detector that operates on heat sensitivity but that is artificially cooled might fail to trigger a fire alarm.
 
@@ -113,5 +115,7 @@ Due diligence may require recording the details of every event reported by all d
  
 
 [generic-iot-model]: media/introduction-to-IoT-security/generic-architecture.png
+[what-is-an-iot-solution]: ./what-is-an-IoT-solution.md
+[service-assisted-communication]: ./TBD
 [stuxnet]: https://en.wikipedia.org/wiki/Stuxnet
 [Glossary of Terms]: ../reference/glossary.md
