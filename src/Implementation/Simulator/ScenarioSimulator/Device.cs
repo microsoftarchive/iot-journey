@@ -16,35 +16,38 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
     {
         private static readonly TimeSpan LoopFrequency = TimeSpan.FromSeconds(0.33);
 
-        private readonly string _deviceId;
-
-        private readonly IEnumerable<EventEntry> _eventEntries;
-
-        private readonly Func<object, Task<bool>> _sendEventAsync;
-
         public ISubject<int> ObservableEventCount { get; private set; }
+
+        public string Id { get; private set; }
+
+        public Uri Endpoint { get; private set; }
+
+        public string EventHubName { get; private set; }
+
+        public int StartupOrder { get; private set; }
+
+        public string Token { get; set; }
 
         public float? CurrentTemperature { get; set; }
 
-        public string Id { get {return _deviceId;} }
-
-        public Device(
-            string deviceId,
-            IEnumerable<EventEntry> eventEntries,
-            Func<object, Task<bool>> sendEventAsync)
+        public Device(string deviceId, Uri endpoint, string eventHubName, int startupOrder)
         {
-            _deviceId = deviceId;
-            _sendEventAsync = sendEventAsync;
-            _eventEntries = eventEntries;
+            Id = deviceId;
+            Endpoint = endpoint;
+            StartupOrder = startupOrder;
+            EventHubName = eventHubName;
 
             ObservableEventCount = new Subject<int>();
         }
 
-        public async Task RunSimulationAsync(CancellationToken token)
+        public async Task RunSimulationAsync(
+            IEnumerable<EventEntry> eventEntries,
+            Func<object, Task<bool>> sendEventAsync,
+            CancellationToken token)
         {
             var stopwatch = Stopwatch.StartNew();
 
-            ScenarioSimulatorEventSource.Log.DeviceStarting(_deviceId);
+            ScenarioSimulatorEventSource.Log.DeviceStarting(Id);
 
             try
             {
@@ -53,7 +56,7 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
                     var elaspedTime = stopwatch.Elapsed;
                     stopwatch.Restart();
 
-                    foreach (var entry in _eventEntries)
+                    foreach (var entry in eventEntries)
                     {
                         entry.UpdateElapsedTime(elaspedTime);
                         if (!entry.ShouldSendEvent())
@@ -63,7 +66,7 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
                         entry.ResetElapsedTime();
 
                         var evt = entry.CreateNewEvent(this);
-                        var wasEventSent = await _sendEventAsync(evt);
+                        var wasEventSent = await sendEventAsync(evt);
 
                         if (wasEventSent)
                         {
@@ -95,13 +98,13 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
             catch (Exception e)
             {
                 ObservableEventCount.OnError(e);
-                ScenarioSimulatorEventSource.Log.DeviceUnexpectedFailure(e, _deviceId);
+                ScenarioSimulatorEventSource.Log.DeviceUnexpectedFailure(e, Id);
                 return;
             }
 
             ObservableEventCount.OnCompleted();
 
-            ScenarioSimulatorEventSource.Log.DeviceStopping(_deviceId);
+            ScenarioSimulatorEventSource.Log.DeviceStopping(Id);
         }
     }
 }

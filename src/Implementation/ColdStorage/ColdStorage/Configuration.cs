@@ -58,13 +58,13 @@ namespace Microsoft.Practices.IoTJourney.ColdStorage
                     ConfigurationHelper.GetConfigValue<string>("Coldstorage.BlobPrefix", "pnp-iotjourney"),
 
                 CircuitBreakerWarningLevel =
-                    ConfigurationHelper.GetConfigValue<int>("Coldstorage.circuitbreaker.WarningLevel", 200),
+                    ConfigurationHelper.GetConfigValue<int>("Coldstorage.CircuitBreaker.WarningLevel", 200),
                 CircuitBreakerTripLevel =
-                    ConfigurationHelper.GetConfigValue<int>("Coldstorage.circuitbreaker.TripLevel", 400),
+                    ConfigurationHelper.GetConfigValue<int>("Coldstorage.CircuitBreaker.TripLevel", 400),
                 CircuitBreakerStallInterval =
-                    ConfigurationHelper.GetConfigValue<TimeSpan>("Coldstorage.circuitbreaker.StallInterval", TimeSpan.FromSeconds(30)),
+                    ConfigurationHelper.GetConfigValue<TimeSpan>("Coldstorage.CircuitBreaker.StallInterval", TimeSpan.FromSeconds(30)),
                 CircuitBreakerLogCooldownInterval =
-                    ConfigurationHelper.GetConfigValue<TimeSpan>("Coldstorage.circuitbreaker.LogCooldownInterval", TimeSpan.FromMinutes(15)),
+                    ConfigurationHelper.GetConfigValue<TimeSpan>("Coldstorage.CircuitBreaker.LogCooldownInterval", TimeSpan.FromMinutes(15)),
             };
         }
     }
