@@ -24,7 +24,7 @@ Param
 	[String]$StorageAccountName,    
 
 	[ValidateNotNullOrEmpty()]
-	[Parameter (Mandatory = $False)]
+	[Parameter (Mandatory = $True)]
 	[String]$StreamAnalyticsJobName = "fabrikamstreamjob01",
 
 	[ValidateNotNullOrEmpty()]
@@ -93,8 +93,10 @@ function CreateOrUpdateSettingsFile
 {
     [CmdletBinding()]
     param (
-        [Parameter(Mandatory=$True)][string]$SimulatorEventHubConnectionString,
-        [Parameter(Mandatory=$True)][string]$SimulatorEventHubPath,
+        [Parameter(Mandatory=$True)][string]$ServiceBusNamespace,
+        [Parameter(Mandatory=$True)][string]$EventHubName,
+        [Parameter(Mandatory=$True)][string]$EventHubSasKeyName,
+        [Parameter(Mandatory=$True)][string]$EventHubPrimaryKey,
         [Parameter(Mandatory=$True)][string]$ColdStorageCheckpointStorageAccount,
         [Parameter(Mandatory=$True)][string]$ColdStorageEventHubConnectionString,
         [Parameter(Mandatory=$True)][string]$ColdStorageEventHubName,
@@ -118,11 +120,24 @@ function CreateOrUpdateSettingsFile
 
         $xml = [xml](Get-Content $MySettingsFilePath)
 
-        $node = $xml.appSettings.add | where {$_.key -eq 'Simulator.EventHubConnectionString'}
-        $node.Value = $SimulatorEventHubConnectionString
 
-        $node = $xml.appSettings.add | where {$_.key -eq 'Simulator.EventHubPath'}
-        $node.Value = $SimulatorEventHubPath
+        $node = $xml.appSettings.add | where {$_.key -eq 'Simulator.EventHubNamespace'}
+        $node.Value = $ServiceBusNamespace
+
+        $node = $xml.appSettings.add | where {$_.key -eq 'Simulator.EventHubName'}
+        $node.Value = $EventHubName
+
+        $node = $xml.appSettings.add | where {$_.key -eq 'Simulator.EventHubSasKeyName'}
+        $node.Value = $EventHubSasKeyName
+
+        $node = $xml.appSettings.add | where {$_.key -eq 'Simulator.EventHubPrimaryKey'}
+        $node.Value = $EventHubPrimaryKey
+
+#        $node = $xml.appSettings.add | where {$_.key -eq 'Simulator.EventHubConnectionString'}
+#        $node.Value = $SimulatorEventHubConnectionString
+
+#        $node = $xml.appSettings.add | where {$_.key -eq 'Simulator.EventHubPath'}
+#        $node.Value = $SimulatorEventHubPath
 
         
         $node = $xml.appSettings.add | where {$_.key -eq 'Coldstorage.CheckpointStorageAccount'}
@@ -197,6 +212,7 @@ $StorageAccountCreationInfo = .\Provision-StorageAccount.ps1 -SubscriptionName $
                                -ContainerName $ContainerName
 
 .\Provision-StreamAnalyticsJob.ps1 -SubscriptionName $SubscriptionName `
+                                   -StreamAnalyticsJobName $StreamAnalyticsJobName `
                                    -Location $Location `
                                    -ResourceGroupPrefix $ResourceGroupPrefix `
                                    -ServiceBusNamespace $ServiceBusNamespace `
@@ -220,10 +236,14 @@ $StorageAccountCreationInfo = .\Provision-StorageAccount.ps1 -SubscriptionName $
 
 
 $EventHubConnectionString = $EventHubCreationInfo.EventHubConnectionString + ";TransportType=Amqp"
+
 $StorageAccountConnectionString = "DefaultEndpointsProtocol=https;AccountName={0};AccountKey={1}" -f $StorageAccountCreationInfo.AccountName, $StorageAccountCreationInfo.AccountKey
 
-CreateOrUpdateSettingsFile -SimulatorEventHubConnectionString $EventHubConnectionString `
-                           -SimulatorEventHubPath $EventHubCreationInfo.EventHubName `
+CreateOrUpdateSettingsFile  `
+                           -ServiceBusNamespace $ServiceBusNamespace `
+                           -EventHubName $EventHubName `
+                           -EventHubSasKeyName $EventHubCreationInfo.EventHubRuleName `
+                           -EventHubPrimaryKey $EventHubCreationInfo.EventHubRuleKey `
                            -ColdStorageCheckpointStorageAccount  $StorageAccountConnectionString `
                            -ColdStorageEventHubConnectionString $EventHubConnectionString `
                            -ColdStorageEventHubName $EventHubCreationInfo.EventHubName `
