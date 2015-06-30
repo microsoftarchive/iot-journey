@@ -30,7 +30,7 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
                 EventHubPath = ConfigurationHelper.GetConfigValue<string>("Simulator.EventHubPath"),
                 NumberOfDevices = ConfigurationHelper.GetConfigValue<int>("Simulator.NumberOfDevices"),
                 SenderCountPerInstance = ConfigurationHelper.GetConfigValue("Simulator.SenderCountPerInstance", 5),
-                WarmupDuration = ConfigurationHelper.GetConfigValue("Simulator.WarmupDuration", TimeSpan.FromSeconds(30)),
+                WarmupDuration = ConfigurationHelper.GetConfigValue("Simulator.WarmUpDuration", TimeSpan.FromSeconds(30)),
                 Scenario = ConfigurationHelper.GetConfigValue<string>("Simulator.Scenario", String.Empty),
                 EventLevel = ConfigurationHelper.GetConfigValue<EventLevel>("Simulator.LogLevel", EventLevel.Informational)
             };
