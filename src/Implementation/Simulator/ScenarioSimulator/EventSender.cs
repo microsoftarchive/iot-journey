@@ -41,7 +41,7 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
                 {
                     var stopwatch = Stopwatch.StartNew();
 
-                    await this._eventHubClient.SendAsync(eventData);
+                    await this._eventHubClient.SendAsync(eventData).ConfigureAwait(false);
                     stopwatch.Stop();
 
                     ScenarioSimulatorEventSource.Log.EventSent(stopwatch.ElapsedTicks);

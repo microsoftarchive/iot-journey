@@ -61,7 +61,7 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
                         entry.ResetElapsedTime();
 
                         var evt = entry.CreateNewEvent(this);
-                        var wasEventSent = await _sendEventAsync(evt);
+                        var wasEventSent = await _sendEventAsync(evt).ConfigureAwait(false);
 
                         if (wasEventSent)
                         {
@@ -77,7 +77,7 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
                             // the next one.
                             try
                             {
-                                await Task.Delay(TimeSpan.FromSeconds(10), token);
+                                await Task.Delay(TimeSpan.FromSeconds(10), token).ConfigureAwait(false);
                             }
                             catch (TaskCanceledException) { /* cancelling Task.Delay will throw */ }
                         }
