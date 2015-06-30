@@ -68,6 +68,30 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
                 _devices.Add(new Device(deviceId, endpoint, eventHubName, i) { Token = deviceToken });
             }
         }
+        public void RevokeDevices()
+        {
+            var eventHubName = _simulatorConfiguration.EventHubName;
+            var manageString = _simulatorConfiguration.EventHubConnectionString;
+            var nsm = NamespaceManager.CreateFromConnectionString(manageString);
+            var revokedPublishers = nsm.GetRevokedPublishers(eventHubName);
+
+            foreach (var device in _devices)
+            {
+                nsm.RevokePublisher(eventHubName, device.Id);
+            }
+        }
+
+
+        public void RestoreDevices()
+        {
+            var eventHubName = _simulatorConfiguration.EventHubName;
+            var manageString = _simulatorConfiguration.EventHubConnectionString;
+            var nsm = NamespaceManager.CreateFromConnectionString(manageString);
+            foreach (var device in _devices)
+            {
+                nsm.RestorePublisher(eventHubName, device.Id);
+            }
+        }
 
         public async Task RunSimulationAsync(string scenario, CancellationToken token)
         {
