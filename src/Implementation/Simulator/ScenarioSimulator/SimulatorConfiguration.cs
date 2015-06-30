@@ -14,6 +14,8 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
 
         public string EventHubNamespace { get; set; }
 
+        public string EventHubConnectionString { get; set; }
+
         public string EventHubSasKeyName { get; set; }
 
         public string EventHubPrimaryKey { get; set; }
@@ -34,6 +36,7 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
                 NumberOfDevices = ConfigurationHelper.GetConfigValue<int>("Simulator.NumberOfDevices"),
                 EventHubNamespace = ConfigurationHelper.GetConfigValue<string>("Simulator.EventHubNamespace"),
                 EventHubName = ConfigurationHelper.GetConfigValue<string>("Simulator.EventHubName"),
+                EventHubConnectionString = ConfigurationHelper.GetConfigValue<string>("Simulator.EventHubConnectionString"),
                 EventHubSasKeyName = ConfigurationHelper.GetConfigValue<string>("Simulator.EventHubSasKeyName"),
                 EventHubPrimaryKey = ConfigurationHelper.GetConfigValue<string>("Simulator.EventHubPrimaryKey"),
                 EventHubTokenLifetimeDays = ConfigurationHelper.GetConfigValue<int>("Simulator.EventHubTokenLifetimeDays", 7),
