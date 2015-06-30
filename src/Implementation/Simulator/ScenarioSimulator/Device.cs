@@ -14,8 +14,6 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
 {
     public class Device
     {
-        private static readonly TimeSpan LoopFrequency = TimeSpan.FromSeconds(0.33);
-
         private readonly string _deviceId;
 
         private readonly IEnumerable<EventEntry> _eventEntries;
@@ -87,7 +85,7 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
 
                     try
                     {
-                        await Task.Delay(LoopFrequency, token);
+                        await Task.Yield();
                     }
                     catch (TaskCanceledException) { /* cancelling Task.Delay will throw */ }
                 }
