@@ -88,7 +88,7 @@ namespace Microsoft.Practices.IoTJourney.ColdStorage.RollingBlobWriter
 
             try
             {
-                await Task.WhenAll(taskList).ConfigureAwait(false).ConfigureAwait(false);
+                await Task.WhenAll(taskList).ConfigureAwait(false);
             }
             catch (AggregateException ae)
             {
