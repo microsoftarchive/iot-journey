@@ -69,7 +69,7 @@ namespace Microsoft.Practices.IoTJourney.ColdStorage.RollingBlobWriter
 
             var writeTimeStopWatch = Stopwatch.StartNew();
 
-            if (!await SetupBlobForWriteAsync(totalBytesToWrite, blocksToWrite.Count, cancellationToken))
+            if (!await SetupBlobForWriteAsync(totalBytesToWrite, blocksToWrite.Count, cancellationToken).ConfigureAwait(false))
             {
                 return false;
             }
@@ -88,7 +88,7 @@ namespace Microsoft.Practices.IoTJourney.ColdStorage.RollingBlobWriter
 
             try
             {
-                await Task.WhenAll(taskList).ConfigureAwait(false);
+                await Task.WhenAll(taskList).ConfigureAwait(false).ConfigureAwait(false);
             }
             catch (AggregateException ae)
             {
@@ -183,10 +183,10 @@ namespace Microsoft.Practices.IoTJourney.ColdStorage.RollingBlobWriter
             {
                 if (_currentBlob == null)
                 {
-                    await this.LoadLastBlobWithPrefixAsync(prefix, cancellationToken);
+                    await this.LoadLastBlobWithPrefixAsync(prefix, cancellationToken).ConfigureAwait(false);
                 }
 
-                await CheckAndRollIfNeededAsync(prefix, sizeToWrite, numberOfBlocks, cancellationToken);
+                await CheckAndRollIfNeededAsync(prefix, sizeToWrite, numberOfBlocks, cancellationToken).ConfigureAwait(false);
             }
             catch (StorageException ex)
             {
@@ -240,11 +240,11 @@ namespace Microsoft.Practices.IoTJourney.ColdStorage.RollingBlobWriter
                 string[] nameParts = blobName.Split('-');
                 string sequenceIdPart = nameParts.Last();
                 var sequenceId = Int32.Parse(sequenceIdPart, CultureInfo.InvariantCulture);
-                return await SetupBlockCurrentBlobAsync(blobNamePrefix, sequenceId, cancellationToken);
+                return await SetupBlockCurrentBlobAsync(blobNamePrefix, sequenceId, cancellationToken).ConfigureAwait(false);
             }
             else
             {
-                return await SetupBlockCurrentBlobAsync(blobNamePrefix, 0, cancellationToken);
+                return await SetupBlockCurrentBlobAsync(blobNamePrefix, 0, cancellationToken).ConfigureAwait(false);
             }
         }
 
@@ -254,12 +254,12 @@ namespace Microsoft.Practices.IoTJourney.ColdStorage.RollingBlobWriter
 
             if (_currentBlobPrefix != prefix)
             {
-                await LoadLastBlobWithPrefixAsync(prefix, cancellationToken);
+                await LoadLastBlobWithPrefixAsync(prefix, cancellationToken).ConfigureAwait(false);
             }
 
             while ((_sizeRemaining < sizeToWrite) || (_blockIds.Count + numChunks > _blocksAllowed))
             {
-                await SetupBlockCurrentBlobAsync(prefix, _currentSequenceId + 1, cancellationToken);
+                await SetupBlockCurrentBlobAsync(prefix, _currentSequenceId + 1, cancellationToken).ConfigureAwait(false);
 
                 ColdStorageEventSource.Log.RollOccured(currentBlobName, _currentBlob.Name);
             }
@@ -273,7 +273,7 @@ namespace Microsoft.Practices.IoTJourney.ColdStorage.RollingBlobWriter
             string blobEtag = null;
             bool isNewBlob = true;
 
-            if (await blockBlob.ExistsAsync(cancellationToken))
+            if (await blockBlob.ExistsAsync(cancellationToken).ConfigureAwait(false))
             {
                 var items =
                     await
@@ -307,7 +307,7 @@ namespace Microsoft.Practices.IoTJourney.ColdStorage.RollingBlobWriter
             using (var ms = new MemoryStream(bytes, startIndex, length))
             {
                 // These should be new blocks - use the appropropriate condition
-                await _currentBlob.PutBlockAsync(Id, ms, null, AccessCondition.GenerateIfNoneMatchCondition("*"), null, null, cancellationToken);
+                await _currentBlob.PutBlockAsync(Id, ms, null, AccessCondition.GenerateIfNoneMatchCondition("*"), null, null, cancellationToken).ConfigureAwait(false);
             }
         }
 

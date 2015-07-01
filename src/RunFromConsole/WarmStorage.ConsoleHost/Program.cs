@@ -38,7 +38,7 @@ namespace WarmStorage.ConsoleHost
             {
                 { "Provision Resources", ProvisionResourcesAsync },
                 { "Run Warm Storage Consumer", RunAsync }
-            });
+            }).ConfigureAwait(false);
         }
 
         private static async Task ProvisionResourcesAsync(CancellationToken token)
