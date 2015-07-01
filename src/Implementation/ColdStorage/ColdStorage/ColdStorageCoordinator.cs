@@ -39,7 +39,7 @@ namespace Microsoft.Practices.IoTJourney.ColdStorage
             var ns = NamespaceManager.CreateFromConnectionString(configuration.EventHubConnectionString);
             try
             {
-                await ns.GetConsumerGroupAsync(configuration.EventHubName, configuration.ConsumerGroupName);
+                await ns.GetConsumerGroupAsync(configuration.EventHubName, configuration.ConsumerGroupName).ConfigureAwait(false);
             }
             catch (Exception e)
             {
@@ -79,7 +79,7 @@ namespace Microsoft.Practices.IoTJourney.ColdStorage
                 storageConnectionString: configuration.CheckpointStorageAccount);
 
 
-            await host.RegisterEventProcessorFactoryAsync(factory, options);
+            await host.RegisterEventProcessorFactoryAsync(factory, options).ConfigureAwait(false);
 
             return new ColdStorageCoordinator(host);
         }
@@ -88,7 +88,7 @@ namespace Microsoft.Practices.IoTJourney.ColdStorage
         {
             if (_host != null)
             {
-                await _host.UnregisterEventProcessorAsync();
+                await _host.UnregisterEventProcessorAsync().ConfigureAwait(false);
                 _host = null;
             }
         }

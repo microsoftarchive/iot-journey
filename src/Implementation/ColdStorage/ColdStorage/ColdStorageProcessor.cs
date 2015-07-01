@@ -239,7 +239,7 @@ namespace Microsoft.Practices.IoTJourney.ColdStorage
 
             try
             {
-                await context.CheckpointAsync(checkpointEventData);
+                await context.CheckpointAsync(checkpointEventData).ConfigureAwait(false);
                 ColdStorageEventSource.Log.CheckpointCompleted(ProcessorName, _eventHubName, context.Lease.PartitionId, checkpointEventData.Offset);
             }
             catch (Exception ex)
@@ -305,7 +305,7 @@ namespace Microsoft.Practices.IoTJourney.ColdStorage
             {
                 await Task.Delay(_stallInterval);
 
-                await FlushAndCheckPointAsync(partitionContext);
+                await FlushAndCheckPointAsync(partitionContext).ConfigureAwait(false);
 
                 currentLevel = _eventHubBufferDataList.Count;
 
