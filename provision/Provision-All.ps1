@@ -97,6 +97,7 @@ function CreateOrUpdateSettingsFile
         [Parameter(Mandatory=$True)][string]$EventHubName,
         [Parameter(Mandatory=$True)][string]$EventHubSasKeyName,
         [Parameter(Mandatory=$True)][string]$EventHubPrimaryKey,
+        [Parameter(Mandatory=$True)][string]$SimulatorEventHubConnectionString,
         [Parameter(Mandatory=$True)][string]$ColdStorageCheckpointStorageAccount,
         [Parameter(Mandatory=$True)][string]$ColdStorageEventHubConnectionString,
         [Parameter(Mandatory=$True)][string]$ColdStorageEventHubName,
@@ -133,8 +134,8 @@ function CreateOrUpdateSettingsFile
         $node = $xml.appSettings.add | where {$_.key -eq 'Simulator.EventHubPrimaryKey'}
         $node.Value = $EventHubPrimaryKey
 
-#        $node = $xml.appSettings.add | where {$_.key -eq 'Simulator.EventHubConnectionString'}
-#        $node.Value = $SimulatorEventHubConnectionString
+        $node = $xml.appSettings.add | where {$_.key -eq 'Simulator.EventHubConnectionString'}
+        $node.Value = $SimulatorEventHubConnectionString
 
 #        $node = $xml.appSettings.add | where {$_.key -eq 'Simulator.EventHubPath'}
 #        $node.Value = $SimulatorEventHubPath
@@ -244,6 +245,7 @@ CreateOrUpdateSettingsFile  `
                            -EventHubName $EventHubName `
                            -EventHubSasKeyName $EventHubCreationInfo.EventHubRuleName `
                            -EventHubPrimaryKey $EventHubCreationInfo.EventHubRuleKey `
+                           -SimulatorEventHubConnectionString $EventHubCreationInfo.EventHubConnectionString `
                            -ColdStorageCheckpointStorageAccount  $StorageAccountConnectionString `
                            -ColdStorageEventHubConnectionString $EventHubConnectionString `
                            -ColdStorageEventHubName $EventHubCreationInfo.EventHubName `

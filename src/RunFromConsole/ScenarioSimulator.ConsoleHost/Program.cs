@@ -61,6 +61,8 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator.ConsoleHost
             {
                 options.Add("Run " + scenario, (Func<CancellationToken, Task>)(token => _deviceSimulator.RunSimulationAsync(scenario, token)));
             }
+            options.Add("Revoke Devices", RevokeDevicesAsync);
+            options.Add("Restore Devices", RestoreDevicesAsync);
 
             //options.Add("Deprovision Devices", DeprovisionDevicesAsync);
 
@@ -70,6 +72,20 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator.ConsoleHost
         private static async Task ProvisionDevicesAsync(CancellationToken token)
         {
             _deviceSimulator.ProvisionDevices(true);
+
+            await Task.Delay(0);
+        }
+
+        private static async Task RevokeDevicesAsync(CancellationToken token)
+        {
+            _deviceSimulator.RevokeDevices();
+
+            await Task.Delay(0);
+        }
+
+        private static async Task RestoreDevicesAsync(CancellationToken token)
+        {
+            _deviceSimulator.RestoreDevices();
 
             await Task.Delay(0);
         }
