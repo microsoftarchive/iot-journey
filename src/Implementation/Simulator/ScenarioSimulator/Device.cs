@@ -66,7 +66,7 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
                         entry.ResetElapsedTime();
 
                         var evt = entry.CreateNewEvent(this);
-                        var wasEventSent = await sendEventAsync(evt);
+                        var wasEventSent = await sendEventAsync(evt).ConfigureAwait(false);
 
                         if (wasEventSent)
                         {
