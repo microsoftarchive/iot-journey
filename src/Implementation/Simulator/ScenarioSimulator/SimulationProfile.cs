@@ -115,7 +115,7 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
                 simulationTasks.Add(deviceTask);
             }
 
-            await Task.WhenAll(simulationTasks.ToArray());
+            await Task.WhenAll(simulationTasks.ToArray()).ConfigureAwait(false);
 
             _observableTotalCount.OnCompleted();
 
@@ -150,7 +150,7 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
             device.ObservableEventCount
                 .Subscribe(totalCount.OnNext);
 
-            await device.RunSimulationAsync(messagingEntries, sendEventsAsync, token);
+            await device.RunSimulationAsync(messagingEntries, sendEventsAsync, token).ConfigureAwait(false);
         }
     }
 }

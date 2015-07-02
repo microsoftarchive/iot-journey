@@ -25,9 +25,9 @@ namespace Microsoft.Practices.IoTJourney.Tests.Common.Helpers
 
         public static async Task TouchBlobAsync(CloudBlockBlob blob)
         {
-            await blob.FetchAttributesAsync();
+            await blob.FetchAttributesAsync().ConfigureAwait(false);
             blob.Metadata.Add("touch", Guid.NewGuid().ToString("N"));
-            await blob.SetMetadataAsync();
+            await blob.SetMetadataAsync().ConfigureAwait(false);
         }
     }
 }
