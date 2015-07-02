@@ -2,7 +2,7 @@
 
 IoT systems can contain many moving parts, each of which need to communicate and coordinate with each other in a secure manner. In a highly connected environment, security is not simply a matter of protecting individual resources, but is also concerned with protecting the information that is transferred between those resources.
 
-In an IoT solution, security and safety are commonly intertwined. Many IoT systems control critical operations and the core of industrial and civil infrastructure. A lack of security that could lead to unauthorized actions in a business system that might cause a degree of inconvenience. The same issue could could have lethal consequences if it occurs in an IoT solution. Consequently, digital security is increasingly interwoven with the physical safety of life and equipment.
+In an IoT solution, security and safety are commonly intertwined. Many IoT systems control critical operations and the core of industrial and civil infrastructure. A lack of security that could lead to unauthorized actions in a business system that might cause a degree of inconvenience. The same issue could have lethal consequences if it occurs in an IoT solution. Consequently, digital security is increasingly interwoven with the physical safety of life and equipment.
 
 Privacy is also a major concern. Many IoT systems provide very deep and near-real time insight into industrial and business processes, as well as into homes and the immediate personal environment. Leakage of personal data can be embarrassing (and costly), but might also be life-threatening; if the whereabouts of a vulnerable or important person is easily tracked then that person becomes a sitting target. 
 
@@ -34,7 +34,7 @@ Attacks do not have to be hi-tech. If a device exposes a physical control interf
 
 A field gateway is usually deployed in a similar proximity to the devices with which it communicates and controls, and as a result could be subject to the same vulnerabilities as these devices. Physical protection is important, especially as a rogue gateway could affect a significant number of devices. For example, if the ECU for a car is compromised the car can be disabled.
 
-The field gateway can act as a proxy for devices, passing device data to the control system and forwarding commands from the control system (via a cloud gateway if necessary). A field gateway therefore exposes two kinds of interfaces: internal device facing and external service facing. Many commodity devices only implement minimal forms of security. They might include some identity information in any messages that they send that the field controller can verify, but for or reasons of cost and speed they might not provide much else. For example, the electronic ignition timer on a car is unlikely to encrypt data that it sends to the ECU or decrypt any commands it receives. Therefore the field gateway may have to simply trust the data that it receives from devices. 
+The field gateway can act as a proxy for devices, passing device data to the control system and forwarding commands from the control system (via a cloud gateway if necessary). A field gateway therefore exposes two kinds of interfaces: internal device facing and external service facing. Many commodity devices only implement minimal forms of security. They might include some identity information in any messages that they send that the field controller can verify, but for reasons of cost and speed they might not provide much else. For example, the electronic ignition timer on a car is unlikely to encrypt data that it sends to the ECU or decrypt any commands it receives. Therefore the field gateway may have to simply trust the data that it receives from devices. 
 
 Even the very basic form of authentication with the field controller based on device identity can be problematic though. If a device is replaced in the field, the replacement part could have a different identifier, and the field gateway will need to be programmed to accept this new identity otherwise the device could simply be ignored.
 
@@ -86,13 +86,13 @@ Authentication and authorization issues also apply to commands travelling from t
 
 ### Peering
 
-Many devices support peering, which enables other devices to establish direct relationships with them. There may be justifiable reasons for supporting peering in an IoT system, but uncontrolled peering must be prevented. For example, enabling a device to support a blue-tooth connection can render the device vulnerable to sniffers that operate in promiscuous mode, and may also provide a backdoor into the system for attackers that can connect to the device over this connection.
+Many devices support peering, which enables other devices to establish direct relationships with them. There may be justifiable reasons for supporting peering in an IoT system, but uncontrolled peering must be prevented. For example, enabling a device to support a bluetooth connection can render the device vulnerable to sniffers that operate in promiscuous mode, and may also provide a backdoor into the system for attackers that can connect to the device over this connection.
 
 *OTHER EXAMPLES?*
 
 ### Privacy
 
-Devices might capture a variety of information that should not always be disclosed to every possible valid recipient. This is especially true if the same device gathers data that is shared by a variety of systems (consider the multiplexing scenario in the [Sources of cloud gateway vulnerabilities][] section.
+Devices might capture a variety of information that should not always be disclosed to every possible valid recipient. This is especially true if the same device gathers data that is shared by a variety of systems (consider the multiplexing scenario in the [Sources of cloud gateway vulnerabilities]() section.
 
 In some cases, the very presence or absence of data might need to be protected. For example, if a potential intruder is able to ascertain that movement detection devices inside a house are not registering and movement data, then there is probably no-one at home. In these cases, it could be necessary to camouflage this lack of events, possibly by generating traffic that appears to show activity to a casual observer, but that only an authorized recipient will recognize as being a series of null events.
 
