@@ -1,6 +1,7 @@
 # Glossary
 
-*This list will be sorted later*
+:warning: This is out-of-sync with the project and needs to be updated.
+
 <dl>
 
 <dt>Cold Path</dt>
