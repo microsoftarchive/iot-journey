@@ -95,6 +95,12 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
                 .Scan(0, (total, next) => total + next.Sum())
                 .Subscribe(total => ScenarioSimulatorEventSource.Log.CurrentEventCountForAllDevices(total));
 
+            var interval = TimeSpan.FromMinutes(0.1);
+            _observableTotalCount
+                .Buffer(interval)
+                .Scan(0, (total, next) => next.Sum())
+                .Subscribe(count => ScenarioSimulatorEventSource.Log.CurrentEventsPerSecond(String.Format("{0} per second", (count / interval.TotalSeconds))));
+
             foreach (var device in _devices)
             {
                 var eventSender = new EventSender(
