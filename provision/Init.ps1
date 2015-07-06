@@ -3,7 +3,8 @@
 ## Helper functions
 ##
 ############################
-function Load-Module
+
+function global:Load-Module
 {
   Param (
     $ModuleName,
@@ -17,7 +18,7 @@ function Load-Module
   $Ignore = Import-Module -Name $QualifiedModuleName -PassThru -Verbose:$False -EA Stop
 }
 
-function Check-Azure-Version
+function Assert-AzurPowershelleVersion
 {
     Param ([version]$requiredVersion)
 
@@ -37,9 +38,10 @@ function Check-Azure-Version
     }
 }
 
+############################
 ##
-# script initialization
+## Script start up
 ##
-Check-Azure-Version "0.9.3"
+############################
 
-Load-Module -ModuleName AzureUtilities -ModuleLocation .\Modules
+Assert-AzurPowershelleVersion "0.9.3"
