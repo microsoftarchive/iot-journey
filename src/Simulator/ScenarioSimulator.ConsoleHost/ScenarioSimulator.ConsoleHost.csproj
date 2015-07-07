@@ -80,10 +80,6 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ScenarioSimulator\ScenarioSimulator.csproj">
-      <Project>{c05007fd-008c-45c9-a0b0-dd39f0a20e35}</Project>
-      <Name>ScenarioSimulator</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\Shared\Core\Core.csproj">
       <Project>{b3657b80-640f-4d72-885e-e9f9729bac18}</Project>
       <Name>Core</Name>

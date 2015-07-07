@@ -89,7 +89,7 @@
       <Project>{769c50c0-1627-4834-824a-a77b2c303f9d}</Project>
       <Name>Tests.Common</Name>
     </ProjectReference>
-    <ProjectReference Include="..\src\WarmStorage.EventProcessor\WarmStorage.EventProcessor.csproj">
+    <ProjectReference Include="..\WarmStorage.EventProcessor\WarmStorage.EventProcessor.csproj">
       <Project>{57590971-00e1-4898-85a6-b6a967d78437}</Project>
       <Name>WarmStorage.EventProcessor</Name>
     </ProjectReference>
