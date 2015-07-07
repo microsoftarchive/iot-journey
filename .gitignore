@@ -201,3 +201,6 @@ FakesAssemblies/
 
 *-local.config
 mysettings.config
+WarmStorage.EventProcessor.ConsoleHost.config
+ColdStorage.EventProcessor.ConsoleHost.config
+ScenarioSimulator.ConsoleHost.config
