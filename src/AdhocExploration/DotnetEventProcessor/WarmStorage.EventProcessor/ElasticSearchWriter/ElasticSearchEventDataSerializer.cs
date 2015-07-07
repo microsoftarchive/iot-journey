@@ -1,12 +1,11 @@
-﻿using Microsoft.ServiceBus.Messaging;
-using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using Microsoft.ServiceBus.Messaging;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Microsoft.Practices.IoTJourney.WarmStorage.ElasticSearchWriter
 {
@@ -16,8 +15,6 @@ namespace Microsoft.Practices.IoTJourney.WarmStorage.ElasticSearchWriter
     /// </summary>
     internal class ElasticSearchEventDataSerializer : IDisposable
     {
-        private const string PayloadFlattenFormatString = "Payload_{0}";
-
         private readonly string _indexName;
         private readonly string _entryType;
 
@@ -63,11 +60,19 @@ namespace Microsoft.Practices.IoTJourney.WarmStorage.ElasticSearchWriter
             // ES index names must be lower case and cannot contain whitespace or any of the following characters \/*?"<>|,
             WriteValue("_index", this.GetIndexName(e.EnqueuedTimeUtc));
             WriteValue("_type", _entryType);
+
             _writer.WriteEndObject();
             _writer.WriteEndObject();
             _writer.WriteRaw("\n");  //ES requires this \n separator
-            
-            _writer.WriteRaw(Encoding.UTF8.GetString(e.GetBytes()));
+
+            var payload = JObject.Parse(Encoding.UTF8.GetString(e.GetBytes()));
+
+            foreach (var property in e.Properties)
+            {
+                payload.Add("Properties-" + property.Key, new JValue(property.Value));
+            }
+
+            _writer.WriteRaw(payload.ToString(Formatting.None));
             
             _writer.WriteRaw("\n");
         }

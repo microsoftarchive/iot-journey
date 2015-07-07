@@ -86,8 +86,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BuildingLookupService.cs" />
+    <Compile Include="BuildingMapping.cs" />
     <Compile Include="ElasticSearchWriter\ElasticSearchEventDataSerializer.cs" />
     <Compile Include="ElasticSearchWriter\ElasticSearchWriter.cs" />
+    <Compile Include="IBuildingLookupService.cs" />
     <Compile Include="Resource.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -115,6 +118,10 @@
     <ProjectReference Include="..\..\..\Shared\Core\Core.csproj">
       <Project>{b3657b80-640f-4d72-885e-e9f9729bac18}</Project>
       <Name>Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Shared\Devices.Events\Devices.Events.csproj">
+      <Project>{879fc82c-62a5-4ea7-a0d0-34968b2bd4ec}</Project>
+      <Name>Devices.Events</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

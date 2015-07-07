@@ -1,15 +1,15 @@
-﻿using Microsoft.Practices.IoTJourney.WarmStorage.ElasticSearchWriter;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.Practices.IoTJourney.Devices.Events;
+using Microsoft.Practices.IoTJourney.WarmStorage.ElasticSearchWriter;
 using Microsoft.Practices.IoTJourney.WarmStorage.Logging;
 using Microsoft.ServiceBus.Messaging;
 using Microsoft.WindowsAzure.Storage;
 using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Microsoft.Practices.IoTJourney.WarmStorage
 {
@@ -19,16 +19,18 @@ namespace Microsoft.Practices.IoTJourney.WarmStorage
         private IElasticSearchWriter _elasticSearchWriter;
         private readonly string _eventHubName;
         private readonly CancellationToken _token = CancellationToken.None;
+        private readonly IBuildingLookupService _buildingLookupService;
 
         public WarmStorageProcessor(
             Func<string, IElasticSearchWriter> elasticSearchWriterFactory,
-            string eventHubName)
+            string eventHubName, IBuildingLookupService buildingLookupService)
         {
             Guard.ArgumentNotNull(elasticSearchWriterFactory, "elasticSearchWriterFactory");
             Guard.ArgumentNotNullOrEmpty(eventHubName, "eventHubName");
 
             _elasticSearchWriterFactory = elasticSearchWriterFactory;
             _eventHubName = eventHubName;
+            _buildingLookupService = buildingLookupService;
         }
 
         private const string ProcessorName = "elasticsearchwriter";
@@ -51,6 +53,12 @@ namespace Microsoft.Practices.IoTJourney.WarmStorage
         {
             // Workaround for event hub sending null on timeout
             events = events ?? Enumerable.Empty<EventData>();
+
+            foreach (var eventData in events)
+            {
+                var updateTemperatureEvent = JsonConvert.DeserializeObject<UpdateTemperatureEvent>(Encoding.UTF8.GetString(eventData.GetBytes()));
+                eventData.Properties["BuildingId"] = await _buildingLookupService.GetBuildingIdAsync(updateTemperatureEvent.DeviceId);
+            }
 
             if(!await _elasticSearchWriter.WriteAsync(events.ToList(), _token).ConfigureAwait(false))
             {
