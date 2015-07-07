@@ -87,37 +87,27 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\..\..\provision\config\coldstorageeventprocessor-local.config">
-      <Link>coldstorageeventprocessor-local.config</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Include="App.config" />
+    <None Include="ColdStorage.EventProcessor.ConsoleHost.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\Shared\Tests.Common\Tests.Common.csproj">
+      <Project>{769c50c0-1627-4834-824a-a77b2c303f9d}</Project>
+      <Name>Tests.Common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\ColdStorage.EventProcessor\ColdStorage.EventProcessor.csproj">
       <Project>{6d15d1ef-a00c-4e2e-aefb-6da23bea107f}</Project>
       <Name>ColdStorage.EventProcessor</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\Common\DotNet\Shared\Core\Core.csproj">
+    <ProjectReference Include="..\..\..\Shared\Core\Core.csproj">
       <Project>{b3657b80-640f-4d72-885e-e9f9729bac18}</Project>
       <Name>Core</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\Common\DotNet\Shared\Tests.Common\Tests.Common.csproj">
-      <Project>{769c50c0-1627-4834-824a-a77b2c303f9d}</Project>
-      <Name>Tests.Common</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="BeforeBuild">
-    <Error Condition=" '$(CIBuild)' == '' AND !Exists('..\..\..\..\provision\config\coldstorageeventprocessor-local.config')" Text="Before building this project, please copy coldstorageeventprocessor-template.config to coldstorageeventprocessor-local.config (under the &quot;$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)\..'))&quot; directory) and replace the placeholders in the copy with your configuration information." />
-  </Target>
-  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('$(SolutionDir)\.nuget\NuGet.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\.nuget\NuGet.targets'))" />
+    <Error Condition=" '$(CIBuild)' == '' AND !Exists('..\ColdStorage.EventProcessor.ConsoleHost.config')" Text="Before building this project, please copy ColdStorage.EventProcessor.ConsoleHost.Template.config to ColdStorage.EventProcessor.ConsoleHost.config (under the &quot;$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)\..'))&quot; directory) and replace the placeholders in the copy with your configuration information." />
   </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
