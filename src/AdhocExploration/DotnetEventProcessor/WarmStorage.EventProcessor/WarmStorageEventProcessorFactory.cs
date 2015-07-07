@@ -26,7 +26,7 @@ namespace Microsoft.Practices.IoTJourney.WarmStorage
 
         public IEventProcessor CreateEventProcessor(PartitionContext context)
         {
-            var processor = new WarmStorageProcessor(_elasticSearchWriterFactory, _eventHubName);
+            var processor = new WarmStorageProcessor(_elasticSearchWriterFactory, _eventHubName, new BuildingLookupService());
             return processor;
         }
     }
