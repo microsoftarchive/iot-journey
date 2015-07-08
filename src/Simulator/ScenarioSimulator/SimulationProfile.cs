@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
+using System.Diagnostics;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
@@ -95,11 +96,16 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
                 .Scan(0, (total, next) => total + next.Sum())
                 .Subscribe(total => ScenarioSimulatorEventSource.Log.CurrentEventCountForAllDevices(total));
 
-            var interval = TimeSpan.FromMinutes(0.1);
+            var sw = new Stopwatch();
+            sw.Start();
             _observableTotalCount
-                .Buffer(interval)
+                .Buffer(TimeSpan.FromMinutes(0.1))
                 .Scan(0, (total, next) => next.Sum())
-                .Subscribe(count => ScenarioSimulatorEventSource.Log.CurrentEventsPerSecond(String.Format("{0} per second", (count / interval.TotalSeconds))));
+                .Subscribe(count => {
+                    var rate = count/sw.Elapsed.TotalSeconds;
+                    sw.Restart();
+                    ScenarioSimulatorEventSource.Log.CurrentEventsPerSecond(String.Format("{0:0.00} per second", rate));
+                });
 
             foreach (var device in _devices)
             {
