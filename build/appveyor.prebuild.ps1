@@ -1,27 +1,13 @@
-﻿ echo "Creating a local config from template for projects"
- 
- $templateFile1 = "simulator-template.config"
- $configFile1 = "simulator-local.config"
- 
- $templateFile2 = "coldstorageeventprocessor-template.config"
- $configFile2 = "coldstorageeventprocessor-local.config"
+﻿ echo "Creating a config from template for projects"
 
- $templateFile3 = "warmstorageeventprocessor-template.config"
- $configFile3 = "warmstorageeventprocessor-local.config"
-
- $configFolder = "provision\config\"
-
- $srcPath = Join-Path $configFolder $templateFile1
- $dstPath = Join-Path $configFolder $configFile1
- 
+ $srcPath = "src\Simulator\ScenarioSimulator.ConsoleHost\ScenarioSimulator.ConsoleHost.Template.config"
+ $dstPath = "src\Simulator\ScenarioSimulator.ConsoleHost\ScenarioSimulator.ConsoleHost.config" 
  Copy-Item -Path $srcPath -Destination $dstPath
 
- $srcPath = Join-Path $configFolder $templateFile2
- $dstPath = Join-Path $configFolder $configFile2
- 
+ $srcPath = "src\AdhocExploration\DotnetEventProcessor\WarmStorage.EventProcessor.ConsoleHost\WarmStorage.EventProcessor.ConsoleHost.Template.config"
+ $dstPath = "src\AdhocExploration\DotnetEventProcessor\WarmStorage.EventProcessor.ConsoleHost\WarmStorage.EventProcessor.ConsoleHost.config"
  Copy-Item -Path $srcPath -Destination $dstPath
 
- $srcPath = Join-Path $configFolder $templateFile3
- $dstPath = Join-Path $configFolder $configFile3
- 
+ $srcPath = "src\LongTermStorage\DotnetEventProcessor\ColdStorage.EventProcessor.ConsoleHost.Template.config"
+ $dstPath = "src\LongTermStorage\DotnetEventProcessor\ColdStorage.EventProcessor.ConsoleHost.config"
  Copy-Item -Path $srcPath -Destination $dstPath
