@@ -70,6 +70,24 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
             }
         }
 
+        private static void ObserveScenarioOuput(IObservable<int> currentCount)
+        {
+            currentCount
+                .Sum()
+                .Subscribe(total => ScenarioSimulatorEventSource.Log.FinalEventCountForAllDevices(total));
+
+            currentCount
+                .Buffer(TimeSpan.FromMinutes(5))
+                .Scan(0, (total, next) => total + next.Sum())
+                .Subscribe(total => ScenarioSimulatorEventSource.Log.CurrentEventCountForAllDevices(total));
+
+            currentCount
+                .Buffer(TimeSpan.FromMinutes(0.1))
+                .TimeInterval()
+                .Select(x => x.Value.Sum() / x.Interval.TotalSeconds)
+                .Subscribe(rate => ScenarioSimulatorEventSource.Log.CurrentEventsPerSecond(String.Format("{0:0.00} per second", rate)));
+        }
+
         public async Task RunSimulationAsync(string scenario, CancellationToken token)
         {
             //TODO: we need to find a friendlier way to show this.
@@ -87,22 +105,7 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
             var warmup = _simulatorConfiguration.WarmUpDuration;
             var warmupPerDevice = warmup.Ticks / _devices.Count;
 
-            _observableTotalCount
-                .Sum()
-                .Subscribe(total => ScenarioSimulatorEventSource.Log.FinalEventCountForAllDevices(total));
-
-            _observableTotalCount
-                .Buffer(TimeSpan.FromMinutes(5))
-                .Scan(0, (total, next) => total + next.Sum())
-                .Subscribe(total => ScenarioSimulatorEventSource.Log.CurrentEventCountForAllDevices(total));
-
-            _observableTotalCount
-                .Buffer(TimeSpan.FromMinutes(0.1))
-                .TimeInterval()
-                .Select(x => x.Value.Sum()/x.Interval.TotalSeconds)
-                .Subscribe(rate => {
-                    ScenarioSimulatorEventSource.Log.CurrentEventsPerSecond(String.Format("{0:0.00} per second", rate));
-                });
+            ObserveScenarioOuput(_observableTotalCount);
 
             foreach (var device in _devices)
             {
