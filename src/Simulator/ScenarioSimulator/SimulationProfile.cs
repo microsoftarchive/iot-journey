@@ -85,7 +85,7 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
                 .Buffer(TimeSpan.FromMinutes(0.1))
                 .TimeInterval()
                 .Select(x => x.Value.Sum() / x.Interval.TotalSeconds)
-                .Subscribe(rate => ScenarioSimulatorEventSource.Log.CurrentEventsPerSecond(String.Format("{0:0.00} per second", rate)));
+                .Subscribe(rate => ScenarioSimulatorEventSource.Log.CurrentEventsPerSecond(rate));
         }
 
         public async Task RunSimulationAsync(string scenario, CancellationToken token)
