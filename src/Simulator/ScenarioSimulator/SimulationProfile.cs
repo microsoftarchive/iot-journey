@@ -96,14 +96,11 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
                 .Scan(0, (total, next) => total + next.Sum())
                 .Subscribe(total => ScenarioSimulatorEventSource.Log.CurrentEventCountForAllDevices(total));
 
-            var sw = new Stopwatch();
-            sw.Start();
             _observableTotalCount
                 .Buffer(TimeSpan.FromMinutes(0.1))
-                .Scan(0, (total, next) => next.Sum())
-                .Subscribe(count => {
-                    var rate = count/sw.Elapsed.TotalSeconds;
-                    sw.Restart();
+                .TimeInterval()
+                .Select(x => x.Value.Sum()/x.Interval.TotalSeconds)
+                .Subscribe(rate => {
                     ScenarioSimulatorEventSource.Log.CurrentEventsPerSecond(String.Format("{0:0.00} per second", rate));
                 });
 
