@@ -74,7 +74,9 @@
     <Content Include="WebJob.cmd">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <None Include="ScenarioSimulator.ConsoleHost.config" />
+    <None Include="ScenarioSimulator.ConsoleHost.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Shared\Core\Core.csproj">
