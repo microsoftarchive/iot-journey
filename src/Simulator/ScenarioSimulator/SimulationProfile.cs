@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
+using System.Diagnostics;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
@@ -20,7 +21,7 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
 
         private readonly string _hostName;
 
-        private readonly ISubject<int> _observableTotalCount = new Subject<int>();
+        private readonly ISubject<int> _eventsSentCount = new Subject<int>();
 
         private readonly IList<Device> _devices = new List<Device>();
 
@@ -69,6 +70,24 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
             }
         }
 
+        private static void ObserveScenarioOuput(IObservable<int> count)
+        {
+            count
+                .Sum()
+                .Subscribe(total => ScenarioSimulatorEventSource.Log.FinalEventCountForAllDevices(total));
+
+            count
+                .Buffer(TimeSpan.FromMinutes(5))
+                .Scan(0, (total, next) => total + next.Sum())
+                .Subscribe(total => ScenarioSimulatorEventSource.Log.CurrentEventCountForAllDevices(total));
+
+            count
+                .Buffer(TimeSpan.FromMinutes(0.1))
+                .TimeInterval()
+                .Select(x => x.Value.Sum() / x.Interval.TotalSeconds)
+                .Subscribe(rate => ScenarioSimulatorEventSource.Log.CurrentEventsPerSecond(rate));
+        }
+
         public async Task RunSimulationAsync(string scenario, CancellationToken token)
         {
             //TODO: we need to find a friendlier way to show this.
@@ -86,14 +105,7 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
             var warmup = _simulatorConfiguration.WarmUpDuration;
             var warmupPerDevice = warmup.Ticks / _devices.Count;
 
-            _observableTotalCount
-                .Sum()
-                .Subscribe(total => ScenarioSimulatorEventSource.Log.FinalEventCountForAllDevices(total));
-
-            _observableTotalCount
-                .Buffer(TimeSpan.FromMinutes(5))
-                .Scan(0, (total, next) => total + next.Sum())
-                .Subscribe(total => ScenarioSimulatorEventSource.Log.CurrentEventCountForAllDevices(total));
+            ObserveScenarioOuput(_eventsSentCount);
 
             foreach (var device in _devices)
             {
@@ -108,7 +120,7 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
                     produceEventsForScenario: produceEventsForScenario,
                     sendEventsAsync: eventSender.SendAsync,
                     waitBeforeStarting: TimeSpan.FromTicks(warmupPerDevice * device.StartupOrder),
-                    totalCount: _observableTotalCount,
+                    totalCount: _eventsSentCount,
                     token: token
                 );
 
@@ -117,7 +129,7 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
 
             await Task.WhenAll(simulationTasks.ToArray()).ConfigureAwait(false);
 
-            _observableTotalCount.OnCompleted();
+            _eventsSentCount.OnCompleted();
 
             ScenarioSimulatorEventSource.Log.SimulationEnded(_hostName);
         }
