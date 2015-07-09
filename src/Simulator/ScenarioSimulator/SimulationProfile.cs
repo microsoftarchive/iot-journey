@@ -21,7 +21,7 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
 
         private readonly string _hostName;
 
-        private readonly ISubject<int> _observableTotalCount = new Subject<int>();
+        private readonly ISubject<int> _eventsSentCount = new Subject<int>();
 
         private readonly IList<Device> _devices = new List<Device>();
 
@@ -70,18 +70,18 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
             }
         }
 
-        private static void ObserveScenarioOuput(IObservable<int> currentCount)
+        private static void ObserveScenarioOuput(IObservable<int> count)
         {
-            currentCount
+            count
                 .Sum()
                 .Subscribe(total => ScenarioSimulatorEventSource.Log.FinalEventCountForAllDevices(total));
 
-            currentCount
+            count
                 .Buffer(TimeSpan.FromMinutes(5))
                 .Scan(0, (total, next) => total + next.Sum())
                 .Subscribe(total => ScenarioSimulatorEventSource.Log.CurrentEventCountForAllDevices(total));
 
-            currentCount
+            count
                 .Buffer(TimeSpan.FromMinutes(0.1))
                 .TimeInterval()
                 .Select(x => x.Value.Sum() / x.Interval.TotalSeconds)
@@ -105,7 +105,7 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
             var warmup = _simulatorConfiguration.WarmUpDuration;
             var warmupPerDevice = warmup.Ticks / _devices.Count;
 
-            ObserveScenarioOuput(_observableTotalCount);
+            ObserveScenarioOuput(_eventsSentCount);
 
             foreach (var device in _devices)
             {
@@ -120,7 +120,7 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
                     produceEventsForScenario: produceEventsForScenario,
                     sendEventsAsync: eventSender.SendAsync,
                     waitBeforeStarting: TimeSpan.FromTicks(warmupPerDevice * device.StartupOrder),
-                    totalCount: _observableTotalCount,
+                    totalCount: _eventsSentCount,
                     token: token
                 );
 
@@ -129,7 +129,7 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
 
             await Task.WhenAll(simulationTasks.ToArray()).ConfigureAwait(false);
 
-            _observableTotalCount.OnCompleted();
+            _eventsSentCount.OnCompleted();
 
             ScenarioSimulatorEventSource.Log.SimulationEnded(_hostName);
         }
