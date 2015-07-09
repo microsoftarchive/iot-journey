@@ -162,5 +162,11 @@ namespace Microsoft.Practices.IoTJourney.Logging
         {
             WriteEvent(19, deviceId, eventCount);
         }
+
+        [Event(20, Level = EventLevel.Informational, Message = "{0:0.00} per second")]
+        public void CurrentEventsPerSecond(double eventsPerSecond)
+        {
+            WriteEvent(20, eventsPerSecond);
+        }
     }
 }
