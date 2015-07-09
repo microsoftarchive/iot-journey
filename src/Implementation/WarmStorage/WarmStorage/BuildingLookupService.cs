@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
 using System;
 using System.Collections.Concurrent;
 using System.IO;
@@ -38,23 +41,18 @@ namespace Microsoft.Practices.IoTJourney.WarmStorage
             if (cacheDateTimeOffset != null &&
                 DateTimeOffset.Compare(cacheDateTimeOffset.AddMinutes(configuration.ReferenceDataCacheTTLMinutes), DateTimeOffset.UtcNow) > 0) return;
 
-            if (isGettingLatestETag)
-            {
-                await gettingLatestETagTask;
-            }
-            else
-            {
-                isGettingLatestETag = true;
-                var storageAccount = CloudStorageAccount.Parse(configuration.ReferenceDataStorageAccount);
-                var blobClient = storageAccount.CreateCloudBlobClient();
-                var container = blobClient.GetContainerReference(configuration.ReferenceDataStorageContainer);
-                blockBlob = container.GetBlockBlobReference(configuration.ReferenceDataFilePath);
+            //If currently fetching ETag, assume cache is still valid.
+            if (isGettingLatestETag) return;
 
-                gettingLatestETagTask = blockBlob.FetchAttributesAsync();
-                await gettingLatestETagTask;
-                isGettingLatestETag = false;
-            }
+            isGettingLatestETag = true;
+            var storageAccount = CloudStorageAccount.Parse(configuration.ReferenceDataStorageAccount);
+            var blobClient = storageAccount.CreateCloudBlobClient();
+            var container = blobClient.GetContainerReference(configuration.ReferenceDataStorageContainer);
+            blockBlob = container.GetBlockBlobReference(configuration.ReferenceDataFilePath);
 
+            gettingLatestETagTask = blockBlob.FetchAttributesAsync();
+            await gettingLatestETagTask;
+            isGettingLatestETag = false;
 
             if (cachedBuildingDictionary != null && blockBlob.Properties.ETag == blobETag)
             {
