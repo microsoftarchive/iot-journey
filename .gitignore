@@ -198,4 +198,8 @@ FakesAssemblies/
 
 # User-specific configuration that should not be place under source control
 *.azurePubXml
-mysettings.config
+
+*-local.config
+WarmStorage.EventProcessor.ConsoleHost.config
+ColdStorage.EventProcessor.ConsoleHost.config
+ScenarioSimulator.ConsoleHost.config
