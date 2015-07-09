@@ -18,7 +18,7 @@ function global:Load-Module
   $Ignore = Import-Module -Name $QualifiedModuleName -PassThru -Verbose:$False -EA Stop
 }
 
-function Assert-AzurPowershelleVersion
+function Assert-AzurePowershellVersion
 {
     Param ([version]$requiredVersion)
 
@@ -44,4 +44,4 @@ function Assert-AzurPowershelleVersion
 ##
 ############################
 
-Assert-AzurPowershelleVersion "0.9.3"
+Assert-AzurePowershellVersion "0.9.3"
