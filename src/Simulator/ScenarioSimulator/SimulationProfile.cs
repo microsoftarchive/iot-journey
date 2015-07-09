@@ -84,7 +84,7 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
             var simulationTasks = new List<Task>();
 
             var warmup = _simulatorConfiguration.WarmUpDuration;
-            var warmupPerDevice = warmup.Ticks;
+            var warmupPerDevice = warmup.Ticks / _devices.Count;
 
             _observableTotalCount
                 .Sum()
