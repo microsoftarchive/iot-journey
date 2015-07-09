@@ -46,7 +46,7 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
         {
             _totalElapsedMilliseconds = 0;
 
-            var nextJitter = (_random.NextDouble() * _jitter);
+            var nextJitter = (_random.NextDouble() * 2 * _jitter) - _jitter;
             _frequencyWithJitter = _frequency + (nextJitter * _frequency);
         }
 
