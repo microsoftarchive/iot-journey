@@ -16,5 +16,11 @@ namespace Microsoft.Practices.IoTJourney.WarmStorage.Tests
         {
             EventSourceAnalyzer.InspectAll(WarmStorageEventSource.Log);
         }
+
+        [Fact]
+        public void TestFailure()
+        {
+            Assert.False(true);
+        }
     }
 }
