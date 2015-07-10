@@ -19,6 +19,6 @@ namespace Microsoft.Practices.IoTJourney.WarmStorage.Tests
         }
 
         CompilationError;
-
+        CompilationError;
     }
 }
