@@ -18,7 +18,7 @@ namespace Microsoft.Practices.IoTJourney.ColdStorage.EventProcessor.ConsoleHost
     {
         private static void Main(string[] args)
         {
-            AsyncPump.Run(() => MainAsync(args));
+            MainAsync(args).Wait();
         }
 
         private static async Task MainAsync(string[] args)
