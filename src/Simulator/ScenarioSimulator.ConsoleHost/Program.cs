@@ -22,7 +22,7 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator.ConsoleHost
 
         private static void Main(string[] args)
         {
-            AsyncPump.Run(() => MainAsync(args));
+            MainAsync(args).Wait();
         }
 
         private static async Task MainAsync(string[] args)
