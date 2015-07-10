@@ -17,8 +17,5 @@ namespace Microsoft.Practices.IoTJourney.WarmStorage.Tests
         {
             EventSourceAnalyzer.InspectAll(WarmStorageEventSource.Log);
         }
-
-        CompilationError;
-        CompilationError;
     }
 }
