@@ -22,11 +22,6 @@ namespace WarmStorage.ConsoleHost
     {
         private static void Main(string[] args)
         {
-            MainAsync(args).Wait();
-        }
-
-        private static async Task MainAsync(string[] args)
-        {
             var observableEventListener = new ObservableEventListener();
 
             observableEventListener.EnableEvents(
@@ -34,11 +29,11 @@ namespace WarmStorage.ConsoleHost
 
             observableEventListener.LogToConsole();
 
-            await CommonConsoleHost.RunWithOptionsAsync(new Dictionary<string, Func<CancellationToken, Task>>
+            CommonConsoleHost.RunWithOptionsAsync(new Dictionary<string, Func<CancellationToken, Task>>
             {
-                { "Provision Resources", ProvisionResourcesAsync },
-                { "Run Warm Storage Consumer", RunAsync }
-            }).ConfigureAwait(false);
+                {"Provision Resources", ProvisionResourcesAsync},
+                {"Run Warm Storage Consumer", RunAsync}
+            }).Wait();
         }
 
         private static async Task ProvisionResourcesAsync(CancellationToken token)
