@@ -50,11 +50,10 @@ PROCESS
         'Simulator.EventHubTokenLifetimeDays' = ($EventHubInfo.EventHubTokenLifetimeDays -as [string]);
     }
 
-    Write-SettingsFile -configurationTemplateFile (Join-Path $PSScriptRoot -ChildPath "\config\simulator-template.config") `
-                       -configurationFile (Join-Path $PSScriptRoot -ChildPath "\config\simulator-local.config") `
+    Write-SettingsFile -configurationTemplateFile (Join-Path $PSScriptRoot -ChildPath "..\src\Simulator\ScenarioSimulator.ConsoleHost\ScenarioSimulator.ConsoleHost.Template.config") `
+                       -configurationFile (Join-Path $PSScriptRoot -ChildPath "..\src\Simulator\ScenarioSimulator.ConsoleHost\ScenarioSimulator.ConsoleHost.config") `
                        -appSettings $simulatorSettings
-    
-    
+        
     $EventHubConnectionString = $EventHubInfo.ConnectionString + ";TransportType=Amqp"
     $StorageAccountConnectionString = "DefaultEndpointsProtocol=https;AccountName={0};AccountKey={1}" -f $StorageAccountInfo.AccountName, $StorageAccountInfo.AccountKey
 
@@ -65,8 +64,8 @@ PROCESS
         'Warmstorage.ConsumerGroupName' = $ConsumerGroupName;
     }
 
-    Write-SettingsFile -configurationTemplateFile (Join-Path $PSScriptRoot -ChildPath "\config\warmstorageeventprocessor-template.config") `
-                       -configurationFile (Join-Path $PSScriptRoot -ChildPath "\config\warmstorageeventprocessor-local.config") `
+    Write-SettingsFile -configurationTemplateFile (Join-Path $PSScriptRoot -ChildPath "..\src\AdhocExploration\DotnetEventProcessor\WarmStorage.EventProcessor.ConsoleHost\WarmStorage.EventProcessor.ConsoleHost.Template.config") `
+                       -configurationFile (Join-Path $PSScriptRoot -ChildPath "..\src\AdhocExploration\DotnetEventProcessor\WarmStorage.EventProcessor.ConsoleHost\WarmStorage.EventProcessor.ConsoleHost.config") `
                        -appSettings $settings
 
 
