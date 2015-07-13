@@ -22,11 +22,6 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator.ConsoleHost
 
         private static void Main(string[] args)
         {
-            AsyncPump.Run(() => MainAsync(args));
-        }
-
-        private static async Task MainAsync(string[] args)
-        {
             var observableEventListener = new ObservableEventListener();
 
             var configuration = SimulatorConfiguration.GetCurrentConfiguration();
@@ -48,7 +43,7 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator.ConsoleHost
                     ? GetWebJobCancellationToken()
                     : CancellationToken.None;
 
-                await _deviceSimulator.RunSimulationAsync(scenario, ct).ConfigureAwait(false);
+                _deviceSimulator.RunSimulationAsync(scenario, ct).Wait();
                 return;
             }
 
@@ -64,7 +59,7 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator.ConsoleHost
 
             //options.Add("Deprovision Devices", DeprovisionDevicesAsync);
 
-            await Tests.Common.ConsoleHost.RunWithOptionsAsync(options).ConfigureAwait(false);
+            Tests.Common.ConsoleHost.RunWithOptionsAsync(options).Wait();
         }
 
         private static async Task ProvisionDevicesAsync(CancellationToken token)
