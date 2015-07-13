@@ -91,8 +91,8 @@ PROCESS
         'Simulator.EventHubTokenLifetimeDays' = ($EventHubInfo.EventHubTokenLifetimeDays -as [string]);
     }
 
-    Write-SettingsFile -configurationTemplateFile (Join-Path $PSScriptRoot -ChildPath "\config\simulator-template.config") `
-                       -configurationFile (Join-Path $PSScriptRoot -ChildPath "\config\simulator-local.config") `
+    Write-SettingsFile -configurationTemplateFile (Join-Path $PSScriptRoot -ChildPath "..\src\Simulator\ScenarioSimulator.ConsoleHost\ScenarioSimulator.ConsoleHost.Template.config") `
+                       -configurationFile (Join-Path $PSScriptRoot -ChildPath "..\src\Simulator\ScenarioSimulator.ConsoleHost\ScenarioSimulator.ConsoleHost.config") `
                        -appSettings $simulatorSettings
     
     
@@ -108,10 +108,14 @@ PROCESS
         'Coldstorage.ConsumerGroupName' = $ConsumerGroupName;
     }
 
-    Write-SettingsFile -configurationTemplateFile (Join-Path $PSScriptRoot -ChildPath "\config\coldstorageeventprocessor-template.config") `
-                       -configurationFile (Join-Path $PSScriptRoot -ChildPath "\config\coldstorageeventprocessor-local.config") `
+    Write-SettingsFile -configurationTemplateFile (Join-Path $PSScriptRoot -ChildPath "..\src\LongTermStorage\DotnetEventProcessor\ColdStorage.EventProcessor.ConsoleHost.Template.config") `
+                       -configurationFile (Join-Path $PSScriptRoot -ChildPath "..\src\LongTermStorage\DotnetEventProcessor\ColdStorage.EventProcessor.ConsoleHost\ColdStorage.EventProcessor.ConsoleHost.config") `
                        -appSettings $settings
 
+
+    Write-SettingsFile -configurationTemplateFile (Join-Path $PSScriptRoot -ChildPath "..\src\LongTermStorage\DotnetEventProcessor\ColdStorage.EventProcessor.ConsoleHost.Template.config") `
+                       -configurationFile (Join-Path $PSScriptRoot -ChildPath "..\src\LongTermStorage\DotnetEventProcessor\ColdStorage.EventProcessor.Tests\ColdStorage.EventProcessor.ConsoleHost.config") `
+                       -appSettings $settings
     
     Write-Output "Provision Finished OK"
 }
