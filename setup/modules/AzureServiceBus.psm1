@@ -144,7 +144,9 @@ function New-EventHubIfNotExists
         [Parameter(Mandatory=$True)][string]$EventHubName,
         [Parameter(Mandatory=$False)][int]$PartitionCount,
         [Parameter(Mandatory=$False)][int]$MessageRetentionInDays,
-        [Parameter(Mandatory=$False)][object]$UserMetadata
+        [Parameter(Mandatory=$False)][object]$UserMetadata,
+        [Parameter (Mandatory = $False)][int]$RetryCountMax = 5, 
+        [Parameter (Mandatory = $False)][int]$RetryDelaySeconds = 5
     )
     PROCESS
     {
