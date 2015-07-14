@@ -8,13 +8,13 @@
 
 1. Run `Provision-All` using Azure PowerShell.
 
-1. Upload `fabrikam_buildingdevice.json` to the `container01refdata` of the storage account and rename it as as `fabrikam/buildingdevice.json`.
+1. Verify that `fabrikam/buildingdevice.json` is uploaded to  `blobs-asa-refdata` of the storage account.
 
 1. In the Azure portal, open the Stream Analytics job `[YourApplicationName]ToBlob`, and test the connections for `input01` and `output01`.
 
 1. In the Azure portal, open the Stream Analytics job `[YourApplicationName]ToSql`, and test the connections for `input01`, `input02`, and `output01`.
 
-1. Start the Stream Analytics job.
+1. Start the Stream Analytics jobs.
 
 1. Start running the simulator.
 
