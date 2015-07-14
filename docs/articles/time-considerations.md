@@ -1,4 +1,4 @@
-# Time Considerations
+no # Time Considerations
 
 The vast majority of IoT projects involve collecting and forwarding events.
 One usually needs to know *when* these events occurred in order to do anything
@@ -44,7 +44,7 @@ In the next sections, we'll explore these options in more detail.
 
 ### Using the cloud gateway's clock
 
-When you use the cloud gateway's clock, you are recording the time when the sever received the event message. In some cases this is acceptable, but it's usually discouraged. 
+When you use the cloud gateway's clock, you are recording the time when the server received the event message. In some cases this is acceptable, but it's usually discouraged. 
 
 **Latency.**  While simple to implement, it doesn't account for the time it takes to deliver the message from the device to the cloud. This latency can be especially bad when you consider batch processing, offline devices, or ocassionally-connected devices. In these scenarios, event messages are typically stored for later transmittal. If the event time isn't captured until the message is received, it could very well be incorrect. 
 
@@ -124,7 +124,7 @@ precision and accuracy as computer hardware, or it may be
 significantly better or significantly worse. It's important to understand the
 timing characteristics of your specific device.
 
-However, keep in mind that some devices have no clocks at all.
+However, keep in mind that some devices have no clock at all.
 Obviously, if a device doesn't have a reliable clock, you can't
 use it as a clock source. In that case, consider using a field gateway.
 
