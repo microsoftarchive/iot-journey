@@ -1,4 +1,4 @@
-no # Time Considerations
+# Time Considerations
 
 The vast majority of IoT projects involve collecting and forwarding events.
 One usually needs to know *when* these events occurred in order to do anything
