@@ -8,16 +8,15 @@
 
 1. Run `Provision-All` using Azure PowerShell.
 
-1. In the Azure portal, open the Stream Analytics job `fabrikamstreamjob01`, and test the connections for `input01`, `input02`, `output01`, and `output02`.
-
 1. Upload `fabrikam_buildingdevice.json` to the `container01refdata` of the storage account and rename it as as `fabrikam/buildingdevice.json`.
 
-1. Update the mysettings.config file - set the `Simulator.EventHubConnectionString` and `Simulator.EventHubPath` with the values for the newly provisioned event hub.
+1. In the Azure portal, open the Stream Analytics job `[YourApplicationName]ToBlob`, and test the connections for `input01` and `output01`.
+
+1. In the Azure portal, open the Stream Analytics job `[YourApplicationName]ToSql`, and test the connections for `input01`, `input02`, and `output01`.
 
 1. Start the Stream Analytics job.
 
 1. Start running the simulator.
-
 
 Notes:
 
@@ -25,4 +24,4 @@ Notes:
 
 - Check to make sure you have sufficient resources to create the Hadoop cluster.
 
-- Set all blob containers to be publicly accessible by the Hadoop cluster. 
+- Set all blob containers to be publicly accessible by the Hadoop cluster.
