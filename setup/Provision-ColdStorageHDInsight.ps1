@@ -3,6 +3,7 @@ Param
 (
 	[ValidateNotNullOrEmpty()][Parameter (Mandatory = $True)][string]$SubscriptionName,
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $True)][String]$ApplicationName,
+	[ValidateNotNullOrEmpty()][Parameter (Mandatory = $True)][bool]$AddAccount,
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$StorageAccountName =$ApplicationName,
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$ContainerName = "hdinsight",
     [ValidateNotNullOrEmpty()][Parameter (Mandatory=$False)][string]$ClusterName =$ApplicationName,
@@ -23,7 +24,10 @@ PROCESS
     Load-Module -ModuleName Config -ModuleLocation .\modules
     Load-Module -ModuleName AzureStorage -ModuleLocation .\modules
 
-    Add-AzureAccount
+    if($AddAccount)
+    {
+        Add-AzureAccount
+    }
 
     $StorageAccountInfo = Provision-StorageAccount -StorageAccountName $StorageAccountName `
                                              -ContainerName $ContainerName `
