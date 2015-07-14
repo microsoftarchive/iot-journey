@@ -3,6 +3,7 @@ Param
 (
 	[ValidateNotNullOrEmpty()][Parameter (Mandatory = $True)][string]$SubscriptionName,
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $True)][String]$ApplicationName,
+	[ValidateNotNullOrEmpty()][Parameter (Mandatory = $True)][bool]$AddAccount,
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$StorageAccountName =$ApplicationName,
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$ServiceBusNamespace = $ApplicationName,
 	[ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$EventHubName = "eventhub-iot",                  
@@ -29,7 +30,10 @@ PROCESS
     Load-Module -ModuleName AzureServiceBus -ModuleLocation .\modules
 
 
-    Add-AzureAccount
+    if($AddAccount)
+    {
+        Add-AzureAccount
+    }
 
     $StorageAccountInfo = Provision-StorageAccount -StorageAccountName $StorageAccountName `
                                                    -Location $Location
