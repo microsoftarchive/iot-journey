@@ -2,8 +2,9 @@
 Param
 (
 	[ValidateNotNullOrEmpty()][Parameter (Mandatory = $True)][string]$SubscriptionName,
-    [ValidateNotNullOrEmpty()][Parameter (Mandatory = $True)][String]$StorageAccountName,
-	[ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$ServiceBusNamespace = "fabrikam-iot",                                                
+    [ValidateNotNullOrEmpty()][Parameter (Mandatory = $True)][String]$ApplicationName,
+    [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$StorageAccountName =$ApplicationName,
+    [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$ServiceBusNamespace = $ApplicationName,
 	[ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$EventHubName = "eventhub-iot",                  
 	[ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$ConsumerGroupName  = "cg-elasticsearch", 
 	[ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$EventHubSharedAccessPolicyName = "ManagePolicy",
@@ -22,6 +23,7 @@ PROCESS
 
     # Load modules.
     Load-Module -ModuleName Config -ModuleLocation .\modules
+    Load-Module -ModuleName Utility -ModuleLocation .\modules
     Load-Module -ModuleName AzureARM -ModuleLocation .\modules
     Load-Module -ModuleName AzureStorage -ModuleLocation .\modules
     Load-Module -ModuleName AzureServiceBus -ModuleLocation .\modules
@@ -46,7 +48,7 @@ PROCESS
         'Simulator.EventHubNamespace'= $EventHubInfo.EventHubNamespace;
         'Simulator.EventHubName' = $EventHubInfo.EventHubName;
         'Simulator.EventHubSasKeyName' = $EventHubInfo.EventHubSasKeyName;
-        'Simulator.EventHubSasPrimaryKey' = $EventHubInfo.EventHubPrimaryKey;
+        'Simulator.EventHubPrimaryKey' = $EventHubInfo.EventHubPrimaryKey;
         'Simulator.EventHubTokenLifetimeDays' = ($EventHubInfo.EventHubTokenLifetimeDays -as [string]);
     }
 
