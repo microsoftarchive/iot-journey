@@ -22,11 +22,13 @@ Param
 )
 PROCESS
 {
-    .\Provision-ColdStorageEventProcessor.ps1 -SubscriptionName $SubscriptionName -ApplicationName $ApplicationName
+    Add-AzureAccount
 
-    .\Provision-WarmStorageEventProcessor.ps1 -SubscriptionName $SubscriptionName -ApplicationName $ApplicationName
+    .\Provision-ColdStorageEventProcessor.ps1 -SubscriptionName $SubscriptionName -ApplicationName $ApplicationName -AddAccount $False
 
-    .\Provision-ColdStorageAzureStreamAnalytics.ps1 -SubscriptionName $SubscriptionName -ApplicationName $ApplicationName
+    .\Provision-WarmStorageEventProcessor.ps1 -SubscriptionName $SubscriptionName -ApplicationName $ApplicationName -AddAccount $False
 
-    .\Provision-ColdStorageHDInsight.ps1 -SubscriptionName $SubscriptionName -ApplicationName $ApplicationName
+    .\Provision-ColdStorageAzureStreamAnalytics.ps1 -SubscriptionName $SubscriptionName -ApplicationName $ApplicationName -AddAccount $False
+
+    .\Provision-ColdStorageHDInsight.ps1 -SubscriptionName $SubscriptionName -ApplicationName $ApplicationName -AddAccount $False
 }
