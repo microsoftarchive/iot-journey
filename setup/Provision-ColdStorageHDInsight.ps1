@@ -2,9 +2,10 @@
 Param
 (
 	[ValidateNotNullOrEmpty()][Parameter (Mandatory = $True)][string]$SubscriptionName,
-    [ValidateNotNullOrEmpty()][Parameter (Mandatory = $True)][String]$StorageAccountName,
+    [ValidateNotNullOrEmpty()][Parameter (Mandatory = $True)][String]$ApplicationName,
+    [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$StorageAccountName =$ApplicationName,
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$ContainerName = "hdinsight",
-    [ValidateNotNullOrEmpty()][Parameter (Mandatory=$False)][string]$ClusterName = "hdinsight-iot",
+    [ValidateNotNullOrEmpty()][Parameter (Mandatory=$False)][string]$ClusterName =$ApplicationName,
     [ValidateNotNullOrEmpty()][Parameter (Mandatory=$False)][int]$ClusterNodes = 2,
 	[ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$Location = "Central US"
 )

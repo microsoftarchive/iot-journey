@@ -37,8 +37,9 @@
 Param
 (
 	[ValidateNotNullOrEmpty()][Parameter (Mandatory = $True)][string]$SubscriptionName,
-    [ValidateNotNullOrEmpty()][Parameter (Mandatory = $True)][String]$StorageAccountName,
-	[ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$ServiceBusNamespace = "fabrikam-iot",                                                
+    [ValidateNotNullOrEmpty()][Parameter (Mandatory = $True)][String]$ApplicationName,
+    [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$StorageAccountName =$ApplicationName,
+    [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$ServiceBusNamespace = $ApplicationName,
 	[ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$EventHubName = "eventhub-iot",                  
 	[ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$ConsumerGroupName  = "cg-blobs", 
 	[ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$EventHubSharedAccessPolicyName = "ManagePolicy",
@@ -87,7 +88,7 @@ PROCESS
         'Simulator.EventHubNamespace'= $EventHubInfo.EventHubNamespace;
         'Simulator.EventHubName' = $EventHubInfo.EventHubName;
         'Simulator.EventHubSasKeyName' = $EventHubInfo.EventHubSasKeyName;
-        'Simulator.EventHubSasPrimaryKey' = $EventHubInfo.EventHubPrimaryKey;
+        'Simulator.EventHubPrimaryKey' = $EventHubInfo.EventHubPrimaryKey;
         'Simulator.EventHubTokenLifetimeDays' = ($EventHubInfo.EventHubTokenLifetimeDays -as [string]);
     }
 
