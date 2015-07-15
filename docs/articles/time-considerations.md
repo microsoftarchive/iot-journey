@@ -213,14 +213,10 @@ When you record a timestamp and send it over the wire, it's important that the v
 
 ### Coordinated Universal Time (UTC)
 
-Most programming languages make it simple to get the current UTC time.  For
-example, in .NET you can call `DateTime.UtcNow`.  The returned value represents a single moment in time that is the same anywhere
-on the planet, regardless of time zone.  Additionally, UTC does not use daylight
-saving time, so it is never ambiguous.
+UTC time represents a single moment in time that is the same anywhere on the planet, regardless of time zone. UTC does not use daylight saving time, so it is never ambiguous.
 
-Note that UTC is sometimes referred to as GMT.  Both are equivalent in modern
-times, but the term UTC is preferred because it has a precise scientific
-definition.
+:memo: UTC is sometimes referred to as GMT. Both are equivalent in modern
+times, but the term UTC is preferred because it has a precise scientific definition.
 
 ### Local time + offset
 
@@ -230,29 +226,16 @@ happened in the morning or in the evening.  Or perhaps your data needs to be
 grouped by the local date, where "local" is different depending on where in the
 world the device is located.
 
-In these scenarios, it may be tempting to timestamp your events with just the
-local date and time &mdash; for example, by using `DateTime.Now` in .NET.  However, that
-is usually not a good idea, because it creates ambiguity about the exact time when 
-the event occurred.  Even if all your devices are located in the same time zone,
-you could still get ambiguous data, due to [the mechanics of daylight
-saving time][dst-wiki].
+In these scenarios, it may be tempting to timestamp your events with just the local date and time.  However, that is usually not a good idea, because it creates ambiguity about the exact time when the event occurred.  Even if all your devices are located in the same time zone, if that time zone uses [daylight saving time][dst-wiki] (DST), it creates ambiguous data when the clock "falls back." 
 
-To overcome this problem, you can pass the local time *and* the current offset
-from UTC.  For example, `DateTimeOffset.Now` in .NET returns a data
-type that has the current local time along with the current UTC offset.  Note
-that in many time zones, the offset changes for daylight saving time, so it is
-not just a fixed number.
+To overcome this problem, you can pass the local time *and* the offset from UTC. The offset is the *current* offset when the timestamp was recorded. In many time zones, the offset changes for daylight saving time, so it is not just a fixed number.  
 
-In some cases, a particular technology does not directly support a time + offset type. For example, Azure Stream Analytics only has a `datetime` type, and does not support
-`datetimeoffset`.  In that case, you should timestamp your events by the UTC
-time, and then include either the offset or the local time in a separate field.
-Alternatively, you could send *just* the UTC timestamp, and compute the
-local offset later, based on metadata for the device. (See [Time Zones](time-zones).)
+Some technologies define a specific data type that represents local time + offset (for example, `DateTimeOffset` in .NET). If a particular technology does not directly support a time + offset type, you should timestamp with the UTC time, and then include either the offset or the local time in a separate field.
 
-See also:  [`DateTime` vs `DateTimeOffset`][dt-vs-dto]
+Alternatively, you could send *just* the UTC timestamp, and compute the local offset later, based on metadata for the device. (See [Time Zones](time-zones).)
 
 [dst-wiki]: http://stackoverflow.com/tags/dst/info
-[dt-vs-dto]: http://stackoverflow.com/questions/4331189/datetime-vs-datetimeoffset
+
 
 ## Time formats
 
@@ -319,16 +302,14 @@ the US Pacific time zone has a standard offset of `-08:00`, but switches to
 You might want to assign a time zone to a device or group of devices.  This can be useful when performing certain types of aggregations in ad-hoc exploration, and when querying long-term
 storage.
 
-For example, consider the thermostat devices used by Fabrikam in our IoT
-Journey project.  Each thermostat belongs to a particular building.  We can
-assign a time zone to the building, and then use that time zone to group
-events by the local day of that particular building.
+For example, consider sensors in "smart" buildings. Each sensor belongs to a particular building.  You could assign a time zone to the building, and then use that time zone to group events by the local day of that particular building.
 
-So in Fabrikam's database, each building would have a time zone *identifier*,
+In this example, each building would have a time zone *identifier*,
 rather than a numerical offset.  This could be either a Windows time zone ID
 such as `"Pacific Standard Time"`, or an IANA time zone ID such as
-`"America/Los_Angeles"`.  In .NET, you can use the
-[`TimeZoneInfo`][timezoneinfo] class to work with Windows time zones, or use the open-source [Noda Time][nodatime] library to work with either type
+`"America/Los_Angeles"`.  
+
+:memo: In .NET, you can use the [`TimeZoneInfo`][timezoneinfo] class to work with Windows time zones, or use the open-source [Noda Time][nodatime] library to work with either type
 of time zone identifier.
 
 See also: [The timezone tag wiki on StackOverflow][tz-wiki]
@@ -340,12 +321,8 @@ See also: [The timezone tag wiki on StackOverflow][tz-wiki]
 
 ## Time-based load leveling
 
-It's a common scenario to send an event from a device at some predetermined
-interval. For example, Fabrikam's thermostats send the temperature once per
-minute.  Other devices might send an event once per hour, or once
-per day.
-
-In this situation, it's *critical* that all your devices do not send
+It's common to send an event from a device at some predetermined
+interval &mdash; for example, once per minute, or once per hour. In this situation, it's *critical* that all your devices do not send
 events at the exact same time.  Doing so can create peaks of high activity
 spaced by long stretches of idle time.  Depending on load, this may make it
 difficult to process your event stream efficiently.
@@ -376,19 +353,9 @@ In other words, don't [DDOS][ddos] your own services.
 ## Time-based aggregation and windowing
 
 Windowing functions provide a way to group events that occur within a
-period of time.
-
-If you are using an event stream processor such as Azure Stream Analytics, you should
-be familiar with the different types of windowing functions that are available.
+period of time. If you are using an event stream processor such as Azure Stream Analytics, you should be familiar with the different types of windowing functions that are available.
 
 For example, you could use a 1-hour *tumbling* window to see which hours have the most
-activity.  Or, you might use a 5-minute *sliding* window to watch for trends in
-the incoming data across groups of devices.  You can read more about
-windowing functions in the [ASA documentation][asa-windowing].
+activity or a 5-minute *sliding* window to watch for trends in
+the incoming data across groups of devices. Different technologies make different assumptions about windowing, so make sure you understand the details of your particular technology.   
 
-Also, keep in mind that the timestamp used by the windowing function in ASA is
-determined by the `TIMESTAMP BY` keyword.  If you do not use that, ASA will
-revert to the message arrival time.  Read more in the [ASA query language reference][asa-langref].
-
-[asa-windowing]: https://msdn.microsoft.com/en-us/library/azure/dn835019.aspx
-[asa-langref]: https://msdn.microsoft.com/en-us/library/azure/dn834998.aspx
