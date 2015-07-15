@@ -232,7 +232,7 @@ To overcome this problem, you can pass the local time *and* the offset from UTC.
 
 Some technologies define a specific data type that represents local time + offset (for example, `DateTimeOffset` in .NET). If a particular technology does not directly support a time + offset type, you should timestamp with the UTC time, and then include either the offset or the local time in a separate field.
 
-Alternatively, you could send *just* the UTC timestamp, and compute the local offset later, based on metadata for the device. (See [Time Zones](time-zones).)
+Alternatively, you could send *just* the UTC timestamp, and compute the local offset later, based on metadata for the device. (See [Time Zones](#time-zones).)
 
 [dst-wiki]: http://stackoverflow.com/tags/dst/info
 
