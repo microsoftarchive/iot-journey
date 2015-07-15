@@ -200,6 +200,5 @@ FakesAssemblies/
 *.azurePubXml
 
 *-local.config
-WarmStorage.EventProcessor.ConsoleHost.config
-ColdStorage.EventProcessor.ConsoleHost.config
-ScenarioSimulator.ConsoleHost.config
+*.ConsoleHost.config
+settings.config
