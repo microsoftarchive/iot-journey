@@ -37,11 +37,11 @@ namespace ProvisioningWebApi.ConsoleHost
                 DeviceId = Guid.NewGuid().ToString()
             };
 
-            var result = await client.PostAsJsonAsync("api/provision", device);
+            var result = await client.PostAsJsonAsync("api/provision", device, token);
 
             if (result.IsSuccessStatusCode)
             {
-                var endpoint = await result.Content.ReadAsAsync<DeviceEndpoint>();
+                var endpoint = await result.Content.ReadAsAsync<DeviceEndpoint>(token);
 
                 Console.WriteLine("Endpoint: {0}", endpoint.Uri);
                 Console.WriteLine("AccessToken: {0}", endpoint.AccessToken);
