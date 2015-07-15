@@ -69,6 +69,7 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Configuration.Install" />
     <Reference Include="System.Core" />
@@ -89,6 +90,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConfigurationHelper.cs" />
+    <Compile Include="DeviceProvisioningModels\Device.cs" />
+    <Compile Include="DeviceProvisioningModels\DeviceEndpoint.cs" />
+    <Compile Include="DeviceProvisioningModels\DeviceInfo.cs" />
+    <Compile Include="DeviceProvisioningModels\DeviceMetadata.cs" />
     <Compile Include="Guard.cs" />
     <Compile Include="Logging\ScenarioSimulatorEventSource.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
