@@ -37,8 +37,10 @@
 Param
 (
 	[ValidateNotNullOrEmpty()][Parameter (Mandatory = $True)][string]$SubscriptionName,
-    [ValidateNotNullOrEmpty()][Parameter (Mandatory = $True)][String]$StorageAccountName,
-	[ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$ServiceBusNamespace = "fabrikam-iot",                                                
+    [ValidateNotNullOrEmpty()][Parameter (Mandatory = $True)][String]$ApplicationName,
+	[ValidateNotNullOrEmpty()][Parameter (Mandatory = $True)][bool]$AddAccount,
+    [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$StorageAccountName =$ApplicationName,
+    [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$ServiceBusNamespace = $ApplicationName,
 	[ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$EventHubName = "eventhub-iot",                  
 	[ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$ConsumerGroupName  = "cg-blobs", 
 	[ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$EventHubSharedAccessPolicyName = "ManagePolicy",
@@ -65,8 +67,10 @@ PROCESS
     Load-Module -ModuleName AzureStorage -ModuleLocation .\modules
     Load-Module -ModuleName AzureServiceBus -ModuleLocation .\modules
 
-
-    Add-AzureAccount
+    if($AddAccount)
+    {
+        Add-AzureAccount
+    }
 
     $StorageAccountInfo = Provision-StorageAccount -StorageAccountName $StorageAccountName `
                                                 -ContainerName $ContainerName `
@@ -87,7 +91,7 @@ PROCESS
         'Simulator.EventHubNamespace'= $EventHubInfo.EventHubNamespace;
         'Simulator.EventHubName' = $EventHubInfo.EventHubName;
         'Simulator.EventHubSasKeyName' = $EventHubInfo.EventHubSasKeyName;
-        'Simulator.EventHubSasPrimaryKey' = $EventHubInfo.EventHubPrimaryKey;
+        'Simulator.EventHubPrimaryKey' = $EventHubInfo.EventHubPrimaryKey;
         'Simulator.EventHubTokenLifetimeDays' = ($EventHubInfo.EventHubTokenLifetimeDays -as [string]);
     }
 
@@ -96,7 +100,11 @@ PROCESS
                        -appSettings $simulatorSettings
     
     
-    $EventHubConnectionString = $EventHubInfo.ConnectionString + ";TransportType=Amqp"
+    # Bug: Originated in AzureServiceBus function New-EventHubIfNotExists which createes ConnectionString and returns it to EventHubInfo. 
+    # Which also loads AzureServiceBus DLL that adds an identical 
+    # ConnectionString property. We have a naming clash with that property and start returning 2 ConnectionString Properties
+    # Simple fix is to give our ConnectionString a unique name. 
+    $EventHubConnectionString = $EventHubInfo.ConnectionStringFix + ";TransportType=Amqp"
     $StorageAccountConnectionString = "DefaultEndpointsProtocol=https;AccountName={0};AccountKey={1}" -f $StorageAccountInfo.AccountName, $StorageAccountInfo.AccountKey
 
     $settings = @{
