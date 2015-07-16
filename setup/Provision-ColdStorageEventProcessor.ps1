@@ -100,7 +100,11 @@ PROCESS
                        -appSettings $simulatorSettings
     
     
-    $EventHubConnectionString = $EventHubInfo.ConnectionString + ";TransportType=Amqp"
+    # Bug: Originated in AzureServiceBus function New-EventHubIfNotExists which createes ConnectionString and returns it to EventHubInfo. 
+    # Which also loads AzureServiceBus DLL that adds an identical 
+    # ConnectionString property. We have a naming clash with that property and start returning 2 ConnectionString Properties
+    # Simple fix is to give our ConnectionString a unique name. 
+    $EventHubConnectionString = $EventHubInfo.ConnectionStringFix + ";TransportType=Amqp"
     $StorageAccountConnectionString = "DefaultEndpointsProtocol=https;AccountName={0};AccountKey={1}" -f $StorageAccountInfo.AccountName, $StorageAccountInfo.AccountKey
 
     $settings = @{
