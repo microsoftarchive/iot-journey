@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Xunit;
 
@@ -62,83 +63,79 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator.Tests
         public void ShouldNotExpectToSendAfterReset()
         {
             var frequency = TimeSpan.FromSeconds(1);
-            var actualElapsed = TimeSpan.FromSeconds(2);
+            var elapsed = frequency.Add(TimeSpan.FromMilliseconds(100));
 
             var entry = new EventEntry((r, d) => null, frequency);
 
-            entry.UpdateElapsedTime(actualElapsed);
-
+            entry.UpdateElapsedTime(elapsed);
             Assert.True(entry.ShouldSendEvent());
 
             entry.ResetElapsedTime();
-
             Assert.False(entry.ShouldSendEvent());
         }
 
         [Fact]
-        [Trait("Sending with Jitter","short")]
+        [Trait("Running time", "Short")]
+        public void ShouldPreserveRemainingTimeWhenResetting()
+        {
+            var eventFrequency = TimeSpan.FromSeconds(1);
+            var excessTime = TimeSpan.FromMilliseconds(250);
+            var entry = new EventEntry((r, d) => null, eventFrequency);
+            entry.UpdateElapsedTime(eventFrequency.Add(excessTime));
+            entry.ResetElapsedTime();
+
+            Assert.Equal(excessTime, entry.ElapsedTime);
+        }
+
+        [Fact]
+        [Trait("Sending with Jitter", "short")]
         public void JitterShouldOscillateAroundSendingFrequency()
         {
-            const int numberOfTest = 10000;
+            const int numberOfTests = 10000;
             var frequency = TimeSpan.FromSeconds(1);
-            var elasped = TimeSpan.FromSeconds(0.01);
-            var percentToJitter = 0.1;
-            var maxFrequency = frequency.TotalMilliseconds + (frequency.TotalMilliseconds * percentToJitter);
-            var minFrequency = frequency.TotalMilliseconds - (frequency.TotalMilliseconds * percentToJitter);
-            var testMinFreq = frequency.TotalMilliseconds;
-            var testMaxFreq = frequency.TotalMilliseconds;
+
+            const double percentToJitter = 0.1;
+            var jitterDelta = TimeSpan.FromMilliseconds(frequency.TotalMilliseconds * percentToJitter);
+            var maxFrequency = frequency.Add(jitterDelta);
+            var minFrequency = frequency.Subtract(jitterDelta);
 
             var entry = new EventEntry((r, d) => null, frequency, percentToJitter);
-            double[] testArray = new double[numberOfTest];
+            var jitterValues = new List<double>();
 
-            bool upperFlag = false;
-            bool lowerFlag = false;
             // Working with a bounded random value, validate the following
             // - Validate it doesn't go past max or min boundary.
             // - Validate we are statistically close to our center freq value. This reflects we have seen both +/- values 
-            for (int i = 0; i < numberOfTest; i++)
+
+            int countOverMax = 0;
+            int countUnderMin = 0;
+
+            for (int i = 0; i < numberOfTests; i++)
             {
-                entry.ResetElapsedTime();
-                do
-                {
-                    entry.UpdateElapsedTime(elasped);
-                } while (!entry.ShouldSendEvent());
+                entry.ResetElapsedTime(); //reseting changes the FrequencyWithJitter
+                var jitter = entry.FrequencyWithJitter;
+                jitterValues.Add(jitter.TotalMilliseconds);
 
-                var timeElapsed = entry.ElapsedTime.TotalMilliseconds;
-                testArray[i] = timeElapsed;
-                // validate it's below & above frequency at times
-                if (timeElapsed > maxFrequency)
+                if (jitter > maxFrequency)
                 {
-                    upperFlag = true;
+                    countOverMax++;
                 }
-                if (timeElapsed < minFrequency)
+                if (jitter < minFrequency)
                 {
-                    lowerFlag = true;
+                    countUnderMin++;
                 }
-                if (timeElapsed > testMaxFreq)
-                {
-                    testMaxFreq = timeElapsed;
-                }
-                if (timeElapsed < testMinFreq)
-                {
-                    testMinFreq = timeElapsed;
-                }
-
-
             }
 
-            Assert.False(upperFlag, "Frequency jitter exceeded upper boundary");
-            Assert.False(lowerFlag, "Frequency jitter exceeded lower boundary");
-            var avgValue = (testArray.Sum() / numberOfTest) ;
-            //Assert.True(testMinFreq != frequency.TotalMilliseconds,"Frequency never generated a minimum frequency");
-            Assert.True(testMaxFreq != frequency.TotalMilliseconds, "Frequency never generated a maximum frequency");
-            var percentageAccurate = (avgValue/ frequency.TotalMilliseconds) * 100;
+            Assert.True(countOverMax == 0, "Frequency jitter exceeded upper boundary");
+            Assert.True(countUnderMin == 0, "Frequency jitter exceeded lower boundary");
 
-            // VAlidate that it should be statistically close to 100% of the original frequency.  
-            Assert.InRange(percentageAccurate, 98.5, 101.5);
+            // This is an indicator of how the accurate our elasped time is with the frequency
+            const double percentAccurancy = 0.99;
+            var maxPerFreq = frequency.TotalMilliseconds * (2 - percentAccurancy);
+            var minPerFreq = frequency.TotalMilliseconds * percentAccurancy;
 
-
-
+            // Validate that it should be statistically close to 100% of the original frequency. 
+            var avgValue = (jitterValues.Sum() / numberOfTests);
+            Assert.InRange(avgValue, minPerFreq, maxPerFreq);
         }
     }
 }
