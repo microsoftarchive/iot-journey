@@ -60,21 +60,23 @@
 Param
 (
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $True)][string]$SubscriptionName,
-    [ValidateNotNullOrEmpty()][Parameter (Mandatory = $True)][String]$StorageAccountName,
+    [ValidateNotNullOrEmpty()][Parameter (Mandatory = $True)][String]$ApplicationName,
+	[ValidateNotNullOrEmpty()][Parameter (Mandatory = $True)][bool]$AddAccount,
+    [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$StorageAccountName =$ApplicationName,
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$ContainerName = "blobs-asa",
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$BlobsConsumerGroupName  = "cg-blobs-asa",
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$EventHubName = "eventhub-iot",
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$EventHubSharedAccessPolicyName = "ManagePolicy",
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$Location = "Central US",
-    [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$ResourceGroupPrefix = "fabrikam-iot",
-    [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$ServiceBusNamespace = "fabrikam-iot",
+    [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$ResourceGroupPrefix = $ApplicationName,
+    [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$ServiceBusNamespace = $ApplicationName,
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$SqlConsumerGroupName = "cg-sql-asa",
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$SqlDatabaseName = "fabrikam",
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$SqlServerAdminLogin = "dbuser",
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $True)][String]$SqlServerAdminPassword,
-    [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$SqlServerName = "sqlserver-iot",
-    [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$StreamAnalyticsBlobsJobName = "blobs-iot",
-    [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$StreamAnalyticsSqlJobName = "sql-iot"
+    [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$SqlServerName = $ApplicationName,
+    [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$StreamAnalyticsBlobsJobName = $ApplicationName+"ToBlob",
+    [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$StreamAnalyticsSqlJobName = $ApplicationName+"ToSQl"
 )
 PROCESS
 {
@@ -99,7 +101,10 @@ PROCESS
     Load-Module -ModuleName AzureSqlDatabase -ModuleLocation .\modules
 
 
-    Add-AzureAccount
+    if($AddAccount)
+    {
+        Add-AzureAccount
+    }
 
     Provision-StorageAccount -StorageAccountName $StorageAccountName `
                                              -ContainerName $ContainerName `
