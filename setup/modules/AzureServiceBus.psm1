@@ -205,13 +205,16 @@ function New-EventHubIfNotExists
         $EventHubRuleKey = $sbr.ConnectionString.Substring($index,44);
 
         # return
+        # Bug: The following returns a ConnectionString to EventHubInfo.  Which also loads AzureServiceBus DLL that adds an identical 
+        # ConnectionString property. We have a naming clash with that property and start returning 2 ConnectionString Properties
+        # Simple fix is to give our ConnectionString a unique name. 
         @{
             'EventHubNamespace'= $ServiceBusNamespace;
             'EventHubName' = $EventHubName;
             'EventHubSasKeyName' = $EventHubRuleName;
             'EventHubPrimaryKey' = $EventHubRuleKey;
             'EventHubTokenLifetimeDays' = $MessageRetentionInDays;
-            'ConnectionString' = $sbr.ConnectionString;
+            'ConnectionStringFix' = $sbr.ConnectionString;
         }
     }
 }
