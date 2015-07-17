@@ -43,7 +43,7 @@
                     "DataSource": {
                         "Type": "Microsoft.Storage/Blob",
                         "Properties": {
-                            "BlobPathPrefix": "fabrikam",
+                            "BlobPathPrefix": "fromstreamanalytics",
                             "Container": "_Container",
                             "StorageAccounts": [
                                 {
