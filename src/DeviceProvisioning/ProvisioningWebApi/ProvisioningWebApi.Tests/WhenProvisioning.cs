@@ -30,7 +30,7 @@ namespace DeviceProvisioning.Tests
             _tokenProvider.Setup(x => x.EndpointUri).Returns(new Uri("http://example.com"));
 
             _registry = new Mock<IDeviceRegistry>();
-            _registry.Setup(x => x.AddOrUpdate(It.IsAny<DeviceInfo>()))
+            _registry.Setup(x => x.AddOrUpdateAsync(It.IsAny<DeviceInfo>()))
                 .ReturnsAsync(true);
             
             _controller = new ProvisionController(_tokenProvider.Object, _registry.Object);
@@ -40,6 +40,11 @@ namespace DeviceProvisioning.Tests
         public async Task ReturnsToken()
         {
             Device device = new Device { DeviceId = "1" };
+            DeviceInfo info = new DeviceInfo { DeviceId = "1" };
+
+            _registry.Setup(x => x.FindAsync("1"))
+                .ReturnsAsync(info);
+
             IHttpActionResult actionResult = await _controller.ProvisionDevice(device);
 
             var contentResult = actionResult as OkNegotiatedContentResult<DeviceEndpoint>;
@@ -50,13 +55,14 @@ namespace DeviceProvisioning.Tests
         }
 
         [Fact]
-        public async Task AddsRegistryEntry()
+        public async Task NoDeviceReturnsNotFound()
         {
-            Device device = new Device { DeviceId = "1" };
+            Device device = new Device { DeviceId = "2" };
 
-            await _controller.ProvisionDevice(device);
+            IHttpActionResult actionResult = await _controller.ProvisionDevice(device);
 
-            _registry.Verify(mock => mock.AddOrUpdate(It.IsAny<DeviceInfo>()));
+            Assert.NotNull(actionResult);
+            Assert.IsType<NotFoundResult>(actionResult);
         }
 
 
@@ -68,7 +74,7 @@ namespace DeviceProvisioning.Tests
         }
 
         [Fact]
-        public async Task NoDeviceIdReturnsBadRequest()
+        public async Task InvalidModelReturnsBadRequest()
         {
             Device device = new Device { DeviceId = "1" };
 

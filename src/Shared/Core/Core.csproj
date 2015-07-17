@@ -94,6 +94,7 @@
     <Compile Include="DeviceProvisioningModels\DeviceEndpoint.cs" />
     <Compile Include="DeviceProvisioningModels\DeviceInfo.cs" />
     <Compile Include="DeviceProvisioningModels\DeviceMetadata.cs" />
+    <Compile Include="DeviceProvisioningModels\DeviceStateConstants.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="Guard.cs" />
     <Compile Include="Logging\ScenarioSimulatorEventSource.cs" />

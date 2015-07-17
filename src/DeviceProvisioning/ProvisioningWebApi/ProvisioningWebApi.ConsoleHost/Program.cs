@@ -17,12 +17,37 @@ namespace ProvisioningWebApi.ConsoleHost
 {
     internal class Program
     {
+        private static string DEVICE_ID = Guid.NewGuid().ToString();
+
         private static void Main(string[] args)
         {
             CommonConsoleHost.RunWithOptionsAsync(new Dictionary<string, Func<CancellationToken, Task>>
             {
+                { "Register a device", RegisterDeviceAsync },
                 { "Provision a device", ProvisionDeviceAsync }
             }).Wait();
+        }
+
+        private static async Task RegisterDeviceAsync(CancellationToken token)
+        {
+            string baseUrl = ConfigurationHelper.GetConfigValue<string>("WebApiEndpoint");
+
+            HttpClient client = new HttpClient();
+            client.BaseAddress = new Uri(baseUrl);
+
+            var metadata = new DeviceMetadata
+            {
+                Building = 1,
+                Room = 42
+            };
+
+            var result = await client.PutAsJsonAsync("api/registry/" + DEVICE_ID, metadata, token);
+            Console.WriteLine("{0} ({1})", (int)result.StatusCode, result.ReasonPhrase);
+            if (result.IsSuccessStatusCode)
+            {
+                var info = await result.Content.ReadAsAsync<DeviceInfo>(token);
+                Console.WriteLine("Device state: {0}", info.Status);
+            }
         }
 
         private static async Task ProvisionDeviceAsync(CancellationToken token)
@@ -34,11 +59,11 @@ namespace ProvisioningWebApi.ConsoleHost
 
             var device = new Device
             {
-                DeviceId = Guid.NewGuid().ToString()
+                DeviceId = DEVICE_ID
             };
 
             var result = await client.PostAsJsonAsync("api/provision", device, token);
-
+            Console.WriteLine("{0} ({1})", (int)result.StatusCode, result.ReasonPhrase);
             if (result.IsSuccessStatusCode)
             {
                 var endpoint = await result.Content.ReadAsAsync<DeviceEndpoint>(token);
@@ -58,11 +83,6 @@ namespace ProvisioningWebApi.ConsoleHost
                 sender.Send(new EventData(Encoding.UTF8.GetBytes("Hello Event Hub")));
 
                 Console.WriteLine("Wrote data to event hub");
-            }
-            else
-            {
-                var str = await result.Content.ReadAsStringAsync();
-                Console.WriteLine(str);
             }
         }
     }
