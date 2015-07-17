@@ -8,7 +8,7 @@ namespace DeviceProvisioning.DeviceRegistry
 {
     public interface IDeviceRegistry
     {
-        Task<bool> AddOrUpdate(DeviceInfo info);
-        Task<DeviceInfo> Find(string id);
+        Task<bool> AddOrUpdateAsync(DeviceInfo info);
+        Task<DeviceInfo> FindAsync(string id);
     }
 }

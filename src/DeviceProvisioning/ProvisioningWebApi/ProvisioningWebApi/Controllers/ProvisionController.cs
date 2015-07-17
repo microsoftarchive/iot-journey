@@ -32,13 +32,11 @@ namespace DeviceProvisioning.Controllers
                 return BadRequest(ModelState);
             }
 
-            var info = new DeviceInfo
+            var info = await _registry.FindAsync(device.DeviceId);
+            if (info == null)
             {
-                DeviceId = device.DeviceId,
-                Status = "provisioned"
-            };
-
-            await _registry.AddOrUpdate(info);
+                return NotFound();
+            }
 
             var token = await _provisioner.GetTokenAsync(device.DeviceId);
             var endpoint = new DeviceEndpoint
@@ -47,6 +45,10 @@ namespace DeviceProvisioning.Controllers
                 EventHubName = _provisioner.EventHubName,
                 AccessToken = token
             };
+
+            // Update registry with new provisioning state
+            info.Status = DeviceStateConstants.ProvisionedState;
+            await _registry.AddOrUpdateAsync(info);
 
             return Ok(endpoint);
         }
