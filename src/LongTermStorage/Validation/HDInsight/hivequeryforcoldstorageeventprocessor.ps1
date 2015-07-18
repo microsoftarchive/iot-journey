@@ -29,8 +29,8 @@ Param
 	[Parameter (Mandatory = $true)]
 	[string] $clusterName,
 
-    [string] $containerName = "eventhub-iot-coldstorage",
-	[string] $directoryName = "fromeventprocessor"
+    [string] $containerName = "blobs-processor",
+	[string] $directoryName = "fabrikam"
 )
 
 Add-AzureAccount
