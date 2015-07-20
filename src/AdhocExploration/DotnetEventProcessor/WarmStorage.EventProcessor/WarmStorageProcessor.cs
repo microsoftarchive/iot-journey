@@ -38,13 +38,13 @@ namespace Microsoft.Practices.IoTJourney.WarmStorage
 
         private const string ProcessorName = "elasticsearchwriter";
 
-        public async Task OpenAsync(PartitionContext context)
+        public Task OpenAsync(PartitionContext context)
         {
             WarmStorageEventSource.Log.LeaseObtained(ProcessorName, _eventHubName, context.Lease.PartitionId);
 
             _elasticSearchWriter = _elasticSearchWriterFactory(context.Lease.PartitionId);
 
-            await _buildingLookupService.InitializeAsync();
+            return Task.FromResult(false);
         }
 
         public Task CloseAsync(PartitionContext context, CloseReason reason)

@@ -46,7 +46,10 @@ namespace Microsoft.Practices.IoTJourney.WarmStorage
 
             var eventHubId = ConfigurationHelper.GetEventHubName(ns.Address, configuration.EventHubName);
 
-            var factory = new WarmStorageEventProcessorFactory(elasticSearchWriterFactory, eventHubId);
+            var buildingLookupService = new BuildingLookupService();
+            await buildingLookupService.InitializeAsync();
+
+            var factory = new WarmStorageEventProcessorFactory(elasticSearchWriterFactory, eventHubId, buildingLookupService);
 
             var options = new EventProcessorOptions()
             {

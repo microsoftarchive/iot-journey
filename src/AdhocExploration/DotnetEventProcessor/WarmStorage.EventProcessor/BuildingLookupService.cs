@@ -15,34 +15,23 @@ namespace Microsoft.Practices.IoTJourney.WarmStorage
 {
     public class BuildingLookupService : IBuildingLookupService
     {
-        private static ConcurrentDictionary<string, string> cachedBuildingDictionary;
+        private static ConcurrentDictionary<string, string> cachedBuildingDictionary = new ConcurrentDictionary<string, string>();
         private static string blobETag;
         private static CloudBlockBlob blockBlob;
         private static Configuration configuration;
         private static Timer timer;
-        private static readonly Object lockObject = new Object();
 
         static BuildingLookupService()
         {
             configuration = Configuration.GetCurrentConfiguration();
         }
 
-        public Task InitializeAsync()
+        public async Task InitializeAsync()
         {
-            if (cachedBuildingDictionary == null)
-            {
-                lock (lockObject)
-                {
-                    if (cachedBuildingDictionary == null)
-                    {
-                        timer = new Timer((s) => CheckForUpdateAsync(), null, TimeSpan.FromMinutes(configuration.ReferenceDataCacheTTLMinutes),
-                            TimeSpan.FromMinutes(configuration.ReferenceDataCacheTTLMinutes));
+            await CheckForUpdateAsync();
 
-                        CheckForUpdateAsync().Wait();                                            
-                    }
-                }
-            }
-            return Task.FromResult(false);
+            timer = new Timer((s) => CheckForUpdateAsync(), null, TimeSpan.FromMinutes(configuration.ReferenceDataCacheTTLMinutes),
+                TimeSpan.FromMinutes(configuration.ReferenceDataCacheTTLMinutes));
         }
 
         public string GetBuildingId(string deviceId)
@@ -80,7 +69,7 @@ namespace Microsoft.Practices.IoTJourney.WarmStorage
             }
 
             var buildingMappings = JsonConvert.DeserializeObject<BuildingMapping[]>(text);
-            cachedBuildingDictionary = new ConcurrentDictionary<string, string>();
+
             foreach (var buildingMapping in buildingMappings)
             {
                 cachedBuildingDictionary[buildingMapping.DeviceId] = buildingMapping.BuildingId;
