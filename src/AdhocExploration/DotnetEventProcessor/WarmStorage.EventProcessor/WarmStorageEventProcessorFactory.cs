@@ -11,22 +11,26 @@ namespace Microsoft.Practices.IoTJourney.WarmStorage
     {
         private readonly Func<string, IElasticSearchWriter> _elasticSearchWriterFactory = null;
         private readonly string _eventHubName;
+        private readonly IBuildingLookupService _buildingLookupService;
 
         public WarmStorageEventProcessorFactory(
             Func<string, IElasticSearchWriter> elasticSearchWriterFactory,
-            string eventHubName)
+            string eventHubName,
+            IBuildingLookupService buildingLookupService)
         {
 
             Guard.ArgumentNotNull(elasticSearchWriterFactory, "elasticSearchWriterFactory");
             Guard.ArgumentNotNullOrEmpty(eventHubName, "eventHubName");
+            Guard.ArgumentNotNull(buildingLookupService, "buildingLookupService");
 
             _elasticSearchWriterFactory = elasticSearchWriterFactory;
             _eventHubName = eventHubName;
+            _buildingLookupService = buildingLookupService;
         }
 
         public IEventProcessor CreateEventProcessor(PartitionContext context)
         {
-            var processor = new WarmStorageProcessor(_elasticSearchWriterFactory, _eventHubName, new BuildingLookupService());
+            var processor = new WarmStorageProcessor(_elasticSearchWriterFactory, _eventHubName, _buildingLookupService);
             return processor;
         }
     }
