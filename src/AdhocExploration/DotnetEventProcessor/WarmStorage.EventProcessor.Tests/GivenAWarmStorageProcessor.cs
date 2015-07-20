@@ -49,7 +49,7 @@ namespace Microsoft.Practices.IoTJourney.WarmStorage.Tests
         [Trait("Category", "Unit")]
         public async Task BuildingIdPropertyPopulatedFromLookupService()
         {
-            _lookupServiceMock.Setup(service => service.GetBuildingIdAsync("123")).Returns(()=>Task.FromResult("456"));
+            _lookupServiceMock.Setup(service => service.GetBuildingId("123")).Returns(()=>"456");
             var context = MockPartitionContext.CreateWithNoopCheckpoint("0");
             await _processor.OpenAsync(context);
 

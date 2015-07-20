@@ -7,6 +7,7 @@ namespace Microsoft.Practices.IoTJourney.WarmStorage
 {
     public interface IBuildingLookupService
     {
-        Task<string> GetBuildingIdAsync(string deviceId);
+        Task InitializeAsync();
+        string GetBuildingId(string deviceId);
     }
 }
