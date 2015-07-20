@@ -15,56 +15,56 @@ namespace Microsoft.Practices.IoTJourney.WarmStorage
 {
     public class BuildingLookupService : IBuildingLookupService
     {
-        private static ConcurrentDictionary<string, string> cachedBuildingDictionary = new ConcurrentDictionary<string, string>();
-        private static string blobETag;
-        private static CloudBlockBlob blockBlob;
-        private static Configuration configuration;
-        private static Timer timer;
+        private readonly ConcurrentDictionary<string, string> _cachedBuildingDictionary = new ConcurrentDictionary<string, string>();
+        private readonly Configuration _configuration;
+        private string _blobETag;
+        private CloudBlockBlob _blockBlob;
+        private Timer _timer;
 
-        static BuildingLookupService()
+        public BuildingLookupService()
         {
-            configuration = Configuration.GetCurrentConfiguration();
+            _configuration = Configuration.GetCurrentConfiguration();
         }
 
         public async Task InitializeAsync()
         {
             await CheckForUpdateAsync();
 
-            timer = new Timer((s) => CheckForUpdateAsync(), null, TimeSpan.FromMinutes(configuration.ReferenceDataCacheTTLMinutes),
-                TimeSpan.FromMinutes(configuration.ReferenceDataCacheTTLMinutes));
+            _timer = new Timer((s) => CheckForUpdateAsync(), null, TimeSpan.FromMinutes(_configuration.ReferenceDataCacheTTLMinutes),
+                TimeSpan.FromMinutes(_configuration.ReferenceDataCacheTTLMinutes));
         }
 
         public string GetBuildingId(string deviceId)
         {
             string buildingId;
-            cachedBuildingDictionary.TryGetValue(deviceId, out buildingId);
+            _cachedBuildingDictionary.TryGetValue(deviceId, out buildingId);
             return buildingId;
         }
 
-        private static async Task CheckForUpdateAsync()
+        private async Task CheckForUpdateAsync()
         {
-            var storageAccount = CloudStorageAccount.Parse(configuration.ReferenceDataStorageAccount);
+            var storageAccount = CloudStorageAccount.Parse(_configuration.ReferenceDataStorageAccount);
             var blobClient = storageAccount.CreateCloudBlobClient();
-            var container = blobClient.GetContainerReference(configuration.ReferenceDataStorageContainer);
-            blockBlob = container.GetBlockBlobReference(configuration.ReferenceDataFilePath);
+            var container = blobClient.GetContainerReference(_configuration.ReferenceDataStorageContainer);
+            _blockBlob = container.GetBlockBlobReference(_configuration.ReferenceDataFilePath);
 
-            await blockBlob.FetchAttributesAsync();
+            await _blockBlob.FetchAttributesAsync();
 
-            if (blockBlob.Properties.ETag == blobETag)
+            if (_blockBlob.Properties.ETag == _blobETag)
             {
                 return;
             }
 
             await LoadDictionaryAsync();
-            blobETag = blockBlob.Properties.ETag;
+            _blobETag = _blockBlob.Properties.ETag;
         }
 
-        private static async Task LoadDictionaryAsync()
+        private async Task LoadDictionaryAsync()
         {
             string text;
             using (var memoryStream = new MemoryStream())
             {
-                await blockBlob.DownloadToStreamAsync(memoryStream);
+                await _blockBlob.DownloadToStreamAsync(memoryStream);
                 text = Encoding.UTF8.GetString(memoryStream.ToArray());
             }
 
@@ -72,7 +72,7 @@ namespace Microsoft.Practices.IoTJourney.WarmStorage
 
             foreach (var buildingMapping in buildingMappings)
             {
-                cachedBuildingDictionary[buildingMapping.DeviceId] = buildingMapping.BuildingId;
+                _cachedBuildingDictionary[buildingMapping.DeviceId] = buildingMapping.BuildingId;
             }
         }
     }
