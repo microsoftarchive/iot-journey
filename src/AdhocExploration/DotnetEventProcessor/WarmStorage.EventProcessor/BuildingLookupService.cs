@@ -5,6 +5,7 @@ using System;
 using System.Collections.Concurrent;
 using System.IO;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
@@ -17,20 +18,35 @@ namespace Microsoft.Practices.IoTJourney.WarmStorage
         private static ConcurrentDictionary<string, string> cachedBuildingDictionary;
         private static string blobETag;
         private static CloudBlockBlob blockBlob;
-        private static bool isGettingLatestETag, isLoadingDictionary;
-        private static Task gettingLatestETagTask, loadingTask;
-        private static DateTimeOffset cacheDateTimeOffset;
         private static Configuration configuration;
+        private static Timer timer;
+        private static readonly Object lockObject = new Object();
 
         static BuildingLookupService()
         {
             configuration = Configuration.GetCurrentConfiguration();
-            CheckForUpdateAsync().Wait();
         }
-        public async Task<string> GetBuildingIdAsync(string deviceId)
-        {
-            await CheckForUpdateAsync();
 
+        public Task InitializeAsync()
+        {
+            if (cachedBuildingDictionary == null)
+            {
+                lock (lockObject)
+                {
+                    if (cachedBuildingDictionary == null)
+                    {
+                        timer = new Timer((s) => CheckForUpdateAsync(), null, TimeSpan.FromMinutes(configuration.ReferenceDataCacheTTLMinutes),
+                            TimeSpan.FromMinutes(configuration.ReferenceDataCacheTTLMinutes));
+
+                        CheckForUpdateAsync().Wait();                                            
+                    }
+                }
+            }
+            return Task.FromResult(false);
+        }
+
+        public string GetBuildingId(string deviceId)
+        {
             string buildingId;
             cachedBuildingDictionary.TryGetValue(deviceId, out buildingId);
             return buildingId;
@@ -38,42 +54,20 @@ namespace Microsoft.Practices.IoTJourney.WarmStorage
 
         private static async Task CheckForUpdateAsync()
         {
-            if (cacheDateTimeOffset != null &&
-                DateTimeOffset.Compare(cacheDateTimeOffset.AddMinutes(configuration.ReferenceDataCacheTTLMinutes), DateTimeOffset.UtcNow) > 0) return;
-
-            //If currently fetching ETag, assume cache is still valid.
-            if (isGettingLatestETag) return;
-
-            isGettingLatestETag = true;
             var storageAccount = CloudStorageAccount.Parse(configuration.ReferenceDataStorageAccount);
             var blobClient = storageAccount.CreateCloudBlobClient();
             var container = blobClient.GetContainerReference(configuration.ReferenceDataStorageContainer);
             blockBlob = container.GetBlockBlobReference(configuration.ReferenceDataFilePath);
 
-            gettingLatestETagTask = blockBlob.FetchAttributesAsync();
-            await gettingLatestETagTask;
-            isGettingLatestETag = false;
+            await blockBlob.FetchAttributesAsync();
 
-            if (cachedBuildingDictionary != null && blockBlob.Properties.ETag == blobETag)
+            if (blockBlob.Properties.ETag == blobETag)
             {
-                cacheDateTimeOffset = DateTimeOffset.UtcNow;
                 return;
             }
 
-            if (isLoadingDictionary)
-            {
-                await loadingTask;
-            }
-            else
-            {
-                isLoadingDictionary = true;
-                loadingTask = LoadDictionaryAsync();
-                await loadingTask;
-                blobETag = blockBlob.Properties.ETag;
-                isLoadingDictionary = false;
-                cacheDateTimeOffset = DateTimeOffset.UtcNow;
-            }
-
+            await LoadDictionaryAsync();
+            blobETag = blockBlob.Properties.ETag;
         }
 
         private static async Task LoadDictionaryAsync()

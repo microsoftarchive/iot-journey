@@ -38,13 +38,13 @@ namespace Microsoft.Practices.IoTJourney.WarmStorage
 
         private const string ProcessorName = "elasticsearchwriter";
 
-        public Task OpenAsync(PartitionContext context)
+        public async Task OpenAsync(PartitionContext context)
         {
             WarmStorageEventSource.Log.LeaseObtained(ProcessorName, _eventHubName, context.Lease.PartitionId);
 
             _elasticSearchWriter = _elasticSearchWriterFactory(context.Lease.PartitionId);
 
-            return Task.FromResult(false);
+            await _buildingLookupService.InitializeAsync();
         }
 
         public Task CloseAsync(PartitionContext context, CloseReason reason)
@@ -60,7 +60,7 @@ namespace Microsoft.Practices.IoTJourney.WarmStorage
             foreach (var eventData in events)
             {
                 var updateTemperatureEvent = JsonConvert.DeserializeObject<UpdateTemperatureEvent>(Encoding.UTF8.GetString(eventData.GetBytes()));
-                eventData.Properties["BuildingId"] = await _buildingLookupService.GetBuildingIdAsync(updateTemperatureEvent.DeviceId);
+                eventData.Properties["BuildingId"] = _buildingLookupService.GetBuildingId(updateTemperatureEvent.DeviceId);
             }
 
             if(!await _elasticSearchWriter.WriteAsync(events.ToList(), _token).ConfigureAwait(false))
