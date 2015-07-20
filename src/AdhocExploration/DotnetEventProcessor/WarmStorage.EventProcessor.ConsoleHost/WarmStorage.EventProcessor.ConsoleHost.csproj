@@ -93,7 +93,9 @@
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
-    <None Include="WarmStorage.EventProcessor.ConsoleHost.config" />
+    <None Include="WarmStorage.EventProcessor.ConsoleHost.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\Shared\Core\Core.csproj">

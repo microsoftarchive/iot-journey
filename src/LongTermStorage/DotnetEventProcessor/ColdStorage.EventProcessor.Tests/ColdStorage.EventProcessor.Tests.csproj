@@ -121,8 +121,11 @@
     <Compile Include="GivenAColdStorageEventSource.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\ColdStorage.EventProcessor.ConsoleHost.config">
+      <Link>ColdStorage.EventProcessor.ConsoleHost.config</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="App.config" />
-    <None Include="ColdStorage.EventProcessor.ConsoleHost.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
