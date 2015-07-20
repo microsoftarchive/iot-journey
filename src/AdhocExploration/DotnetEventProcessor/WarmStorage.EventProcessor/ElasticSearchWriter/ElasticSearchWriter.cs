@@ -1,4 +1,7 @@
-﻿using Microsoft.Practices.IoTJourney.WarmStorage.Logging;
+﻿// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
+using Microsoft.Practices.IoTJourney.WarmStorage.Logging;
 using Microsoft.ServiceBus;
 using Microsoft.ServiceBus.Messaging;
 using Newtonsoft.Json;
