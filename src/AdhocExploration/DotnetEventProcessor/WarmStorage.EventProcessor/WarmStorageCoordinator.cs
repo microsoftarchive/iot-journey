@@ -2,15 +2,11 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Practices.IoTJourney.WarmStorage.ElasticSearchWriter;
 using Microsoft.Practices.IoTJourney.WarmStorage.Logging;
 using Microsoft.ServiceBus;
 using Microsoft.ServiceBus.Messaging;
-using Microsoft.WindowsAzure.Storage;
-using Microsoft.Practices.IoTJourney.WarmStorage.ElasticSearchWriter;
 
 namespace Microsoft.Practices.IoTJourney.WarmStorage
 {
@@ -50,7 +46,10 @@ namespace Microsoft.Practices.IoTJourney.WarmStorage
 
             var eventHubId = ConfigurationHelper.GetEventHubName(ns.Address, configuration.EventHubName);
 
-            var factory = new WarmStorageEventProcessorFactory(elasticSearchWriterFactory, eventHubId);
+            var buildingLookupService = new BuildingLookupService();
+            await buildingLookupService.InitializeAsync();
+
+            var factory = new WarmStorageEventProcessorFactory(elasticSearchWriterFactory, eventHubId, buildingLookupService);
 
             var options = new EventProcessorOptions()
             {

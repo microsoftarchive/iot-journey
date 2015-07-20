@@ -1,8 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
+using System;
 
 namespace Microsoft.Practices.IoTJourney.WarmStorage
 {
@@ -22,6 +21,10 @@ namespace Microsoft.Practices.IoTJourney.WarmStorage
         public string ElasticSearchIndexPrefix { get; set; }
         public string ElasticSearchIndexType { get; set; }
         public int RetryCount { get; set; }
+        public string ReferenceDataStorageAccount { get; set; }
+        public string ReferenceDataStorageContainer { get; set; }
+        public string ReferenceDataFilePath { get; set; }
+        public int ReferenceDataCacheTTLMinutes { get; set; }
 
         public static Configuration GetCurrentConfiguration()
         {
@@ -37,7 +40,11 @@ namespace Microsoft.Practices.IoTJourney.WarmStorage
                 ElasticSearchUrl = ConfigurationHelper.GetConfigValue<string>("Warmstorage.ElasticSearchUri", "http://localhost:9200"),
                 ElasticSearchIndexPrefix = ConfigurationHelper.GetConfigValue<string>("Warmstorage.ElasticSearchIndexPrefix", "iot"),
                 ElasticSearchIndexType = ConfigurationHelper.GetConfigValue<string>("Warmstorage.ElasticSearchIndexType", "temperature"),
-                RetryCount = ConfigurationHelper.GetConfigValue<int>("Warmstorage.RetryCount", 3)
+                RetryCount = ConfigurationHelper.GetConfigValue<int>("Warmstorage.RetryCount", 3),
+                ReferenceDataStorageAccount = ConfigurationHelper.GetConfigValue<string>("Warmstorage.CheckpointStorageAccount"),
+                ReferenceDataStorageContainer = ConfigurationHelper.GetConfigValue<string>("Warmstorage.ReferenceDataStorageContainer"),
+                ReferenceDataFilePath = ConfigurationHelper.GetConfigValue<string>("Warmstorage.ReferenceDataFilePath"),
+                ReferenceDataCacheTTLMinutes = ConfigurationHelper.GetConfigValue<int>("WarmStorage.ReferenceDataCacheTTLMinutes")
             };
         }
     }
