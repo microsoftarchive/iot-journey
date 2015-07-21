@@ -16,6 +16,10 @@ namespace DeviceProvisioning.DeviceRegistry
         // Translate betweeen DeviceInfo objects and table storage entities.
         class DeviceInfoEntity : TableEntity
         {
+            public DeviceInfoEntity()
+            {
+
+            }
             public DeviceInfoEntity(DeviceInfo deviceInfo)
             {
                 this.PartitionKey = deviceInfo.DeviceId;
@@ -56,14 +60,14 @@ namespace DeviceProvisioning.DeviceRegistry
             _table.CreateIfNotExists();
         }
 
-        public Task<bool> AddOrUpdate(DeviceInfo info)
+        public Task<bool> AddOrUpdateAsync(DeviceInfo info)
         {
             var entity = new DeviceInfoEntity(info);
             _table.Execute(TableOperation.InsertOrReplace(entity));
             return Task.FromResult(true);
         }
 
-        public System.Threading.Tasks.Task<DeviceInfo> Find(string id)
+        public System.Threading.Tasks.Task<DeviceInfo> FindAsync(string id)
         {
             TableOperation retrieveOperation = TableOperation.Retrieve<DeviceInfoEntity>(id, id);
             TableResult retrievedResult = _table.Execute(retrieveOperation);
