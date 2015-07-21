@@ -117,6 +117,7 @@
     <Compile Include="App_Start\AutoFacConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\ProvisionController.cs" />
+    <Compile Include="Controllers\RegistryController.cs" />
     <Compile Include="DeviceRegistry\IDeviceRegistry.cs" />
     <Compile Include="DeviceRegistry\TableStorageRegistry.cs" />
     <Compile Include="Global.asax.cs">
