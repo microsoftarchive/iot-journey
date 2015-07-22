@@ -56,54 +56,50 @@ Notice that in this design, the HTTP service handles both ingestion and processi
 
 ![cloud service solution based on web roles](media/01-cold-storage/physical-architecture-cloud-service.png)
 
-**Pros:**
+This approach has some significant drawbacks: 
 
-- Technically straightforward and quick to prototype.
+1. **Throughput.** IIS puts requests in a queue until a worker thread picks them up. If requests back up in the queue, it can lead to timeouts. You can scale by adding more instances, and the Azure load-balancer will ensure an even distribution. However, there is a limit of 25 role instances per deployment. That should be enough for the Fabrikam scenario, but may not be enough for other scenarios.
 
-**Concerns:**
+	> We briefly considered whether we could use virtual machines running an open source web server, optimized specifically for this task. However, that means taking responsibility for maintaining and patching the VMs and the web server software. There are also security concerns with this approach &mdash; it's not easy to harden a custom web server.
 
-- **Throughput.** The system must avoid request timeouts. IIS puts requests in a queue until a worker thread picks them up. The thread pool must be large enough so that requests don't back up in the queue, possibly timing out. You can scale by adding more instances, and the Azure load-balancer will transparently direct requests to ensure an even distribution. However, there is a limit of 25 role instances per deployment. That should be enough for the Fabrikam scenario, but may not be enough for other scenarios.
+2. **Load leveling.** A related problem is that the HTTP service handles both ingestion and processing. If the downstream processing can't keep up, it might cause ingestion to fail. This can happen during sudden bursts of traffic, or if the event processing component has a transient failure (perhaps due to another service it relies on).   
+ 
+3. **Resilience and reliability.** If an instance of the service fails, then any messages it is processing might be lost. 
 
-> We briefly considered whether we could use virtual machines running an open source web server, optimized specifically for this task. However, that means taking responsibility for maintaining and patching the VMs and the web server software. There are also security concerns with this approach &mdash; it's not easy to harden a custom web server.
+4. **Authentication.** This approach requires building in some type of authentication, presumably using access tokens.  
 
-- **Load leveling.** A related problem is that the HTTP service handles both ingestion and processing. If the downstream processing can't keep up, it might cause ingestion to fail. A big advantage of the other solutions we explored is the use of a publisher/consumer model, separating ingestion from processing. (See [Queue-Centric Work Pattern][queue-centric-work-pattern] and [Queue-Based Load Leveling Pattern][queue-based-load-leveling].)
+5. **Connectivity**. Many simple devices can't send HTTP messages, and devices that *can* send HTTP messages are unlikely to use the same schema. Therefore, a field gateway may be needed to translate device messages.
 
-- **Connectivity**. Many simple devices can't send HTTP messages, and devices that *can* send HTTP messages are unlikely to use the same schema. Therefore, a field gateway may be needed to translate device messages.
+	> Many devices are designed to be simple; they output signals indicating events, and can receive signals for commands to be performed. They might not be capable of translating this data into different formats for integration into an IoT solution; this process typically requires some auxiliary hardware and/or software.
 
-> Many devices are designed to be simple; they output signals indicating events, and can receive signals for commands to be performed. They might not be capable of translating this data into different formats for integration into an IoT solution; this process typically requires some auxiliary hardware and/or software.
+To ameliorate items 1 &ndash; 3, you can put the incoming messages onto a queue, and create a separate process that consumes them. (For background, see [Queue-Centric Work Pattern][queue-centric-work-pattern] and [Queue-Based Load Leveling Pattern][queue-based-load-leveling].) 
 
-- **Resilience and reliability.** If an instance of the service fails, then any messages it is processing might be lost.
-
-- **Authentication.** This approach requires building in some type of authentication, presumably using access tokens.  
-
-- **Safety and security.** *THOUGHTS - How easy/difficult is it to protect the event data? How prone is a service to attack? What are the attack surfaces? TBD*
-
-> It's not just the event data that requires protection, but also the endpoints that send and receive the data. If you can infiltrate an endpoint, perhaps by sending a spoof command to a device or rogue messages to a service, you may be able to gain control of the network.
-
-- *Other concerns - runtime costs, ease of deployment, ...*
+In fact, a big advantage of both Service Bus and Event Hub is that they use a publisher/consumer model, which separates ingestion from processing.  
 
 
 ### Service Bus topics
 
-In this approach, devices (or a field gateway) send event data to a Service Bus topic. Worker role instances subscribe to this topic to retrieve and process the events. 
+In this approach, devices (or a field gateway) send event data to a Service Bus topic. Worker role instances subscribe to this topic to process the events. 
 
 ![cloud service solution based on Service Bus Topics and Work Roles](media/01-cold-storage/physical-architecture-worker-role-and-service-bus.png)
 
 
 **Pros:**
 
-- **Scalability.** You can scale up the number of worker roles the process the events, independently of scaling the Service Bus instances.
+- **Load levling.** You can scale up the number of worker roles, independently of scaling the Service Bus instances. 
 
-- **Security.** Service Bus supports authentication using Shared Access Signature (SAS) tokens. On the processing side, the worker role gets messages from a well-known endpoint and does not accept unsolicited incoming traffic.
+- **Authentication.** Service Bus supports authentication using Shared Access Signature (SAS) tokens. On the processing side, the worker role gets messages from a well-known endpoint and does not accept unsolicited incoming traffic.
 
 - **Performance** Service Bus supports the [AMQP] message protocol. This protocol is very efficient, using binary encoding, network flow control, long-lived connections, etc. 
 
 
 **Concerns:**
 
-- **Scalability.** There is a limit of 25 role instances per cloud service deployment.
+- **Scalability.** There is a limit of 25 worker role instances per cloud service deployment.
 
 - **Connectivity.** Devices need to be able to communicate with Service Bus in order to post messages. As before, local field gateways may be necessary to provide this connectivity.
+
+- **Throughput.** Because Service Bus topics implements queuing semantics, using reader locks, it can't achieve the same throughput as Event Hubs.   
 
 
 ### Event Hub + worker role
@@ -116,19 +112,21 @@ In this approach, devices (or a field gateway) send events to Event Hub. Worker 
 
 **Pros:**
 
-- **Reliability.** As described in the previous approach, the protocol provides reliability guarantees, helping to ensure that event data is not lost prior to ingestion. Data received by Event Hub is retained for a specified period (which can be measured in days). If a worker role fails when processing the data for an event, it can be restarted and data is not lost. 
+- **Load levling.** As with Service Bus topics, can scale up the number of worker roles, independently of scaling the Service Bus instances. 
+
+- **Throughput.** Event Hub can achieve much higher throughput than Service Bus topics (up to 1 million events per second). 
 
 - **Scalability.** Event Hub is highly scalable through partitioning. An event hub can contain up to 32 partitions; each partition can receive messages in parallel with other partitions. Event Hub is designed to handle a continuous, large influx of events. It can process up to 1MB/second of data per partition &mdash; well beyond requirements of our Fabrikam scenario.
 
-- **Authentication**. Service Bus supports authentication using Shared Access Signature (SAS) tokens. You can set security policies to help protect Event Hub and authenticate message senders. Event Hub also supports blacklisting of devices; if a device is compromised or stolen, data transmitted by the device can be blocked on receipt by Event Hub.
+- **Authentication**. Event Hubs supports authentication using Shared Access Signature (SAS) tokens. You can set security policies to help protect Event Hub and authenticate message senders. Event Hub also supports blacklisting of devices.
 
 **Concerns:**
 
-- **Complexity.** Receiving data from Event Hub is a significantly different process from retrieving a message from a Service Bus queue. The [Event Hubs Programming Guide][event-hubs-programming-guide] contains the details.
+- **Complexity.** The Event Hubs programming model is significantly different from Service Bus queues and topics. For example, in Event Hubs, the receiver does not remove message after processing. The [Event Hubs Programming Guide][event-hubs-programming-guide] contains the details. (This [blog post][event-hubs-vs-azure-messaging] is a good summary of the differences.)
 
-- **Throughput.** Event Hub is priced in terms of throughput units. A throughput unit specifies the rate at which data can be sent and received by using Event Hub. If an application exceeds the number of purchased throughput units, performance will be throttled and may trigger exceptions. The DevOps team must constantly monitor the event hub to ensure that sufficient throughput units are available.
+- **Throttling.** Event Hubs is priced in terms of throughput units. A throughput unit specifies the rate at which data can be sent and received by using Event Hub. If an application exceeds the number of purchased throughput units, performance will be throttled and may trigger exceptions. The DevOps team must constantly monitor the event hub to ensure that sufficient throughput units are available.
 
-- **Scalability.** Although Event Hub is highly scalable, the same concerns with the scalability of worker roles outlined in the previous approach are still present: will they be able to keep up with the outflow of data from Event Hub?
+- **Scalability.** There is a limit of 25 worker role instances per cloud service deployment.
 
 
 ### Event Hub + Azure Stream Analytics
@@ -248,3 +246,4 @@ We hit the following issues when using Stream Analytics to save data to Blob sto
 [milestone]: https://github.com/mspnp/iot-journey/milestones/Milestone%2001
 [queue-based-load-leveling]: https://msdn.microsoft.com/en-us/library/dn589783.aspx
 [queue-centric-work-pattern]: http://www.asp.net/aspnet/overview/developing-apps-with-windows-azure/building-real-world-cloud-apps-with-windows-azure/queue-centric-work-pattern
+[event-hubs-vs-azure-messaging]: http://microsoftintegration.guru/2015/03/03/azure-event-hubs-vs-azure-messaging
