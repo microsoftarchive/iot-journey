@@ -1,6 +1,6 @@
-# Journal 1: Event Ingestion and Cold Storage
+# Journal 1: Event Ingestion and Long-Term Storage
 
-This journal entry covers the most basic end-to-end scenario in IoT: Getting events into the system and putting them into long-term storage. In terms of the logical architecture, it maps to the highlighted components shown here:
+This journal entry covers the most basic end-to-end scenario in IoT: Getting events into the system and putting them into long-term storage. In terms of the logical architecture, it maps to the highlighted components shown here:c
 
 ![plan for this first milestone](media/01-cold-storage/logical-architecture-for-milestone01.png)
 
@@ -14,12 +14,14 @@ This journal entry covers the most basic end-to-end scenario in IoT: Getting eve
 
 ## Common requirements
 
-Here are some common requirements for ingestion and cold storage that any IoT solution will at least need to consider:
+Here are some common requirements for ingestion and long-term storage that any IoT solution will at least need to consider:
 
-- Achieving scale. That means both hitting the expected target data rate, but also designing the system to be scalable in the future.
 - Authentication. Only authenticated devices can send data. (Provisioning devices is a separate scenario, although closely related.)
+- Achieving scale. That means both hitting the expected target data rate, but also designing the system to be scalable in the future.
 - Protecting the data stream.
-- Storing the raw event data in long-term storage. Cold storage must hold a large volume of historical data indefinitely, at a reasonable cost. 
+- Storing the raw event data in long-term storage. It must hold a large volume of historical data indefinitely, at a reasonable cost. 
+
+> Long-term storage is sometimes called *cold storage*, although traditionally "cold storage" meant tape backups. 
 
   
 ## Fabrikam requirements
@@ -29,8 +31,9 @@ Here are some common requirements for ingestion and cold storage that any IoT so
 Here are some specific requirements for our scenario:
 
 - As an initial target, the system must handle up to 100,000 devices, each device sending 1 reading every minute. That's approximately 1,667 events per second. This is a minimum load &mdash; the system should be scalable beyond this target. 
-- Events might be time critical, so the Event Processing component must handle this volume of data without introducing any backlog into the system.
 - The event data stream must be protected. This means not only securing the content of the events, but also masking the *absence* of events. For example, if the motion detectors in a house are not streaming any events, an attacker can conclude that nobody is home.
+- The system will have several data pathways, not just the long-term storage path. Writing events to long-term storage should not introduce delays in the rest of the system. 
+-  Related to the previous point, ideally failures in the long-term storage component won't affect the rest of the system.
 
 
 ## Exploring solutions for ingestion and processing
@@ -38,11 +41,12 @@ Here are some specific requirements for our scenario:
 **Ingestion** and **event processing** are somewhat related. How the system ingests the events may limit the options for processing. We investigated the following options.   
 
 - HTTP service
-- Service bus topics + message subscriber
-- Event hub + custom event processor 
-- Event hub + Azure Stream Analytics
-- Event hub + Apache Storm 
+- Azure Service Bus topics + message subscriber
+- Azure Event Hubs + custom event processor 
+- Event Hubs + Azure Stream Analytics
+- Event Hubs + Apache Storm 
 
+> We chose Event Hubs and recommend this approach. The HTTP service approach has some significant drawbacks, described below. Service Bus topics are conceptually similar to Event Hubs, but Event Hubs is capable of much higher throughput, so it's a better fit for IoT scenarios.
 
 ### HTTP service
 
@@ -58,9 +62,11 @@ Notice that in this design, the HTTP service handles both ingestion and processi
 
 **Concerns:**
 
-- **Throughput.** The system must avoid request timeouts. IIS puts requests in a queue until a worker thread running application code picks them up. The thread pool must be large enough so that requests don't back up in the queue, possibly timing out. You can scale by adding more instances, and the Azure load-balancer will transparently direct requests to ensure an even distribution. However, there is a limit of 25 role instances per deployment. That should be enough for the Fabrikam scenario, but may not be enough for other scenarios.
+- **Throughput.** The system must avoid request timeouts. IIS puts requests in a queue until a worker thread picks them up. The thread pool must be large enough so that requests don't back up in the queue, possibly timing out. You can scale by adding more instances, and the Azure load-balancer will transparently direct requests to ensure an even distribution. However, there is a limit of 25 role instances per deployment. That should be enough for the Fabrikam scenario, but may not be enough for other scenarios.
 
 > We briefly considered whether we could use virtual machines running an open source web server, optimized specifically for this task. However, that means taking responsibility for maintaining and patching the VMs and the web server software. There are also security concerns with this approach &mdash; it's not easy to harden a custom web server.
+
+- **Load leveling.** A related problem is that the HTTP service handles both ingestion and processing. If the downstream processing can't keep up, it might cause ingestion to fail. A big advantage of the other solutions we explored is the use of a publisher/consumer model, separating ingestion from processing. (See [Queue-Centric Work Pattern][queue-centric-work-pattern] and [Queue-Based Load Leveling Pattern][queue-based-load-leveling].)
 
 - **Connectivity**. Many simple devices can't send HTTP messages, and devices that *can* send HTTP messages are unlikely to use the same schema. Therefore, a field gateway may be needed to translate device messages.
 
@@ -68,9 +74,7 @@ Notice that in this design, the HTTP service handles both ingestion and processi
 
 - **Resilience and reliability.** If an instance of the service fails, then any messages it is processing might be lost.
 
-- **Scalability.** The HTTP service handles both ingestion and processing. That's feasible for the cold-storage scenario, but what happens when we add more processing tasks, such as warm storage, event aggregation, or critical alerts? Can the service still handle the load *and* process events quickly enough? A big advantage of the other solutions we explored is the use of a publisher/consumer model, separating ingestion from processing.      
-
-- **Authentication.** This approach requires building in some type of authentication, presumably using access tokens (OAuth?). 
+- **Authentication.** This approach requires building in some type of authentication, presumably using access tokens.  
 
 - **Safety and security.** *THOUGHTS - How easy/difficult is it to protect the event data? How prone is a service to attack? What are the attack surfaces? TBD*
 
@@ -88,28 +92,18 @@ In this approach, devices (or a field gateway) send event data to a Service Bus 
 
 **Pros:**
 
-- **Reduced bandwidth** Devices can send event messages to Service Bus using the [AMQP][AMQP] protocol. This protocol is very efficient, using a binary encoding for messages.
+- **Scalability.** You can scale up the number of worker roles the process the events, independently of scaling the Service Bus instances.
 
-- **Throughput.** A worker role has less overhead than a web role (*NEED SOMEONE TO VERIFY THIS, AND MORE DETAIL ON WHY*)
+- **Security.** Service Bus supports authentication using Shared Access Signature (SAS) tokens. On the processing side, the worker role gets messages from a well-known endpoint and does not accept unsolicited incoming traffic.
 
-- **Reliability.** The AMQP protocol supports reliability guarantees, helping to ensure that event data is not lost when sent to a topic. Additionally, a subscription can be transactional; if a worker role fails while processing an event, the event is returned to the Service Bus topic and can be retrieved again.
+- **Performance** Service Bus supports the [AMQP] message protocol. This protocol is very efficient, using binary encoding, network flow control, long-lived connections, etc. 
 
-- **Scalability.** Different worker roles can handle different types of event processing (copying to cold storage, performing warm analysis and aggregation, raising alerts).
-
-- **Security**. The worker role has a reduced attack surface. It only retrieves messages from a well-known subscription and does not accept unsolicited incoming traffic. Additionally, you can set security policies to help protect the Service Bus topic and authenticate message senders. AMQP provides transport-level security to protect messages in-flight.
-
-> A service that pulls data from a trusted source is easier to protect than a service that accepts push requests from the outside world.
 
 **Concerns:**
 
-- **Scalability.** There is a limit of 25 instances per cloud service deployment, leading to the same scalability concerns described in the previous approach.
-
-- **Safety and Security.** Service Bus endpoints must be protected to prevent rogue messages from being posted. *Others?*
+- **Scalability.** There is a limit of 25 role instances per cloud service deployment.
 
 - **Connectivity.** Devices need to be able to communicate with Service Bus in order to post messages. As before, local field gateways may be necessary to provide this connectivity.
-
-
-- *Other Concerns - TBD*
 
 
 ### Event Hub + worker role
@@ -122,11 +116,12 @@ In this approach, devices (or a field gateway) send events to Event Hub. Worker 
 
 **Pros:**
 
-- **Reliability.** As described in the previous approach, the AMQP protocol provides reliability guarantees, helping to ensure that event data is not lost prior to ingestion. Data received by Event Hub is retained for a specified period (which can be measured in days). If a worker role fails when processing the data for an event, it can be restarted and data is not lost.
+- **Reliability.** As described in the previous approach, the 
+-  protocol provides reliability guarantees, helping to ensure that event data is not lost prior to ingestion. Data received by Event Hub is retained for a specified period (which can be measured in days). If a worker role fails when processing the data for an event, it can be restarted and data is not lost.
 
 - **Scalability.** Event Hub is highly scalable through partitioning. An event hub can contain up to 32 partitions; each partition can receive messages in parallel with other partitions. Event Hub is designed to handle a continuous, large influx of events. It can process up to 1MB/second of data per partition &mdash; well beyond requirements of our Fabrikam scenario.
 
-- **Security.** You can set security policies to help protect Event Hub and authenticate message senders. AMQP provides transport-level security to protect messages in-flight. Event Hub also supports blacklisting of devices; if a device is compromised or stolen, data transmitted by the device can be blocked on receipt by Event Hub.
+- **Authentication**. Service Bus supports authentication using Shared Access Signature (SAS) tokens. You can set security policies to help protect Event Hub and authenticate message senders. Event Hub also supports blacklisting of devices; if a device is compromised or stolen, data transmitted by the device can be blocked on receipt by Event Hub.
 
 **Concerns:**
 
@@ -252,3 +247,5 @@ We hit the following issues when using Stream Analytics to save data to Blob sto
 [event-hubs]: http://azure.microsoft.com/services/event-hubs/
 [stream-analytics]: http://azure.microsoft.com/services/stream-analytics/
 [milestone]: https://github.com/mspnp/iot-journey/milestones/Milestone%2001
+[queue-based-load-leveling]: https://msdn.microsoft.com/en-us/library/dn589783.aspx
+[queue-centric-work-pattern]: http://www.asp.net/aspnet/overview/developing-apps-with-windows-azure/building-real-world-cloud-apps-with-windows-azure/queue-centric-work-pattern
