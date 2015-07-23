@@ -111,15 +111,17 @@ The intention is that each of these steps can be implemented using a variety of 
 
 We are approaching the project in phases, building a functional part of the system in each phase. This strategy lets us evaluate the appropriate technologies and quickly deploy something concrete. These phases are orthogonal to the data flow model above. Each phase might touch several stages of the data flow.
 
-1. **[Capturing event data and saving it in its raw format to cold storage][01-cold-storage]**. The purpose of this phase is to determine an approach to ingesting data, performing the simplest of processing, and saving it for subsequent analysis. Because the customer requires all event data to be stored indefinitely, the volume of data held in cold storage could become very large. Cold storage must therefore be inexpensive.
+1. **[Capturing event data][event-ingestion]**. It sounds obvious, but the most basic task for an IoT solution is getting event data into the cloud.
 
-2. **[Saving event data to warm storage for ad-hoc exploration][02-warm-storage-ad-hoc]**. This phase is concerned storing data for warm processing. Analysts and operators performing ad-hoc queries are unlikely to require the details of every historical event, so warm storage will only record the data for *recent* events. This will enable queries to run more quickly, and be more cost effective for expensive data stores that support the features required to run complex queries.
+1. **[Saving raw event data in long-term storage][long-term-storage]**. Assuming that all event data must be stored indefinitely, the volume of data held in cold storage could become very large. Cold storage must therefore be inexpensive.
 
-3. **[Saving event data to warm storage for generating aggregated streams][03-warm-storage-aggregated]**. This phase considers the issues around generating information derived from the original event data. Initially, this derivative information is a rolling record of the average temperature reported by all devices in each building over the previous 5 minutes, but additional aggregations may be added as required by the client. As with the previous phase, these queries only require access to recent data, but the processing is more defined.
+1. **[Saving event data to warm storage for ad-hoc exploration][ad-hoc-exploration]**. This phase is concerned storing data for warm processing. Analysts and operators performing ad-hoc queries are unlikely to require the details of every historical event, so warm storage will only record the data for *recent* events. This will enable queries to run more quickly, and be more cost effective for expensive data stores that support the features required to run complex queries.
 
-4. **[Provisioning new devices][04-provisioning-devices]**. TBD
+1. **Saving event data to warm storage for generating aggregated streams**. This phase considers the issues around generating information derived from the original event data. Initially, this derivative information is a rolling record of the average temperature reported by all devices in each building over the previous 5 minutes, but additional aggregations may be added as required by the client. As with the previous phase, these queries only require access to recent data, but the processing is more defined.
 
-5. **[Translating event data for legacy devices][05-translating-event-data]**. TBD
+1. **Provisioning new devices**. TBD
+
+1. **Translating event data for legacy devices**. TBD
 
 Other phases may be added as development progresses.
 
@@ -128,8 +130,6 @@ As we proceed on this journey, we will fill out the details of each phase by add
 [intro-to-iot]: ../articles/what-is-an-IoT-solution.md
 [backlog]: https://github.com/mspnp/iot-journey/issues
 [milestones]: https://github.com/mspnp/iot-journey/milestones
-[01-cold-storage]: 01-cold-storage.md
-[02-warm-storage-ad-hoc]: 02-warm-storage-ad-hoc.md
-[03-warm-storage-aggregated]: 03-warm-storage-aggregated
-[04-provisioning-devices]: 04-provisioning-devices
-[05-translating-event-data]:05-translating-event-data
+[event-ingestion]: 01-event-ingestion.md
+[long-term-storage]: 02-long-term-storage.md 
+[ad-hoc-exploration]: 03-ad-hoc-exploration.md
