@@ -26,9 +26,11 @@ PROCESS
 
     .\Provision-ColdStorageEventProcessor.ps1 -SubscriptionName $SubscriptionName -ApplicationName $ApplicationName -AddAccount $False
 
-    .\Provision-WarmStorageEventProcessor.ps1 -SubscriptionName $SubscriptionName -ApplicationName $ApplicationName -AddAccount $False
-
     .\Provision-ColdStorageAzureStreamAnalytics.ps1 -SubscriptionName $SubscriptionName -ApplicationName $ApplicationName -AddAccount $False
 
-    .\Provision-ColdStorageHDInsight.ps1 -SubscriptionName $SubscriptionName -ApplicationName $ApplicationName -AddAccount $False
+    .\Provision-WarmStorageEventProcessor.ps1 -SubscriptionName $SubscriptionName -ApplicationName $ApplicationName -AddAccount $False
+
+    .\Provision-WarmStorageAzureStreamAnalyticsAndSql.ps1 -SubscriptionName $SubscriptionName -ApplicationName $ApplicationName -AddAccount $False
+
+    .\Provision-ColdStorageHDInsight.ps1 -SubscriptionName $SubscriptionName -ApplicationName $ApplicationName -AddAccount $False    
 }
