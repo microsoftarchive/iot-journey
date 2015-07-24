@@ -1,4 +1,6 @@
-# Introduction to IoT security
+# Notes to IoT security
+
+:memo: We intend to revise this document at a later time.
 
 IoT systems can contain many moving parts, each of which need to communicate and coordinate with each other in a secure manner. In a highly connected environment, security is not simply a matter of protecting individual resources, but is also concerned with protecting the information that is transferred between those resources.
 
