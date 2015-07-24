@@ -11,5 +11,7 @@ namespace DeviceProvisioning.AccessTokens
         Uri EndpointUri { get; }
         string EventHubName { get; }
         Task<string> GetTokenAsync(string DeviceId);
+        Task RevokeDeviceAsync(string DeviceId);
+        Task RestoreDeviceAsync(string DeviceId);
     }
 }

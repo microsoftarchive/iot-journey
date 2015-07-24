@@ -13,5 +13,6 @@ namespace Microsoft.Practices.IoTJourney.DeviceProvisioningModels
     {
         public static readonly string RegisteredState = "registered";
         public static readonly string ProvisionedState = "provisioned";
+        public static readonly string RevokedState = "revoked";
     }
 }

@@ -39,13 +39,17 @@ namespace DeviceProvisioning.Tests
         [Fact]
         public async Task ReturnsToken()
         {
-            Device device = new Device { DeviceId = "1" };
-            DeviceInfo info = new DeviceInfo { DeviceId = "1" };
+            string deviceId = "1";
 
-            _registry.Setup(x => x.FindAsync("1"))
+            DeviceInfo info = new DeviceInfo { 
+                DeviceId = deviceId,
+                Status = DeviceStateConstants.RegisteredState
+            };
+
+            _registry.Setup(x => x.FindAsync(deviceId))
                 .ReturnsAsync(info);
 
-            IHttpActionResult actionResult = await _controller.ProvisionDevice(device);
+            IHttpActionResult actionResult = await _controller.ProvisionDevice(deviceId);
 
             var contentResult = actionResult as OkNegotiatedContentResult<DeviceEndpoint>;
 
@@ -55,33 +59,32 @@ namespace DeviceProvisioning.Tests
         }
 
         [Fact]
-        public async Task NoDeviceReturnsNotFound()
+        public async Task RestoresDeviceIfRevoked()
         {
-            Device device = new Device { DeviceId = "2" };
+            string deviceId = "1";
 
-            IHttpActionResult actionResult = await _controller.ProvisionDevice(device);
+            DeviceInfo info = new DeviceInfo
+            {
+                DeviceId = deviceId,
+                Status = DeviceStateConstants.RevokedState 
+            };
+
+            _registry.Setup(x => x.FindAsync(deviceId))
+                .ReturnsAsync(info);
+
+            IHttpActionResult actionResult = await _controller.ProvisionDevice(deviceId);
+
+            _tokenProvider.Verify(x => x.RestoreDeviceAsync(deviceId));
+        }
+
+        [Fact]
+        public async Task NoMatchingDeviceReturnsNotFound()
+        {
+            string deviceId = "2";
+            IHttpActionResult actionResult = await _controller.ProvisionDevice(deviceId);
 
             Assert.NotNull(actionResult);
             Assert.IsType<NotFoundResult>(actionResult);
-        }
-
-
-        [Fact]
-        public async Task NullModelReturnsBadRequest()
-        {
-            IHttpActionResult actionResult = await _controller.ProvisionDevice(null);
-            Assert.IsType<BadRequestErrorMessageResult>(actionResult);
-        }
-
-        [Fact]
-        public async Task InvalidModelReturnsBadRequest()
-        {
-            Device device = new Device { DeviceId = "1" };
-
-            _controller.ModelState.AddModelError("FakeError", "FakeError");
-
-            IHttpActionResult actionResult = await _controller.ProvisionDevice(device);
-            Assert.IsType<InvalidModelStateResult>(actionResult);
         }
     }
 }
