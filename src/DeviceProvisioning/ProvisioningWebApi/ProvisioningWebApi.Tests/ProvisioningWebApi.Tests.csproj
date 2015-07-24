@@ -74,6 +74,7 @@
     <Compile Include="WhenGettingDeviceMetadata.cs" />
     <Compile Include="WhenProvisioning.cs" />
     <Compile Include="WhenPuttingDeviceMetadata.cs" />
+    <Compile Include="WhenRevoking.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\Shared\Core\Core.csproj">
