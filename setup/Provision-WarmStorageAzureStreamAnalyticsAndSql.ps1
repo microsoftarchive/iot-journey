@@ -32,11 +32,29 @@
 .PARAMETER ServiceBusNamespace
     Name of the Namespace tha will contain the EventHub instance.
 
+.PARAMETER SqlConsumerGroupName
+    Stream Analytics consumer group for sql server.
+
+.PARAMETER SqlDatabaseName
+    Name of the database used to store data from Stream Analytics.
+
+.PARAMETER SqlServerAdminLogin
+    Admin login of the SQL Server.
+
+.PARAMETER SqlServerAdminPassword
+    Admin password of the SQL Server.
+
+.PARAMETER SqlServerName
+    Sql Server name.
+
 .PARAMETER StreamAnalyticsBlobsJobName
     Name of the Stream Analytics Job name used to output to blob storage.
     
+.PARAMETER StreamAnalyticsSqlJobName
+    Name of the Stream Analytics Job name used to output to Sql.
+     
 .EXAMPLE
-  .\Provision-ColdStorageAzureStreamAnalytics.ps1 -SubscriptionName [YourAzureSubscriptionName] -StorageAccountName [YourStorageAccountName] -Verbose
+  .\Provision-ColdStorageAzureStreamAnalytics.ps1 -SubscriptionName [YourAzureSubscriptionName] -StorageAccountName [YourStorageAccountName] -SqlServerAdminPassword [YourPassword] -Verbose
 #>
 [CmdletBinding()]
 Param
@@ -46,18 +64,20 @@ Param
 	[ValidateNotNullOrEmpty()][Parameter (Mandatory = $True)][bool]$AddAccount,
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$StorageAccountName =$ApplicationName,
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$ContainerName = "blobs-asa",
-    [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$ConsumerGroupName  = "cg-blobs-asa",
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$EventHubName = "eventhub-iot",
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$EventHubSharedAccessPolicyName = "ManagePolicy",
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$Location = "Central US",
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$ResourceGroupPrefix = $ApplicationName,
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$ServiceBusNamespace = $ApplicationName,
-    [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$StreamAnalyticsJobName = $ApplicationName+"ToBlob",
+    [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$ConsumerGroupName = "cg-sql-asa",
+    [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$SqlDatabaseName = "fabrikam",
+    [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$SqlServerAdminLogin = "dbuser",
+    [ValidateNotNullOrEmpty()][Parameter (Mandatory = $True)][String]$SqlServerAdminPassword,
+    [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$SqlServerName = $ApplicationName,
+    [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$StreamAnalyticsSqlJobName = $ApplicationName+"ToSQL",
 
-    
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][ValidateScript({ Test-FileName "JobDefinitionPath" $_})]
-        [String]$JobDefinitionPath = "StreamAnalyticsJobDefinitionColdStorage.json"
-
+        [String]$JobDefinitionPath = "StreamAnalyticsJobDefinitionSQL.json"
 )
 PROCESS
 {
@@ -78,6 +98,8 @@ PROCESS
     Load-Module -ModuleName AzureStorage -ModuleLocation .\modules
     Load-Module -ModuleName AzureServiceBus -ModuleLocation .\modules
     Load-Module -ModuleName AzureStreamAnalytics -ModuleLocation .\modules
+    Load-Module -ModuleName AzureSqlDatabase -ModuleLocation .\modules
+
 
     if($AddAccount)
     {
@@ -99,26 +121,52 @@ PROCESS
         
     $ResourceGroupName = $ResourceGroupPrefix + "-" + $Location.Replace(" ","-")
 
-    $EventHubSharedAccessPolicyKey = Get-EventHubSharedAccessPolicyKey -ServiceBusNamespace $ServiceBusNamespace `
+    Provision-SqlDatabase -SqlServerName $SqlServerName `
+							            -SqlServerAdminLogin $SqlServerAdminLogin `
+							            -SqlServerAdminPassword $SqlServerAdminPassword `
+							            -SqlDatabaseName $SqlDatabaseName `
+                                        -ResourceGroupName $ResourceGroupName `
+                                        -Location $Location
+
+
+
+        # Get Storage Account Key
+        $storageAccountKey = Get-AzureStorageKey -StorageAccountName $StorageAccountName
+        $storageAccountKeyPrimary = $storageAccountKey.Primary
+        $RefdataContainerName = $ContainerName + "-refdata"
+        
+        $context = New-AzureStorageContext -StorageAccountName $StorageAccountName -StorageAccountKey $storageAccountKeyPrimary;
+
+        New-StorageContainerIfNotExists -ContainerName $RefdataContainerName `
+                                        -Context $context
+
+        Upload-ReferenceData -StorageAccountName $StorageAccountName -ContainerName $RefdataContainerName
+
+        $EventHubSharedAccessPolicyKey = Get-EventHubSharedAccessPolicyKey -ServiceBusNamespace $ServiceBusNamespace `
                                                                            -EventHubName $EventHubName `
                                                                            -EventHubSharedAccessPolicyName $EventHubSharedAccessPolicyName
 
-    # Get Storage Account Key
-    $storageAccountKey = Get-AzureStorageKey -StorageAccountName $StorageAccountName
-    $storageAccountKeyPrimary = $storageAccountKey.Primary
+        # Get Storage Account Key
+        $storageAccountKey = Get-AzureStorageKey -StorageAccountName $StorageAccountName
+        $storageAccountKeyPrimary = $storageAccountKey.Primary
 
-	    # Create Job Definition
+        # Create SQL Job Definition
         [string]$JobDefinitionText = (Get-Content -LiteralPath $JobDefinitionPath).
-                                        Replace("_StreamAnalyticsJobName",$StreamAnalyticsJobName).
-                                        Replace("_Location",$Location).
-                                        Replace("_ConsumerGroupName",$ConsumerGroupName).
-                                        Replace("_EventHubName",$EventHubName).
-                                        Replace("_ServiceBusNamespace",$ServiceBusNamespace).
-                                        Replace("_EventHubSharedAccessPolicyName",$EventHubSharedAccessPolicyName).
-                                        Replace("_EventHubSharedAccessPolicyKey",$EventHubSharedAccessPolicyKey).
-                                        Replace("_AccountName",$StorageAccountName).
-                                        Replace("_AccountKey",$storageAccountKeyPrimary).
-                                        Replace("_Container",$ContainerName)
+                                    Replace("_StreamAnalyticsJobName",$StreamAnalyticsSQLJobName).
+                                    Replace("_Location",$Location).
+                                    Replace("_ConsumerGroupName",$ConsumerGroupName).
+                                    Replace("_EventHubName",$EventHubName).
+                                    Replace("_ServiceBusNamespace",$ServiceBusNamespace).
+                                    Replace("_EventHubSharedAccessPolicyName",$EventHubSharedAccessPolicyName).
+                                    Replace("_EventHubSharedAccessPolicyKey",$EventHubSharedAccessPolicyKey).
+                                    Replace("_AccountName",$StorageAccountName).
+                                    Replace("_AccountKey",$storageAccountKeyPrimary).
+                                    Replace("_Container",$ContainerName).
+                                    Replace("_RefdataContainer",$RefdataContainerName).
+                                    Replace("_DBName",$SqlDatabaseName).
+                                    Replace("_DBPassword",$SqlServerAdminPassword).
+                                    Replace("_DBServer",$SqlServerName).
+                                    Replace("_DBUser",$SqlServerAdminLogin)
 
     Provision-StreamAnalyticsJob -ServiceBusNamespace $ServiceBusNamespace `
                                             -EventHubName $EventHubName `

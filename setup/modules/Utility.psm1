@@ -14,14 +14,14 @@ function Write-SettingsFile
         if (-not $fileExists)
         {
             # copy from template
-            "Configuration file not found, copying from mysettings-template.config"
+            "Configuration file not found, copying from $configurationTemplateFile"
             Copy-Item -Path $configurationTemplateFile -Destination $configurationFile -Force
         }
         else
         {
             # prompt overwrite
             $title = "Overwrite File"
-            $message = "Do you want to overwrite the existing mysettings.config file?"
+            $message = "Do you want to overwrite the existing $configurationFile file?"
 
             $yes = New-Object System.Management.Automation.Host.ChoiceDescription "&Yes", `
                 "Overwrites the mysettings.config file."
