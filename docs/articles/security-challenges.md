@@ -1,4 +1,4 @@
-assis# IoT security: What are the challenges?
+# IoT security: What are the challenges?
 
 IoT encompasses the very small (embedded devices) and the very large (clusters of VMs); the very local (sensors in buildings, machines, or cars) and the global (the cloud). So it should be no surprise that IoT also faces a wide range of security challenges.
 
