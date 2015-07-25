@@ -4,7 +4,7 @@ IoT encompasses the very small (embedded devices) and the very large (clusters o
 
 In this article, we present a broad overview of some of the these challenges. 
 
-None of the challenged described here are really “new.” Devices talking to networks is not a new phenomenon. What may be new is the scale &mdash; the potential number of devices involved, all connected to the cloud. Depending on your background, some of these points may be obvious, others may be less familiar.
+None of the challenges described here are really “new.” Devices talking to networks is not a new phenomenon. What may be new is the scale &mdash; the potential number of devices involved, all connected to the cloud. Depending on your background, some of these points may be obvious, others may be less familiar.
 
 ## Risks
 
@@ -26,7 +26,7 @@ In some scenarios, a field gateway can compensate for these issues.
 
 Devices may be placed in the open, and not under the physical control of a user. That makes them targets for malicious tampering, or simple wear-and-tear from the elements. Analog components in particular may fail or give defective readings. 
 
-Also, many IoT devices taking readings from the physical world in a way that doesn’t require special access or authentication. To “hack” a temperature sensor, I can just hold a lighter next to it. 
+Also, many IoT devices take readings from the physical world in a way that doesn’t require special access or authentication. To “hack” a temperature sensor, I can just hold a lighter next to it. 
 
 Mitigations might include physically securing the device; making the device smarter (add a proximity detector to the temperature sensor?), or analyzing the data on the backend for anomalous or implausible input.
 
@@ -46,9 +46,9 @@ Consider an industrial machine that has several sensors. Even if you replace all
 
 ## Authentication 
 
-The web and the PKI infrastructure are built on the idea that it should be relatively easy to establish trust. You point your browser at Facebook or your banking app, and the browser trusts the site because it has a certificate signed by a trusted CA. There is also a “fail-stop” in the form of the user, who can close the browser, clear the credential cache, etc., if a site appears to be suspicious.
+The web and the PKI infrastructure are built on the idea that it should be relatively easy to establish trust. You point your browser at Facebook or your banking app, and the browser trusts the site because it has a certificate signed by a trusted CA. There is also a “fail-stop” in the form of the user, who can close the browser, clear the credential cache, etc., if a site looks suspicious.
 
-In IoT, devices are mostly autonomous. Once you provision a device, establishing an authenticated channel must be automatic. On the other hand, in most scenarios, an IoT device doesn’t need to (and shouldn’t) establish trust with a lot of heterogeneous services. Generally, a device is paired with a service. In this context, certificate exchange is a relatively expensive operation and may not be the best approach. For more thoughts on this topic, see [Service Assisted Communication for Connected Devices](http://blogs.msdn.com/b/clemensv/archive/2014/02/10/service-assisted-communication-for-connected-devices.aspx) (blog post).
+In IoT, devices are mostly autonomous. Once you provision a device, establishing an authenticated channel must be automatic. On the other hand, in *most* scenarios, an IoT device doesn’t need to (and shouldn’t) establish trust with a lot of heterogeneous services. Generally, a device is paired with a service. In this context, certificate exchange is a relatively expensive operation and may not be the best approach. For more thoughts on this topic, see [Service Assisted Communication for Connected Devices](http://blogs.msdn.com/b/clemensv/archive/2014/02/10/service-assisted-communication-for-connected-devices.aspx) (blog post).
 
 Some other considerations:
 
@@ -70,7 +70,7 @@ With a phone or tablet app, there is a user who opts in to using the device. Obv
 
 Multiple parties might consume the data, which ties in to the authorization issue. 
 
-In some cases, the very presence or absence of data might need to be protected. For example, if a motion detector in your house is not registering any movement data. Even if you encrypt all of your data, think about side-channel attacks.
+In some cases, the very presence or absence of data might need to be protected. For example, if a motion detector in your house is not registering any movement data, an attacker can conclude that nobody is home. Even if you encrypt all of your data, think about side-channel attacks.
 
 ## Trustworthiness
 
