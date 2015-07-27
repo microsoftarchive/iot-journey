@@ -1,0 +1,46 @@
+#Event Hub Configuration
+eventhubspout.username = storm
+eventhubspout.password = [shared access key for the "storm" policy of your event hub]
+eventhubspout.namespace = [your service bus namespace]
+eventhubspout.entitypath = [your event hub name]
+eventhubspout.partitions.count = 10
+eventhubspout.checkpoint.interval = 10
+eventhub.receiver.credits = 1024
+
+# if not provided, will use storm's zookeeper settings
+# zookeeper.connectionstring=localhost:2181
+
+#Azure Storage Configuration
+storage.blob.account.name = [your storage account name]
+storage.blob.account.key = [your storage account key]
+storage.blob.account.container = eventhubblobwriter
+
+#number of blocks in each blob default to 50000
+storage.blob.block.number.max = 100
+
+#max bytes in each block default to 4194304 Byte
+storage.blob.block.bytes.max = 10240
+
+#Redis Cache Configuration
+redis.host = [your redis host name].redis.cache.windows.net
+redis.password = [your redis access key]
+redis.port = 6379
+redis.timeout = 3600
+
+#string format
+BLOBNAME_FORMATTER = partition_%05d/blob_%05d
+BLOCKID_FORMATTER = %05d
+BLOBID_BLOCKID_FORMATTER = %05d_%05d
+PARTITION_TXID_LOG_FORMATTER = partition=%05d_txid=%05d:
+PARTITION_TXID_KEY_FORMATTER = p_%05d_txid
+PARTITION_FIRSTBLOCK_KEY_FORMATTER = "partition_%05d_firstblock";
+PARTITION_LASTBLOCK_KEY_FORMATTER = "partition_%05d_lastblock";
+
+#LogSettings
+LOG_BATCH = false
+LOG_MESSAGE = false
+LOG_MESSAGEROLLOVER = false
+LOG_BLOCK = false
+LOG_BLOBWRITER = false
+LOG_BLOBWRITERDATA = false
+LOG_REDIS = false
