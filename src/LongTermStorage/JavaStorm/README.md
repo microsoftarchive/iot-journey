@@ -1,4 +1,4 @@
-## Introduction
+##Introduction
 
 The two primary concerns of this project are:
 
@@ -9,7 +9,6 @@ That is, translating the _chatty_ stream of events into _chunky_ blobs.
 Apache Storm/Trident to store Microsoft Azure Eventhub messages to Microsoft Azure
 Blob exactly-once.
 
-----------
 
 ## Getting Started
 
@@ -220,20 +219,8 @@ In your development environment, use the following steps to run the topology on 
 [vs]: http://www.visualstudio.com/en-us/products/visual-studio-community-vs
 [walkthrough]: /docs/step-by-step-walkthrough.md
 
-----------
+## Next Steps
 
-## Architecture Overview
-
-:construction: **TODO: Link to section "Event Hubs + Apache Storm" in document "01-event-ingestion.md"** 
-
-#### Storm/Trident Topology
-
-Storm/Trident Topology is an event consumer that receive events from the Event Hub service in batches. The topology is implemented in Java. The topology consisits of two parts: an Event Hub Spout called OpaqueTridentEventHubSpout and and a Trident partitionAggregate called ByteAggregator.
-
-#### OpaqueTridentEventHubSpout
-
-OpaqueTridentEventHubSpout is one of the many storm/trident spouts in eventhubs-storm-spout-0.9-jar-with-dependencies.jar which is shipped with HDInsight Storm. As the name suggested, the spout is an Opaque Trident Spout which reads the messages from event hub, and can replay the messages if the downstream processors fail so that the message will be processed at least once.
-
-#### ByteAggregator
-
-ByteAggregator is developed in this guidance to facilitating cold storage of data for later analytics. It translates the chatty stream of events into chunky blobs. BaseAggregator is a java class that extends storm.trident.operation.BaseAggregator class. It combines individual messages in a batch in to Azure blocks in its aggregate method and persist blocks in its complete method. TheByteAggregator tries to maximize the amount of data that it can store in a single blob by filling each block in the block blob as close to its maximum configured capacity or as is feasible.
+* [Architecture Overview](docs/architecture-overview.md)
+* [Create Java Topology Project eventhub-blobwriter from Scratch](docs/walkthrough.md)
+* [Design Considerations and Technical How-To](docs/design-considerations.md)

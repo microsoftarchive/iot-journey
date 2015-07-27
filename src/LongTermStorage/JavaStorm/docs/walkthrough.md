@@ -1,20 +1,20 @@
-# Create Java Topology Project eventhub-blobwriter from Scratch
+## Create Java Topology Project eventhub-blobwriter from Scratch
 
-## Install Java Dependencies
-Follow the section **Install Java Dependencies** in [Getting Started](/docs/GettingStarted.md) to install the dependencies to your local Maven store.
+### Install Java Dependencies
+Follow the section **Install Java Dependencies** in [Getting Started](docs/readme.md) to install the dependencies to your local Maven store.
 
-## Clone the source code for the Reference Implementation
-Follow the section **Clone the source code for the Reference Implementation** in [Getting Started](/docs/GettingStarted.md) to clone source code. You need copy the content of the java files.
+### Clone the source code for the Reference Implementation
+Clone this repository so you can copy the content of the java files.
 
 
-## Scaffold the Storm topology project
+### Scaffold the Storm topology project
 Use the following Maven command to create the scaffolding for the Trident topology project.
 
 ```
 mvn archetype:generate -DgroupId=com.contoso.app.trident -DartifactId=eventhub-blobwriter -DarchetypeArtifactId=maven-archetype-quickstart -DinteractiveMode=false
 ```
 
-## Add dependencies in pom.xml
+### Add dependencies in pom.xml
 Using a text editor, open the pom.xml file, and add the following to the `<dependencies>` section. You can add them at the end of the section, after the dependency for junit.
 
 ``` xml
@@ -123,7 +123,7 @@ Using a text editor, open the pom.xml file, and add the following to the `<depen
 
 Note: Some dependencies are marked with a scope of *provided* to indicate that these dependencies should be downloaded from the Maven repository and used to build and test the application locally, but that they will also be available in your runtime environment and do not need to be compiled and included in the JAR created by this project.
 
-## Add plugins in pom.xml
+### Add plugins in pom.xml
 At the end of the pom.xml file, right before the `</project>` entry, add the following.
 
 ``` xml
@@ -207,56 +207,56 @@ This tells Maven to do the following when building the project:
 - Use the maven-shade-plugin to build an uber jar or fat jar, which contains this project and any required dependencies.
 - Use the exec-maven-plugin, which allows you to run the application locally without a Hadoop cluster.
 
-## Add configuration file
+### Add configuration file
 eventhubs-storm-spout reads configuration information from a Config.properties file. This tells it what Event Hub to connect to. While you can specify a configuration file when starting the topology on a cluster, including one in the project gives you a known default configuration.
 - In the eventhub-blobwriter directory, create a new directory named conf. This will be a sister directory of src.
 - In the conf directory, create file Config.properties - contains settings for event hub
 - Copy the cloned content to Config.properties.template file.
 - You should modify the value according to your settings.
 
-## Add Java classes
+### Add Java classes
 
-### Add BlobWriter class support uploading data to azure blob
+#### Add BlobWriter class support uploading data to azure blob
 
 - Create a new file BlobWriter.java in directory \eventhub-blobwriter\src\main\java\com\contoso\app\trident\
 - Copy the content from the cloned file to the above file.
 
-### Add BlobWriterTopology class
+#### Add BlobWriterTopology class
 
 - Create a new file BlobWriterTopology.java in directory \eventhub-blobwriter\src\main\java\com\contoso\app\trident\
 - Copy the content from the cloned file to the above file.
 
-### Add Block class
+#### Add Block class
 
 - Create a new file Block.java in directory \eventhub-blobwriter\src\main\java\com\contoso\app\trident\
 - Copy the content from the cloned file to the above file.
 
-### Add BlockState class
+#### Add BlockState class
 
 - Create a new file BlockState.java in directory \eventhub-blobwriter\src\main\java\com\contoso\app\trident\
 - Copy the content from the cloned file to the above file.
 
-### Add BlockStateStore class
+#### Add BlockStateStore class
 
 - Create a new file BlockStateStore.java in directory \eventhub-blobwriter\src\main\java\com\contoso\app\trident\
 - Copy the content from the cloned file to the above file.
 
-### Add ByteAggregator class to perform partitionAggregate operation
+#### Add ByteAggregator class to perform partitionAggregate operation
 
 - Create a new file ByteAggregator.java in directory \eventhub-blobwriter\src\main\java\com\contoso\app\trident\
 - Copy the content from the cloned file to the above file.
 
-### Add ConfigProperties class
+#### Add ConfigProperties class
 
 - Create a new file ConfigProperties.java in directory \eventhub-blobwriter\src\main\java\com\contoso\app\trident\
 - Copy the content from the cloned file to the above file.
 
-### Add LogSetting class
+#### Add LogSetting class
 
 - Create a new file LogSetting.java in directory \eventhub-blobwriter\src\main\java\com\contoso\app\trident\
 - Copy the content from the cloned file to the above file.
 
-## Build the project
+### Build the project
 Use the following command to create a JAR package from your project.
 - Start command prompt
 

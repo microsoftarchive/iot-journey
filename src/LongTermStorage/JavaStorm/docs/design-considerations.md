@@ -1,41 +1,14 @@
-# Design Considerations and Technical How-To
+## Design Considerations and Technical How-To
 
-# Requirement Decisions
-## Business Scenario: Store Event Hub Messages to Microsoft Azure Blob
-
-Connected cars send their status (diagnosis code) to event hub along with their locations (latitude and longitude) and time stamp. We want to combine those status information and store them in Microsoft Azure blob.
-
-
-``` java
-class Event
-{
-  string id;
-  double lat;
-  double lng;
-  long time;
-  string code;
-}
-```
-
-and we want to read messages from event hub and store in the event hub like the following:
-
-{"id":"6","lat":-23.0,"lng":-101.0,"time":635592916706898269,"code":"313"}
-
-{"id":"14","lat":-25.0,"lng":-118.0,"time":635592916706898269,"code":"311"}
-
-{"id":"15","lat":24.0,"lng":-58.0,"time":635592916706908297,"code":"327"}
-
-{"id":"979","lat":-13.0,"lng":-110.0,"time":635592916731418392,"code":"326"}
-
-## Batching
+### Batching
 
 If we don’t need batching, we can use regular storm spouts and bots. If we need batching, we should consider using Trident since it is batch based. since we need to group messages in to azure blocks, batching makes sense.
 
-## Dropped messages
+### Dropped messages
 
 If dropped messages is allowed, we can use non-transactional spout, which will not replay when messages processing fails. In that case, some messages will not be stored in Azure blob. If dropped messages is not allowed, we need **at-least-once** scenario of message processing.  We can considering using a transactional or opaque transactional spout, which can replay the messages if messages processing fails.
 
-## Duplicated Messages
+### Duplicated Messages
 
 If we can tolerate duplicated messages to be stored in azure blobs, we can achieve at-least-once scenario with batching or without batching.
 
@@ -43,17 +16,17 @@ If we can tolerate duplicated messages to be stored in azure blobs, we can achie
 
 - at-least-once scenario with batching: We can use transactional or opaque transactional trident spout and don’t need any additional logic to handle the replay. If a transaction fails, the Trident will replay the batch. When processing the replay, some message will be stored in azure blobs again and result in duplication or multiple entry for the same message.
 
-## De-duplication
+### De-duplication
 
 If we use Trident transactional or opaque transactional spout, we can be sure that the state updates ordered among batches (i.e. the state updates for batch 4 won’t be applied until the state updates for batch 3 have succeeded). If the state updates for batch 3 failed, batch 3 will be replayed. However, the replay only guarantees at-least-once scenario. It up to us to implement the de-duplication logic during a replay. To implement that, we need to first figure out whether we are in the replay or not when processing a batch.
 
-## How do we know if we are inside a replay?
+### How do we know if we are inside a replay?
 
 If we are using Trident, we can get the **TransactionId** from **TransactionAttempt** object, which is passed in as an Object in the **Aggregator** init method.  During a replay, the value of TransactionId will be the same as the that of the previous batch.  If we save the previous TransactionId, all we need to do if to compare the current value with the saved value. If the value is the same, we are inside a replay. If there are different, we are inside a fresh new batch.
 
-# Strorm vs Trident
+## Strorm vs Trident
 
-## Should we use a Storm topology or Trident topology?
+### Should we use a Storm topology or Trident topology?
 
 A Storm structure is called topology.  A topology consists of stream of data, spouts that produce the data, and bots that process the data. Storm topologies run forever, until explicitly killed.
 
@@ -61,7 +34,8 @@ Trident is a high-level abstraction on top of Storm. Trident process messages in
 
 Sincne the core business scenario for the reference implementation is to aggregate individual messages into an Azure block, the batching feature provided by Trident makes it a good choice. We can simply aggregate a batch into a block if the batch can fits. If a batch is bigger than the max size of a block, we can split the batch up in to several blocks. The only limitation is that when the batch is smaller than a block, in which case, the block will not be filled up with its max size.
 
-## What are built-in stream groupings in Storm and what kind of grouping are suitable for our scenario?
+### What are built-in stream groupings in Storm and what kind of grouping are suitable for our scenario?
+
 Storm has seven built-in stream groupings:
 
 1. Shuffle grouping
@@ -82,7 +56,8 @@ We need to have all messaged in an event hub partition stored in the same Azure 
 
 However, if we use Trident, the core data model in Trident is the "Stream", processed as a series of batches. A stream is partitioned among the nodes in the cluster, and operations applied to a stream are applied in parallel across each partition. No explicit grouping is needed for partitionID.
 
-## What are Trident the operations and which are suitable for our scenario?
+### What are Trident the operations and which are suitable for our scenario?
+
 There are five kinds of operations in Trident:
 
 1. Partition-local Operations
@@ -97,11 +72,12 @@ There are five kinds of operations in Trident:
 
 We want to messages in each partition to be aggregated and stored in its corresponding Azure blobs. So we should pick the first one: Operations that apply locally to each partition and cause no network transfer.
 
-## What are Partition-local Operations in Trident?
+### What are Partition-local Operations in Trident?
+
 Partition-local operations involve no network transfer and are applied to each batch partition independently. They include **Functions**, **Filters**, and **partitionAggregate (Aggregator)**.
 To support the exactly-once semantics, we need to know whether we are in a replay, whether all the tuples in a batch are processed. We decide to use the most general interface: **Aggregator""
 
-## What is an Trident Aggregator and why it fits our needs?
+### What is an Trident Aggregator and why it fits our needs?
 The most general interface for performing aggregations is Aggregator, which looks like this:
 
 ``` java
@@ -119,9 +95,10 @@ Aggregators can emit any number of tuples with any number of fields. They can em
 
 3.  The complete method is called when all tuples for the batch partition have been processed by aggregate.
 
-# Implementation Detail
+## Implementation Details
 
-## What’s the implementation of ByteAggregator?
+### What’s the implementation of ByteAggregator?
+
 Let's call the aggregator in  the reference implementation ByteAggregator, we can extend the BaseAggregator instead of directly implemenat the Aggregator interface:
 
 ``` java
@@ -170,9 +147,9 @@ Here are the key point of ByteAggregate class:
 
 4. the blockList is persisted in the complete method, which stores partitionid, transactionid, blockname, and blockids to Redis cache. In case next replay, those blocks that are uploaded to Azure storage will be over written to remove the duplication. If next batch is not a replay, the previous uploaded blocks will be permanent.
 
-# Techinical How-To
+## Techinical How-To
 
-## How to create a Storm or Trident project?
+### How to create a Storm or Trident project?
 
 Run
 
@@ -194,19 +171,15 @@ mvn clean package
 
 For Strom topology, add java class for spout, bolt, and topology. In case of a Trident topology, add java class for operations. Add class to build the topology, and press F11 to test locally (in Eclipse) or deploy jar file to a storm headnote.
 
-## How to send event to Event Hub?
-We decided to develop the emulator for send event to event hub based on:
-[Analyzing sensor data with Storm and HBase in HDInsight (Hadoop)](http://azure.microsoft.com/en-us/documentation/articles/hdinsight-storm-sensor-data-analysis/)
+### How to send event to Event Hub?
 
-The following is the GitHub repo for it:
+:construction: **TODO: include a reference to the Simulator** 
 
-[Blackmist/hdinsight-eventhub-example](https://github.com/Blackmist/hdinsight-eventhub-example)
-
-## Is there any existing storm spout for event hub?
+### Is there any existing storm spout for event hub?
 
 Yes. [Analyzing sensor data with Storm and HBase in HDInsight (Hadoop)](http://azure.microsoft.com/en-us/documentation/articles/hdinsight-storm-sensor-data-analysis/) has the sample code for using storm spout for event hub.
 
-## How to use the eventhub spout included in the HDI Storm in your java program?
+### How to use the eventhub spout included in the HDI Storm in your java program?
 Here are the steps:
 
 - Copy the jar file C:\apps\dist\storm-0.9.1.2.1.6.0-2103\examples\eventhubspout\eventhubs-storm-spout-0.9-jar-with-dependencies.jar from the HDI storm head node to your development PC.
@@ -253,12 +226,12 @@ mvn install:install-file -Dfile=eventhubs-storm-spout-0.9-jar-with-dependencies.
 </plugin>
 ```
 
-## Is there an existing implementation of trident transactional spout for event hub?
+### Is there an existing implementation of trident transactional spout for event hub?
 The storm cluster headnode C:\apps\dist\storm-0.9.1.2.1.6.0-2103\examples\eventhubspout\eventhubs-storm-spout-0.9-jar-with-dependencies.jar consists of two trident spout
 -	OpaqueTridentEventHubSpout
 -	TransactionalTridentEventHubSpout
 
-## How many instances of spout should I have?
+### How many instances of spout should I have?
 The number of spout should be equal to the number of event hub partitions.
 
 ```
@@ -266,7 +239,7 @@ EventHubSpoutConfig spoutConfig = new EventHubSpoutConfig(…,eventHubPartitionC
 OpaqueTridentEventHubSpout spout = new OpaqueTridentEventHubSpout(spoutConfig);
 ```
 
-## How to configure the topology so that each partitioned aggregate will read from its corresponding spout?
+### How to configure the topology so that each partitioned aggregate will read from its corresponding spout?
 
 The number of workers (partitioned aggregate) should be equal to the Event Hub Partition Count.
 
@@ -280,15 +253,15 @@ inputStream.parallelismHint(numWorkers).partitionAggregate(new Fields("message")
 
 Currently we automatically assign partitions to tasks depending on task ID. E.g. task 0 receive from partition 0, task 1 receive from partition 1 etc. For trident this is the only supported assignment scheme.
 
-## The event hub has 8 partitions. Can I configure my trident topology to have 8 tasks (instances) of the spout?
+### The event hub has 8 partitions. Can I configure my trident topology to have 8 tasks (instances) of the spout?
 Yes, actually you can only set the number of tasks to a value between 1 to 8 if your event hub have 8 partitions. We recommend set the number of tasks to the number of partitions.
 
-## Can I configure/modify the spout to emit the partition id with each tuple?
+### Can I configure/modify the spout to emit the partition id with each tuple?
 No.  You cannot at this moment.
 
-# Programming Transaction
+## Programming Transaction
 
-## How to get transaction id in trident code?
+### How to get transaction id in trident code?
 You can get the transaction ID in the init method of Aggregator.
 
 ``` java
@@ -300,7 +273,7 @@ public T init(Object batchId, TridentCollector collector) {
 }
 ```
 
-## How to get partition id in trident code?
+### How to get partition id in trident code?
 You can get the partition id in the prepare method of your operation.
 
 ``` java
@@ -312,7 +285,7 @@ public void prepare(Map conf,  TridentOperationContext context)
 }
 ```
 
-## How to cause a replay in trident?
+### How to cause a replay in trident?
 
 Throw FailedException will cause a replay.
 
@@ -322,15 +295,15 @@ catch (Exception e) {
 }
 ```
 
-# Write and append to azure blob
+## Write and append to azure blob
 
-## How to Convert azure blob url to wasb
+### How to Convert azure blob url to wasb
 
 Blob url:  http:// mystorage.blob.core.windows.net/mycontainer/folder/file.txt
 
 WASB:    wasb://mycontainer@mystorage.blob.core.windows.net/folder/file.txt
 
-## How to write to Azure blob in java?
+### How to write to Azure blob in java?
 add pom dependency:
 
 ```
@@ -351,7 +324,7 @@ Java Code:
 ```
 
 
-## Can I use hdfs.append(path) to append to azure blob in a java as shown in the following code?
+### Can I use hdfs.append(path) to append to azure blob in a java as shown in the following code?
 
 
 ``` java
@@ -366,7 +339,7 @@ Java Code:
 
 The above code will not work for the Azure blob. It only works if the path point to HDFS file system
 
-## Any existing bolt that can write/append to azure blob with a given size?
+### Any existing bolt that can write/append to azure blob with a given size?
 
 There is an open source bolt storm-hdfs that can write/append to hdfs:
 -	Git repo: https://github.com/ptgoetz/storm-hdfs
@@ -394,14 +367,14 @@ HdfsBolt bolt = new HdfsBolt()
 However, the sample is for hdfs. For wasb, .withFsUrl("wasb://hanzstorm2@hanzstorage1.blob.core.windows.net/aaastorm2")
 It throws Exception: java.lang.RuntimeException: Error preparing HdfsBolt: No FileSystem for scheme: wasb at org.apache.storm.hdfs.bolt.AbstractHdfsBolt.prepare(AbstractHdfsBolt.java:96) at backtype.storm.daemon.execu
 
-## How do I copy files in hdfs://headnodehost:9000 to local file system in hadoop?
+### How do I copy files in hdfs://headnodehost:9000 to local file system in hadoop?
 
 ```
 Hdfs dfs –fs hdfs://headnodehost:9000 –ls /
 Hdfs dfs –fs hdfs://headnodehost:9000 –copyToLocal /foo/*.txt c:/temp
 ```
 
-## How do I to provision storm cluster with append to hdfs enabled?
+### How do I to provision storm cluster with append to hdfs enabled?
 You cannot use the azure portal to provision an hdinsight cluster with dfs.support.append to true. But you can use powershell to do that:
 
 ```
@@ -441,7 +414,7 @@ $Config = New-AzureHDInsightClusterConfig -ClusterSizeInNodes $NumClusterNodes -
 New-AzureHDInsightCluster -Name $ClusterName -Config $Config -Location $ClusterLocation -Credential $HdInsightCreds -Version $ClusterVersion
 ```
 
-## How to deploy storm topology written in java to azure?
+### How to deploy storm topology written in java to azure?
 
 1.	Create myStormApp.jar file that includes the topology and dependencies
 
@@ -461,8 +434,9 @@ To Stop storm command:
 Storm kill wordcount
 ```
 
-# Logging and Performance Monitoring with Storm
-## How to do performance monitoring in storm?
+## Logging and Performance Monitoring with Storm
+
+### How to do performance monitoring in storm?
 Storm UI provide real time performance result.
 
 1.	Connect to storm head node
@@ -485,7 +459,7 @@ Trident automatically convert your workflow into bolts and spouts
 
 A trident "spout" is actually a storm bolt.
 
-## How do we log in storm?
+### How do we log in storm?
 
 Storm topologies and topology components should use the [slf4j]( http://www.slf4j.org/) API for logging.
 
@@ -506,7 +480,7 @@ Logger logger = (Logger) LoggerFactory.getLogger(MyBolt.class);
 logger.info("My Log String");
 ```
 
-## How to view logs in storm?
+### How to view logs in storm?
 Steps:
 
 1.	Log in to the head node
@@ -521,7 +495,7 @@ Steps:
 
 6.	You should see the log result
 
-## How to disable logging in storm?
+### How to disable logging in storm?
 
 Storm has its own logging. By default, logging is enabled.  
 To disable logging:
@@ -536,8 +510,9 @@ LocalCluster cluster = new LocalCluster();
 cluster.submitTopology("topologyName", conf, builder.createTopology());
 ```
 
-# Use Azure Redis Cache in java
-## How to install and run Redis on windows?
+## Use Azure Redis Cache in java
+
+### How to install and run Redis on windows?
 
 1.	Download [Redis on Windows]( https://github.com/MSOpenTech/redis)
 
@@ -547,7 +522,7 @@ cluster.submitTopology("topologyName", conf, builder.createTopology());
 
 4.	start the program
 
-## How to include Redis jar to maven?
+### How to include Redis jar to maven?
 Add the following dependency to your POM
 
 ```
@@ -558,7 +533,7 @@ Add the following dependency to your POM
 </dependency>
 ```
 
-## How to connect to Azure Redis Cache from java
+### How to connect to Azure Redis Cache from java
 
 - Clone Java’s [Jedis Fork with support to SSL](https://github.com/RedisLabs/jedis)
 
