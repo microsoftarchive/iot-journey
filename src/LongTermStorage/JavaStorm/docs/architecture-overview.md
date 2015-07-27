@@ -1,46 +1,11 @@
-# Architecture Overview
+## Architecture Overview
 
-# Introduction
-
-The scenario used to illustrate an end to end data pipeline is  a vehicle telematics scenario, simulating a large number (target 100k) of vehicles publishing a variety of messages (events) directly onto [Event Hub][eventhubpage].
-
-From there the event streams are read by OpaqueTridentEventHubSpout in batches and stored in to Azure blobs for big data style analytics.  
-
-![architecture diagram](architecture.png "Architecture")
-
-As seen in the diagram above, the Emulator is an **event producer**, while the Event Hub Spout is an  **event consumer**.  As this guidance evolves, additional producers and consumers will be added to the reference implementation (and documentation about engineering choices and tradeoffs).
-
-The scale target of this guidance was to produce (and consume) event streams from 100,000 simulated vehicles, each generating on average one event every 10 seconds (6 events per minute).  
-
-[eventhubpage]: EventHubService.md]
-
-## Emulator (SendEvent Console App)
-
-The Emulator is a c# Console App **SendEvent** that acts as an event producer to enable you to generate a stream of events that are sent to your Event Hub from a set of simulated devices (cars).
-
-The Configuration for SendEvent Console App is set in the file Program.cs
-
-``` C#
-static int numberOfDevices = 1000;
-static string eventHubName = "[YourEventHubName]";
-static string eventHubNamespace = "[YourServiceBusNamespaces]";
-static string sharedAccessPolicyName = "devices";
-static string sharedAccessPolicyKey = "[YoursharedAccessPolicyKey]";
-static string eventHubConnectionStr = "Endpoint=sb://[eventHubNamespace].servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=[YourSharedAccessKey]";
-
-```
-
-## Event Hub
-
-Microsoft Azure Service Bus Event Hub is an event ingestor service that provides event and telemetry ingress to the cloud at massive scale, with low latency and high reliability. In this solution, the **SendEvent**  Console app is the event producer that generate events and deliver them to the Event Hub service. This solution include downstream storm/trident topology  that act as event consumer.
-
-When you configure the Event Hub service, you specify a namespace and the number of partitions to use. For more information about how this solution uses Event Hub, see the page [Event Hub][eventhubpage].
-
-## Storm/Trident Topology
+### Storm/Trident Topology
 
 Storm/Trident Topology is an event consumer that receive events from the Event Hub service in batches. The topology is implemented in Java. The topology consisits of two parts: an Event Hub Spout called OpaqueTridentEventHubSpout and and a Trident partitionAggregate called  ByteAggregator.
 
-## OpaqueTridentEventHubSpout
+### OpaqueTridentEventHubSpout
+
 **OpaqueTridentEventHubSpout** is one of the many storm/trident spouts in *eventhubs-storm-spout-0.9-jar-with-dependencies.jar* which is shipped with HDInsight Storm. As the name suggested, the spout is an Opaque Trident Spout which reads the messages from event hub, and can replay the messages if the downstream processors fail so that the message will be processed at least once.
 
 The Configuration for Event Hub Spout is set in the file Config.properties
