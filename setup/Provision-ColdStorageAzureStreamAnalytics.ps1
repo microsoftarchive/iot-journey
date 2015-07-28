@@ -56,7 +56,7 @@ Param
 
     
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][ValidateScript({ Test-FileName "JobDefinitionPath" $_})]
-        [String]$JobDefinitionPath = "StreamAnalyticsJobDefinitionColdStorage.json"
+    [String]$JobDefinitionPath = "..\src\LongTermStorage\AzureStreamAnalytics\StreamAnalyticsJobDefinitionColdStorage.json"
 
 )
 PROCESS
@@ -84,6 +84,8 @@ PROCESS
         Add-AzureAccount
     }
 
+    Select-AzureSubscription $SubscriptionName
+
     Provision-StorageAccount -StorageAccountName $StorageAccountName `
                                              -ContainerName $ContainerName `
                                              -Location $Location
@@ -107,18 +109,18 @@ PROCESS
     $storageAccountKey = Get-AzureStorageKey -StorageAccountName $StorageAccountName
     $storageAccountKeyPrimary = $storageAccountKey.Primary
 
-	    # Create Job Definition
-        [string]$JobDefinitionText = (Get-Content -LiteralPath $JobDefinitionPath).
-                                        Replace("_StreamAnalyticsJobName",$StreamAnalyticsJobName).
-                                        Replace("_Location",$Location).
-                                        Replace("_ConsumerGroupName",$ConsumerGroupName).
-                                        Replace("_EventHubName",$EventHubName).
-                                        Replace("_ServiceBusNamespace",$ServiceBusNamespace).
-                                        Replace("_EventHubSharedAccessPolicyName",$EventHubSharedAccessPolicyName).
-                                        Replace("_EventHubSharedAccessPolicyKey",$EventHubSharedAccessPolicyKey).
-                                        Replace("_AccountName",$StorageAccountName).
-                                        Replace("_AccountKey",$storageAccountKeyPrimary).
-                                        Replace("_Container",$ContainerName)
+	# Create Job Definition
+    [string]$JobDefinitionText = (Get-Content -LiteralPath (Join-Path $PSScriptRoot -ChildPath $JobDefinitionPath)).
+                                    Replace("_StreamAnalyticsJobName",$StreamAnalyticsJobName).
+                                    Replace("_Location",$Location).
+                                    Replace("_ConsumerGroupName",$ConsumerGroupName).
+                                    Replace("_EventHubName",$EventHubName).
+                                    Replace("_ServiceBusNamespace",$ServiceBusNamespace).
+                                    Replace("_EventHubSharedAccessPolicyName",$EventHubSharedAccessPolicyName).
+                                    Replace("_EventHubSharedAccessPolicyKey",$EventHubSharedAccessPolicyKey).
+                                    Replace("_AccountName",$StorageAccountName).
+                                    Replace("_AccountKey",$storageAccountKeyPrimary).
+                                    Replace("_Container",$ContainerName)
 
     Provision-StreamAnalyticsJob -ServiceBusNamespace $ServiceBusNamespace `
                                             -EventHubName $EventHubName `
