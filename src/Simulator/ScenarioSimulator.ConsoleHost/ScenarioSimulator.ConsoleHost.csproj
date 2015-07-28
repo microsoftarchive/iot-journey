@@ -67,6 +67,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\ScenarioSimulator.ConsoleHost.config">
+      <Link>ScenarioSimulator.ConsoleHost.config</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="App.config" />
     <None Include="packages.config">
       <SubType>Designer</SubType>
@@ -74,9 +78,6 @@
     <Content Include="WebJob.cmd">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <None Include="ScenarioSimulator.ConsoleHost.config">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Shared\Core\Core.csproj">
@@ -94,6 +95,6 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="BeforeBuild">
-    <Error Condition=" '$(CIBuild)' == '' AND !Exists('..\ScenarioSimulator.ConsoleHost\ScenarioSimulator.ConsoleHost.config')" Text="Before building this project, please copy ScenarioSimulator.ConsoleHost.Template.config to ScenarioSimulator.ConsoleHost.config (under the &quot;$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)'))&quot; directory) and replace the placeholders in the copy with your configuration information." />
+    <Error Condition=" '$(CIBuild)' == '' AND !Exists('..\ScenarioSimulator.ConsoleHost.config')" Text="Before building this project, please copy ScenarioSimulator.ConsoleHost.Template.config to ScenarioSimulator.ConsoleHost.config (under the &quot;$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)/../'))&quot; directory) and replace the placeholders in the copy with your configuration information." />
   </Target>
 </Project>

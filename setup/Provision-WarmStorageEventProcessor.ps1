@@ -56,11 +56,11 @@ PROCESS
         'Simulator.EventHubTokenLifetimeDays' = ($EventHubInfo.EventHubTokenLifetimeDays -as [string]);
     }
 
-    Write-SettingsFile -configurationTemplateFile (Join-Path $PSScriptRoot -ChildPath "..\src\Simulator\ScenarioSimulator.ConsoleHost\ScenarioSimulator.ConsoleHost.Template.config") `
-                       -configurationFile (Join-Path $PSScriptRoot -ChildPath "..\src\Simulator\ScenarioSimulator.ConsoleHost\ScenarioSimulator.ConsoleHost.config") `
+    Write-SettingsFile -configurationTemplateFile (Join-Path $PSScriptRoot -ChildPath "..\src\Simulator\ScenarioSimulator.ConsoleHost.Template.config") `
+                       -configurationFile (Join-Path $PSScriptRoot -ChildPath "..\src\Simulator\ScenarioSimulator.ConsoleHost.config") `
                        -appSettings $simulatorSettings
         
-    $EventHubConnectionString = $EventHubInfo.ConnectionString + ";TransportType=Amqp"
+    $EventHubConnectionString = $EventHubInfo.ConnectionStringFix + ";TransportType=Amqp"
     $StorageAccountConnectionString = "DefaultEndpointsProtocol=https;AccountName={0};AccountKey={1}" -f $StorageAccountInfo.AccountName, $StorageAccountInfo.AccountKey
 
     $settings = @{
@@ -70,8 +70,8 @@ PROCESS
         'Warmstorage.ConsumerGroupName' = $ConsumerGroupName;
     }
 
-    Write-SettingsFile -configurationTemplateFile (Join-Path $PSScriptRoot -ChildPath "..\src\AdhocExploration\DotnetEventProcessor\WarmStorage.EventProcessor.ConsoleHost\WarmStorage.EventProcessor.ConsoleHost.Template.config") `
-                       -configurationFile (Join-Path $PSScriptRoot -ChildPath "..\src\AdhocExploration\DotnetEventProcessor\WarmStorage.EventProcessor.ConsoleHost\WarmStorage.EventProcessor.ConsoleHost.config") `
+    Write-SettingsFile -configurationTemplateFile (Join-Path $PSScriptRoot -ChildPath "..\src\AdhocExploration\DotnetEventProcessor\WarmStorage.EventProcessor.ConsoleHost.Template.config") `
+                       -configurationFile (Join-Path $PSScriptRoot -ChildPath "..\src\AdhocExploration\DotnetEventProcessor\WarmStorage.EventProcessor.ConsoleHost.config") `
                        -appSettings $settings
 
 

@@ -91,11 +91,12 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
-    <None Include="packages.config" />
-    <None Include="WarmStorage.EventProcessor.ConsoleHost.config">
+    <None Include="..\WarmStorage.EventProcessor.ConsoleHost.config">
+      <Link>WarmStorage.EventProcessor.ConsoleHost.config</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="App.config" />
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\Shared\Core\Core.csproj">
@@ -113,7 +114,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="BeforeBuild">
-    <Error Condition=" '$(CIBuild)' == '' AND !Exists('..\WarmStorage.EventProcessor.ConsoleHost\WarmStorage.EventProcessor.ConsoleHost.config')" Text="Before building this project, please copy WarmStorage.EventProcessor.ConsoleHost.Template.config to WarmStorage.EventProcessor.ConsoleHost.config (under the &quot;$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)'))&quot; directory) and replace the placeholders in the copy with your configuration information." />
+    <Error Condition=" '$(CIBuild)' == '' AND !Exists('..\WarmStorage.EventProcessor.ConsoleHost.config')" Text="Before building this project, please copy WarmStorage.EventProcessor.ConsoleHost.Template.config to WarmStorage.EventProcessor.ConsoleHost.config (under the &quot;$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)/../'))&quot; directory) and replace the placeholders in the copy with your configuration information." />
   </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
