@@ -24,7 +24,18 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
 
         public TimeSpan WarmUpDuration { get; set; }
 
-        public EventLevel EventLevel { get; set; }
+        private EventLevel _eventLevel;
+        public EventLevel GetLogLevel()
+        {
+            const string Key = "IOT_LOGLEVEL";
+            object logLevel = Environment.GetEnvironmentVariable(Key);
+            if (logLevel != null)
+            {
+                _eventLevel = ConfigurationHelper.ConvertValue<EventLevel>(Key, logLevel);
+            }
+
+            return _eventLevel;
+        }
 
         public static SimulatorConfiguration GetCurrentConfiguration()
         {
@@ -38,7 +49,7 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
                 EventHubPrimaryKey = ConfigurationHelper.GetConfigValue<string>("Simulator.EventHubPrimaryKey"),
                 EventHubTokenLifetimeDays = ConfigurationHelper.GetConfigValue<int>("Simulator.EventHubTokenLifetimeDays", 7),
                 WarmUpDuration = ConfigurationHelper.GetConfigValue("Simulator.WarmUpDuration", TimeSpan.FromSeconds(30)),
-                EventLevel = ConfigurationHelper.GetConfigValue<EventLevel>("Simulator.LogLevel", EventLevel.Informational)
+                _eventLevel = ConfigurationHelper.GetConfigValue<EventLevel>("Simulator.LogLevel", EventLevel.Informational)
             };
         }
 
