@@ -61,9 +61,9 @@ Param
 (
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $True)][string]$SubscriptionName,
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $True)][String]$ApplicationName,
-	[ValidateNotNullOrEmpty()][Parameter (Mandatory = $True)][bool]$AddAccount,
+	[ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][bool]$AddAccount = $True,
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$StorageAccountName =$ApplicationName,
-    [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$ContainerName = "blobs-asa",
+    [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$ContainerName = "warm-asa",
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$EventHubName = "eventhub-iot",
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$EventHubSharedAccessPolicyName = "ManagePolicy",
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$Location = "Central US",

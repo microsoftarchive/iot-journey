@@ -3,8 +3,9 @@ Param
 (
 	[ValidateNotNullOrEmpty()][Parameter (Mandatory = $True)][string]$SubscriptionName,
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $True)][String]$ApplicationName,
-	[ValidateNotNullOrEmpty()][Parameter (Mandatory = $True)][bool]$AddAccount,
+	[ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][bool]$AddAccount =$True,
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$StorageAccountName =$ApplicationName,
+    [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$ContainerName = "warm-processor",
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$ServiceBusNamespace = $ApplicationName,
 	[ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$EventHubName = "eventhub-iot",                  
 	[ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$ConsumerGroupName  = "cg-elasticsearch", 
@@ -46,6 +47,19 @@ PROCESS
                                     -Location $Location `
                                     -PartitionCount 16 `
                                     -MessageRetentionInDays 7 `
+
+    # Get Storage Account Key
+    $storageAccountKey = Get-AzureStorageKey -StorageAccountName $StorageAccountName
+    $storageAccountKeyPrimary = $storageAccountKey.Primary
+    $RefdataContainerName = $ContainerName + "-refdata"
+        
+    $context = New-AzureStorageContext -StorageAccountName $StorageAccountName -StorageAccountKey $storageAccountKeyPrimary;
+
+    New-StorageContainerIfNotExists -ContainerName $RefdataContainerName `
+                                    -Context $context
+
+    Upload-ReferenceData -StorageAccountName $StorageAccountName -ContainerName $RefdataContainerName
+
     # Update settings
 
     $simulatorSettings = @{
