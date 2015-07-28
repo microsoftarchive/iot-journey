@@ -2,7 +2,7 @@
 
 # Steps
 
-> Note: These steps are a brief overview. For detailed instructions on building and provisioning the sample solution, see ![Building and Running the IoT Sample Solution](building-and-deploying-the-sample-solution.md)
+> Note: These steps are a brief overview. For detailed instructions on building and provisioning the sample solution, see ![Building and Running the IoT Sample Solution](/docs/building-and-deploying-the-sample-solution.md)
 
 1. Build the solution to download the Nuget packages (the build process will report that the file mysettings.config is missing).
 
