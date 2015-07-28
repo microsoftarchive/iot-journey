@@ -13,13 +13,13 @@ namespace Microsoft.Practices.IoTJourney.ColdStorage.EventProcessor.Tests
         public static CloudStorageAccount GetStorageAccount()
         {
             CloudStorageAccount storageAccount;
-            var connectionString = ConfigurationManager.AppSettings["ColdStorage.Tests.StorageConnectionString"];
+            var connectionString = ConfigurationManager.AppSettings["Coldstorage.Tests.StorageConnectionString"];
             if (string.IsNullOrEmpty(connectionString)
                 || connectionString.Contains("YourStorageAccountName")
                 || !CloudStorageAccount.TryParse(connectionString, out storageAccount))
             {
                 throw new ConfigurationErrorsException(
-                    "Ensure the app setting with key 'ColdStorage.Tests.StorageConnectionString' has a valid storage connection string as its value in the mysettings.config file. It must be set in order to run integration tests.");
+                    "Ensure the app setting with key 'Coldstorage.Tests.StorageConnectionString' has a valid storage connection string as its value in the ColdStorage.EventProcessor.ConsoleHost.config file. It must be set in order to run integration tests.");
             }
 
             return storageAccount;

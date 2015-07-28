@@ -3,7 +3,7 @@ Param
 (
 	[ValidateNotNullOrEmpty()][Parameter (Mandatory = $True)][string]$SubscriptionName,
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $True)][String]$ApplicationName,
-	[ValidateNotNullOrEmpty()][Parameter (Mandatory = $True)][bool]$AddAccount,
+	[ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][bool]$AddAccount = $True,
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$StorageAccountName =$ApplicationName,
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$ContainerName = "hdinsight",
     [ValidateNotNullOrEmpty()][Parameter (Mandatory=$False)][string]$ClusterName =$ApplicationName,
