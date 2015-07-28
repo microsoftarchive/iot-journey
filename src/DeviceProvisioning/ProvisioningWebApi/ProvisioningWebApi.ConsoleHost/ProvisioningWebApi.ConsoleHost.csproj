@@ -68,6 +68,7 @@
     <None Include="settings.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="settings.template.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\Shared\Core\Core.csproj">

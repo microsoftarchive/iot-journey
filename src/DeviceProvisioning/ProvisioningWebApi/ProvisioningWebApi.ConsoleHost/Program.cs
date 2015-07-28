@@ -7,6 +7,7 @@ using Microsoft.ServiceBus;
 using Microsoft.ServiceBus.Messaging;
 using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading;
@@ -18,13 +19,16 @@ namespace ProvisioningWebApi.ConsoleHost
     internal class Program
     {
         private static string DEVICE_ID = Guid.NewGuid().ToString();
+        private static string ConnectionString = "";
 
         private static void Main(string[] args)
         {
             CommonConsoleHost.RunWithOptionsAsync(new Dictionary<string, Func<CancellationToken, Task>>
             {
-                { "Register a device", RegisterDeviceAsync },
-                { "Provision a device", ProvisionDeviceAsync }
+                { "Register device", RegisterDeviceAsync },
+                { "Provision device", ProvisionDeviceAsync },
+                { "Send test message", SendTestMessage },
+                { "Revoke device", RevokeDeviceAsync }
             }).Wait();
         }
 
@@ -40,6 +44,8 @@ namespace ProvisioningWebApi.ConsoleHost
                 Building = 1,
                 Room = 42
             };
+
+            Console.WriteLine("Registering device ID = {0}", DEVICE_ID);
 
             var result = await client.PutAsJsonAsync("api/registry/" + DEVICE_ID, metadata, token);
             Console.WriteLine("{0} ({1})", (int)result.StatusCode, result.ReasonPhrase);
@@ -57,12 +63,9 @@ namespace ProvisioningWebApi.ConsoleHost
             HttpClient client = new HttpClient();
             client.BaseAddress = new Uri(baseUrl);
 
-            var device = new Device
-            {
-                DeviceId = DEVICE_ID
-            };
+            string urlPath = String.Format("api/devices/{0}/provision", DEVICE_ID);
 
-            var result = await client.PostAsJsonAsync("api/provision", device, token);
+            var result = await client.PostAsync(urlPath, null, token);
             Console.WriteLine("{0} ({1})", (int)result.StatusCode, result.ReasonPhrase);
             if (result.IsSuccessStatusCode)
             {
@@ -71,19 +74,52 @@ namespace ProvisioningWebApi.ConsoleHost
                 Console.WriteLine("Endpoint: {0}", endpoint.Uri);
                 Console.WriteLine("AccessToken: {0}", endpoint.AccessToken);
 
-                var connectionString = ServiceBusConnectionStringBuilder.CreateUsingSharedAccessSignature(
+                ConnectionString = ServiceBusConnectionStringBuilder.CreateUsingSharedAccessSignature(
                                         new Uri(endpoint.Uri),
                                         endpoint.EventHubName,
-                                        device.DeviceId,
+                                        DEVICE_ID,
                                         endpoint.AccessToken
                                   );
-
-                var sender = EventHubSender.CreateFromConnectionString(connectionString);
-
-                sender.Send(new EventData(Encoding.UTF8.GetBytes("Hello Event Hub")));
-
-                Console.WriteLine("Wrote data to event hub");
             }
+            else if (result.StatusCode == HttpStatusCode.NotFound)
+            {
+                Console.WriteLine("You must register the device first.");
+            }
+        }
+
+        private static async Task RevokeDeviceAsync(CancellationToken token)
+        {
+            string baseUrl = ConfigurationHelper.GetConfigValue<string>("WebApiEndpoint");
+
+            HttpClient client = new HttpClient();
+            client.BaseAddress = new Uri(baseUrl);
+
+            string urlPath = String.Format("api/devices/{0}/revoke", DEVICE_ID);
+
+            var result = await client.PostAsync(urlPath, null, token);
+            Console.WriteLine("{0} ({1})", (int)result.StatusCode, result.ReasonPhrase);
+        }
+
+        private static Task SendTestMessage(CancellationToken token)
+        {
+            if (String.IsNullOrEmpty(ConnectionString))
+            {
+                Console.WriteLine("You must provision the device first.");
+            }
+            else
+            {
+                try
+                {
+                    var sender = EventHubSender.CreateFromConnectionString(ConnectionString);
+                    sender.Send(new EventData(Encoding.UTF8.GetBytes("Hello Event Hub")));
+                    Console.WriteLine("Wrote data to event hub");
+                }
+                catch (Microsoft.ServiceBus.Messaging.PublisherRevokedException)
+                {
+                    Console.WriteLine("The device was revoked. You must provision the device again.");
+                }
+            }
+            return Task.FromResult(0);
         }
     }
 }

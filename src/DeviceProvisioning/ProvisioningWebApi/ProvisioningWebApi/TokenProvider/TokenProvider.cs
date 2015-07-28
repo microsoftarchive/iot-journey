@@ -13,6 +13,7 @@ namespace DeviceProvisioning.AccessTokens
         private string EventHubPrimaryKey;
         private string EventHubNamespace;
         private string EventHubSasKeyName;
+        private string EventHubConnectionString;
         private double EventHubTokenLifetimeDays = 10;
 
         public TokenProvider()
@@ -21,6 +22,7 @@ namespace DeviceProvisioning.AccessTokens
             EventHubNamespace = ConfigurationHelper.GetConfigValue<string>("EventHubNamespace");
             EventHubName = ConfigurationHelper.GetConfigValue<string>("EventHubName");
             EventHubSasKeyName = ConfigurationHelper.GetConfigValue<string>("EventHubSasKeyName");
+            EventHubConnectionString = ConfigurationHelper.GetConfigValue<string>("EventHubConnectionString");
             EndpointUri = new Uri(String.Format("https://{0}.servicebus.windows.net", EventHubNamespace));
         }
 
@@ -44,6 +46,18 @@ namespace DeviceProvisioning.AccessTokens
             );
 
             return Task.FromResult(deviceToken);
+        }
+
+        public Task RevokeDeviceAsync(string DeviceId)
+        {
+            var nsm = NamespaceManager.CreateFromConnectionString(EventHubConnectionString);
+            return nsm.RevokePublisherAsync(EventHubName, DeviceId);
+        }
+
+        public Task RestoreDeviceAsync(string DeviceId)
+        {
+            var nsm = NamespaceManager.CreateFromConnectionString(EventHubConnectionString);
+            return nsm.RestorePublisherAsync(EventHubName, DeviceId);
         }
     }
 }
