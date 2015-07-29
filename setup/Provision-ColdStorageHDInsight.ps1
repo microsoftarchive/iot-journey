@@ -29,6 +29,8 @@ PROCESS
         Add-AzureAccount
     }
 
+    Select-AzureSubscription $SubscriptionName
+
     $StorageAccountInfo = Provision-StorageAccount -StorageAccountName $StorageAccountName `
                                              -ContainerName $ContainerName `
                                              -Location $Location

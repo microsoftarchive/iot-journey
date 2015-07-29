@@ -19,6 +19,7 @@ PROCESS
     Load-Module -ModuleName Validation -ModuleLocation .\modules
 
     # Validate input.
+    Test-OnlyLettersAndNumbers "StorageAccountName" $StorageAccountName
     Test-OnlyLettersNumbersAndHyphens "ConsumerGroupName" $ConsumerGroupName
     Test-OnlyLettersNumbersHyphensPeriodsAndUnderscores "EventHubName" $EventHubName
     Test-OnlyLettersNumbersAndHyphens "ServiceBusNamespace" $ServiceBusNamespace
@@ -35,6 +36,8 @@ PROCESS
     {
         Add-AzureAccount
     }
+
+    Select-AzureSubscription $SubscriptionName
 
     $StorageAccountInfo = Provision-StorageAccount -StorageAccountName $StorageAccountName `
                                                    -Location $Location
