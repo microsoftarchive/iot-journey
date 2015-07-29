@@ -77,7 +77,7 @@ Param
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$StreamAnalyticsSqlJobName = $ApplicationName+"ToSQL",
 
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][ValidateScript({ Test-FileName "JobDefinitionPath" $_})]
-        [String]$JobDefinitionPath = "StreamAnalyticsJobDefinitionSQL.json"
+    [String]$JobDefinitionPath = "..\src\LongTermStorage\AzureStreamAnalytics\StreamAnalyticsJobDefinitionSQL.json"
 )
 PROCESS
 {
@@ -105,6 +105,8 @@ PROCESS
     {
         Add-AzureAccount
     }
+
+    Select-AzureSubscription $SubscriptionName
 
     Provision-StorageAccount -StorageAccountName $StorageAccountName `
                                              -ContainerName $ContainerName `
@@ -155,7 +157,7 @@ PROCESS
         $storageAccountKeyPrimary = $storageAccountKey.Primary
 
         # Create SQL Job Definition
-        [string]$JobDefinitionText = (Get-Content -LiteralPath $JobDefinitionPath).
+        [string]$JobDefinitionText = (Get-Content -LiteralPath (Join-Path $PSScriptRoot -ChildPath $JobDefinitionPath)).
                                     Replace("_StreamAnalyticsJobName",$StreamAnalyticsSQLJobName).
                                     Replace("_Location",$Location).
                                     Replace("_ConsumerGroupName",$ConsumerGroupName).
