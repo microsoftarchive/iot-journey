@@ -82,6 +82,24 @@ function New-StorageContainerIfNotExists
     }
 }
 
+function Set-BlobData
+{
+    [CmdletBinding()]
+    param
+    (
+        [ValidateNotNullOrEmpty()][Parameter (Mandatory = $True)][String]$StorageAccountName,
+        [ValidateNotNullOrEmpty()][Parameter (Mandatory = $True)][String]$ContainerName,
+        [ValidateNotNullOrEmpty()][Parameter (Mandatory = $True)][String]$BlobName,
+        [ValidateNotNullOrEmpty()][Parameter (Mandatory = $True)][String]$FilePath
+    )
+    PROCESS
+    {
+        $key = Get-AzureStorageKey -StorageAccountName $StorageAccountName
+        $context = New-AzureStorageContext -StorageAccountName $StorageAccountName -StorageAccountKey $key.Primary;
+        Set-AzureStorageBlobContent -Blob $BlobName -Container $ContainerName -File $FilePath -Context $context -Force
+    }
+}
+
 #private
 
 function New-StorageAccountIfNotExists
@@ -112,3 +130,4 @@ function New-StorageAccountIfNotExists
 
 Export-ModuleMember Provision-StorageAccount
 Export-ModuleMember New-StorageContainerIfNotExists
+Export-ModuleMember Set-BlobData

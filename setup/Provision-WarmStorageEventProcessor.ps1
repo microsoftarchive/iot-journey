@@ -58,7 +58,10 @@ PROCESS
     New-StorageContainerIfNotExists -ContainerName $RefdataContainerName `
                                     -Context $context
 
-    Upload-ReferenceData -StorageAccountName $StorageAccountName -ContainerName $RefdataContainerName
+    Set-BlobData -StorageAccountName $StorageAccountName `
+                     -ContainerName $RefdataContainerName `
+                     -BlobName "fabrikam/buildingdevice.json" `
+                     -FilePath ".\data\fabrikam_buildingdevice.json"
 
     # Update settings
 
