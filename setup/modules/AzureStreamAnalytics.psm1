@@ -41,22 +41,6 @@ function Provision-StreamAnalyticsJob
     }
 }
 
-function Upload-ReferenceData
-{
-    [CmdletBinding()]
-    param
-    (
-        [ValidateNotNullOrEmpty()][Parameter (Mandatory = $True)][String]$StorageAccountName,
-        [ValidateNotNullOrEmpty()][Parameter (Mandatory = $True)][String]$ContainerName
-    )
-    PROCESS
-    {
-        $key = Get-AzureStorageKey -StorageAccountName $StorageAccountName
-        $context = New-AzureStorageContext -StorageAccountName $StorageAccountName -StorageAccountKey $key.Primary;
-        Set-AzureStorageBlobContent -Blob fabrikam/buildingdevice.json -Container $ContainerName -File .\fabrikam_buildingdevice.json -Context $context -Force
-    }
-}
-
 # private
 
 function New-StreamAnalyticsJobFromDefinition
@@ -89,4 +73,3 @@ function New-StreamAnalyticsJobFromDefinition
 }
 
 Export-ModuleMember Provision-StreamAnalyticsJob
-Export-ModuleMember Upload-ReferenceData
