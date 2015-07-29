@@ -30,7 +30,7 @@ Param
 	[string] $clusterName,
 
     [string] $containerName = "blobs-processor",
-	[string] $directoryName = "fabrikam"
+	[string] $directoryName = "pnp-iotjourney"
 )
 
 Add-AzureAccount
