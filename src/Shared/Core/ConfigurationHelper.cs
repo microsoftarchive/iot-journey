@@ -5,7 +5,6 @@ using System;
 using System.Configuration;
 using System.Data.SqlClient;
 using System.Linq;
-using Microsoft.WindowsAzure.ServiceRuntime;
 using Microsoft.WindowsAzure.Storage;
 
 namespace Microsoft.Practices.IoTJourney
@@ -32,19 +31,6 @@ namespace Microsoft.Practices.IoTJourney
         public static string GetConnectionString(string key)
         {
             string connectionString = String.Empty;
-            if (TryGetAzureConfigValue<string>(key, out connectionString))
-            {
-                try
-                {
-                    // Force parsing of the connection string
-                    new SqlConnectionStringBuilder(connectionString);
-                    return connectionString;
-                }
-                catch (Exception)
-                {
-                    throw new ArgumentException("Connection string " + connectionString + " is not valid");
-                }
-            }
 
             if (TryGetAppConnectionString(key, out connectionString))
                 return connectionString;
@@ -90,8 +76,6 @@ namespace Microsoft.Practices.IoTJourney
         /// </summary>
         public static bool TryGetConfigValue<T>(string key, out T val)
         {
-            if (TryGetAzureConfigValue<T>(key, out val))
-                return true;
             if (TryGetAppConfigValue<T>(key, out val))
                 return true;
             return false;
@@ -103,8 +87,7 @@ namespace Microsoft.Practices.IoTJourney
         public static T GetConfigValue<T>(string key)
         {
             var ret = default(T);
-            if (TryGetAzureConfigValue<T>(key, out ret))
-                return ret;
+
             if (TryGetAppConfigValue<T>(key, out ret))
                 return ret;
             throw new ArgumentException("Could not lookup configuration value " + key + " as type " + typeof(T).Name);
@@ -116,8 +99,7 @@ namespace Microsoft.Practices.IoTJourney
         public static T GetConfigValue<T>(string key, T def)
         {
             var ret = default(T);
-            if (TryGetAzureConfigValue<T>(key, out ret))
-                return ret;
+
             if (TryGetAppConfigValue<T>(key, out ret))
                 return ret;
             return def;
@@ -129,17 +111,6 @@ namespace Microsoft.Practices.IoTJourney
                 (def == null) ? string.Empty : def.ToString());
             object ret = ConvertValue(type, key, strValue);
             return ret;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        internal static T GetAzureConfigValue<T>(string key)
-        {
-            var ret = default(T);
-            if (TryGetAzureConfigValue<T>(key, out ret))
-                return ret;
-            throw new ArgumentException("Could not lookup Azure configuration value " + key + " as type " + typeof(T).Name);
         }
 
         /// <summary>
@@ -161,40 +132,6 @@ namespace Microsoft.Practices.IoTJourney
             return CloudStorageAccount.Parse(accountInfo);
         }
 
-        /// <summary>
-        /// If the Azure role environment is available, attempt to get the configuration
-        /// value from the role configuration as the given type
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="key"></param>
-        /// <param name="val"></param>
-        /// <returns></returns>
-        public static bool TryGetAzureConfigValue<T>(string key, out T val)
-        {
-            val = default(T);
-            try
-            {
-                if (!RoleEnvironment.IsAvailable)
-                    return false;
-                object strValue = RoleEnvironment.GetConfigurationSettingValue(key);
-                val = ConvertValue<T>(key, strValue);
-
-                return true;
-            }
-            catch (RoleEnvironmentException)
-            {
-                // When the trace destination is being looked up from configuration settings for the
-                // azure trace listener _trace may yet be invalid
-                System.Diagnostics.Trace.WriteLine(String.Format(
-                    "The requested key {0} does not exist in Azure role configuration", key));
-                return false;
-            }
-            catch (Exception)
-            {
-                return false;
-            }
-        }
-  
         /// <summary>
         /// Attempt to get the given configuration value from the .NET (app.config / web.config)
         /// setting as the given type
@@ -324,14 +261,8 @@ namespace Microsoft.Practices.IoTJourney
         {
             get
             {
-                if (RoleEnvironment.IsAvailable)
-                {
-                    return RoleEnvironment.DeploymentId;
-                }
-                else
-                {
-                    return "NON-AZURE";
-                }
+                // TODO: Add a task to see if it's a webjob deployment id - for scaling. If not remove.
+                return "NON-AZURE";
             }
         }
 
@@ -342,14 +273,8 @@ namespace Microsoft.Practices.IoTJourney
         {
             get
             {
-                if (RoleEnvironment.IsAvailable)
-                {
-                    return RoleEnvironment.CurrentRoleInstance.Id;
-                }
-                else
-                {
-                    return System.Net.Dns.GetHostName();
-                }
+                // TODO: Add a task to see if it's a webjob SourceName - for scaling. If not remove.
+                return System.Net.Dns.GetHostName();
             }
         }
 
@@ -357,14 +282,8 @@ namespace Microsoft.Practices.IoTJourney
         {
             get
             {
-                if (RoleEnvironment.IsAvailable)
-                {
-                    return RoleEnvironment.CurrentRoleInstance.Role.Name;
-                }
-                else
-                {
-                    return "NOTCLOUD";
-                }
+                // TODO: Add a task to see if it's a webjob RoleName - for scaling. If not remove.
+                return "NOTCLOUD";
             }
         }
 
@@ -372,20 +291,8 @@ namespace Microsoft.Practices.IoTJourney
         {
             get
             {
-                if (RoleEnvironment.IsAvailable)
-                {
-                    var id = RoleEnvironment.CurrentRoleInstance.Role.Instances.IndexOf(
-                        RoleEnvironment.CurrentRoleInstance.Role.Instances.FirstOrDefault(
-                            e => e.Id == RoleEnvironment.CurrentRoleInstance.Id));
-                    if (id < 0)
-                        return 0;
-                    else
-                        return id;
-                }
-                else
-                {
-                    return 0;
-                }
+                // TODO: Add a task to see if it's a webjob InstanceIndex - for scaling. If not remove.
+                return 0;
             }
         }
 
@@ -393,19 +300,8 @@ namespace Microsoft.Practices.IoTJourney
         {
             get
             {
-                if (RoleEnvironment.IsAvailable)
-                {
-                    var id = RoleEnvironment.CurrentRoleInstance.Id;
-                    var lastIndex = id.LastIndexOf(".", StringComparison.InvariantCulture);
-                    if (lastIndex > -1)
-                        return id.Substring(lastIndex + 1);
-                    else
-                        return "NOTCLOUD";
-                }
-                else
-                {
-                    return "NOTCLOUD";
-                }
+                // TODO: Add a task to see if it's a webjob SourceName - for scaling. If not remove.
+                return "NOTCLOUD";
             }
         }
 
@@ -414,28 +310,21 @@ namespace Microsoft.Practices.IoTJourney
         /// </summary>
         public static string GetStorageDirectory(string name)
         {
-            if (RoleEnvironment.IsAvailable)
-            {
-                var res = RoleEnvironment.GetLocalResource(name);
-                return res.RootPath;
-            }
-            else
-            {
-                var path = System.IO.Path.GetTempPath();
+            // TODO: Add a task for webjob Storage Directory - for scaling. If not remove.
+            var path = System.IO.Path.GetTempPath();
 
-                try
+            try
+            {
+                var fullPath = System.IO.Path.Combine(path, name);
+                if (!System.IO.Directory.Exists(fullPath))
                 {
-                    var fullPath = System.IO.Path.Combine(path, name);
-                    if (!System.IO.Directory.Exists(fullPath))
-                    {
-                        var dirInfo = System.IO.Directory.CreateDirectory(fullPath);
-                        return dirInfo.FullName;
-                    }
+                    var dirInfo = System.IO.Directory.CreateDirectory(fullPath);
+                    return dirInfo.FullName;
                 }
-                catch (Exception)
-                { }
-                return path;
             }
+            catch (Exception)
+            { }
+            return path;
         }     
 
         public static string GetMinutePartition()

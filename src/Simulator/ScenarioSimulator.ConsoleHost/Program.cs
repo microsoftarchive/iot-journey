@@ -43,6 +43,7 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator.ConsoleHost
                     ? GetWebJobCancellationToken()
                     : CancellationToken.None;
 
+                ProvisionDevicesAsync(ct).Wait();
                 _deviceSimulator.RunSimulationAsync(scenario, ct).Wait();
                 return;
             }
