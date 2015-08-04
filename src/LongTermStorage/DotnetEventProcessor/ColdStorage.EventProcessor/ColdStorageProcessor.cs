@@ -184,6 +184,7 @@ namespace Microsoft.Practices.IoTJourney.ColdStorage.EventProcessor
                 _lastEventData = e;
             }
 
+            ColdStorageEventSource.Log.MessagesProcessed(processedEvents);
         }
 
         // You should provide your own implementation of this method if you need 

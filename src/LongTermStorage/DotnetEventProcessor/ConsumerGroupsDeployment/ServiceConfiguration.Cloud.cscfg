@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ServiceConfiguration serviceName="ConsumerGroupsDeployment" xmlns="http://schemas.microsoft.com/ServiceHosting/2008/10/ServiceConfiguration" osFamily="4" osVersion="*" schemaVersion="2015-04.2.6">
+  <Role name="ScenarioSimulator.WorkerRole">
+    <Instances count="4" />
+    <ConfigurationSettings>
+      <Setting name="Coldstorage.ConsumerGroupName" value="ColdStorage" />
+      <Setting name="Coldstorage.CheckpointStorageAccount" value="DefaultEndpointsProtocol=https;AccountName=[YourStorageAccount];AccountKey=[YourAccountKey]" />
+      <Setting name="Coldstorage.EventHubConnectionString" value="Endpoint=sb://[YourServiceNamespace].servicebus.windows.net/;SharedAccessKeyName=[YourAccessKeyName];SharedAccessKey=[YourAccessKey];TransportType=Amqp" />
+      <Setting name="Coldstorage.EventHubName" value="[YourEventHubName]" />
+      <Setting name="Coldstorage.MaxBatchSize" value="100" />
+      <Setting name="Coldstorage.PreFetchCount" value="500" />
+      <Setting name="Coldstorage.ReceiveTimeout" value="0.00:01:00" />
+      <Setting name="Coldstorage.BlobWriterStorageAccount" value="DefaultEndpointsProtocol=https;AccountName=[YourStorageAccount];AccountKey=[YourAccountKey]" />
+      <Setting name="Coldstorage.RollSizeForBlobWriterMb" value="2048" />
+      <Setting name="Coldstorage.ContainerName" value="blobs-processor" />
+      <Setting name="Coldstorage.BlobPrefix" value="fabrikam" />
+      <Setting name="Coldstorage.CircuitBreaker.WarningLevel" value="200" />
+      <Setting name="Coldstorage.CircuitBreaker.TripLevel" value="400" />
+      <Setting name="Coldstorage.CircuitBreaker.StallInterval" value="0.00:00:30" />
+      <Setting name="Coldstorage.CircuitBreaker.LogCooldownInterval" value="0.00:15:00" />
+      <Setting name="Microsoft.WindowsAzure.Plugins.RemoteAccess.Enabled" value="true" />
+      <Setting name="Microsoft.WindowsAzure.Plugins.RemoteAccess.AccountUsername" value="[UserName]" />
+      <Setting name="Microsoft.WindowsAzure.Plugins.RemoteAccess.AccountEncryptedPassword" value="[Password]" />
+      <Setting name="Microsoft.WindowsAzure.Plugins.RemoteAccess.AccountExpiration" value="2016-08-04T23:59:59.0000000-03:00" />
+      <Setting name="Microsoft.WindowsAzure.Plugins.RemoteForwarder.Enabled" value="true" />
+      <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value="DefaultEndpointsProtocol=https;AccountName=[YourStorageAccount];AccountKey=[YourAccountKey]" />
+    </ConfigurationSettings>
+    <Certificates>
+      <Certificate name="Microsoft.WindowsAzure.Plugins.RemoteAccess.PasswordEncryption" thumbprint="305C32BBBAC9611646F1F1499D19C180E7E14F53" thumbprintAlgorithm="sha1" />
+    </Certificates>
+  </Role>
+</ServiceConfiguration>
