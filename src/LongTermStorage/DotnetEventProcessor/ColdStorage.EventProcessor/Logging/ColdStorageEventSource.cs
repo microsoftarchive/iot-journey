@@ -214,5 +214,11 @@ namespace Microsoft.Practices.IoTJourney.ColdStorage.EventProcessor.Logging
         {
             WriteEvent(24, eventHubName, consumerGroupName);
         }
+
+        [Event(25, Level = EventLevel.Informational)]
+        public void MessagesProcessed(int processedCount)
+        {
+            WriteEvent(25, processedCount);
+        }
     }
 }

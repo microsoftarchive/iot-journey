@@ -97,4 +97,5 @@
   <Target Name="BeforeBuild">
     <Error Condition=" '$(CIBuild)' == '' AND !Exists('..\ScenarioSimulator.ConsoleHost.config')" Text="Before building this project, please copy ScenarioSimulator.ConsoleHost.Template.config to ScenarioSimulator.ConsoleHost.config (under the &quot;$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)/../'))&quot; directory) and replace the placeholders in the copy with your configuration information." />
   </Target>
+  <Import Project="..\..\packages\Microsoft.Web.WebJobs.Publish.1.0.3\tools\webjobs.targets" Condition="Exists('..\..\packages\Microsoft.Web.WebJobs.Publish.1.0.3\tools\webjobs.targets')" />
 </Project>
