@@ -43,7 +43,7 @@ namespace Microsoft.Practices.IoTJourney.ColdStorage.EventProcessor
                 _warningLevel,
                 _tripLevel,
                 _stallInterval,
-                _logCooldownInterval, 
+                _logCooldownInterval,
                 _eventHubName
             );
             return processor;

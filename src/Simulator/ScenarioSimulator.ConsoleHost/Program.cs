@@ -30,7 +30,9 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator.ConsoleHost
 
             observableEventListener.LogToConsole();
 
-            _deviceSimulator = new SimulationProfile("Console", configuration);
+            var hostName = ConfigurationHelper.SourceName;
+
+            _deviceSimulator = new SimulationProfile(hostName, configuration);
 
             // check for scenario specified on the command line
             if (args.Length > 0)
@@ -44,7 +46,9 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator.ConsoleHost
                     : CancellationToken.None;
 
                 ProvisionDevicesAsync(ct).Wait();
+
                 _deviceSimulator.RunSimulationAsync(scenario, ct).Wait();
+
                 return;
             }
 
