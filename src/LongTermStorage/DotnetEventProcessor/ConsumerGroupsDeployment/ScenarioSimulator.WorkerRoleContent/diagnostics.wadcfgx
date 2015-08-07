@@ -22,7 +22,7 @@
           <DataSource name="Application!*" />
         </WindowsEventLog>
         <EtwProviders>
-          <EtwEventSourceProviderConfiguration scheduledTransferLogLevelFilter="Information" provider="ColdStorageEventSource">
+          <EtwEventSourceProviderConfiguration scheduledTransferLogLevelFilter="Verbose" provider="ColdStorageEventSource" scheduledTransferKeywordFilter="1">
             <DefaultEvents />
           </EtwEventSourceProviderConfiguration>
         </EtwProviders>
