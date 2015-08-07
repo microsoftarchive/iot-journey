@@ -141,6 +141,8 @@ namespace Microsoft.Practices.IoTJourney.ColdStorage.EventProcessor.RollingBlobW
 
             ColdStorageEventSource.Log.WriteToBlobEnded(_currentBlob.Name, _blockIds.Count);
 
+            ColdStorageEventSource.Log.WriteToBlobEndedPerf(totalBytesToWrite);
+
             return true;
         }
 

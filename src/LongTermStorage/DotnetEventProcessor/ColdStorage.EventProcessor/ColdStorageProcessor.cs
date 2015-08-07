@@ -183,8 +183,6 @@ namespace Microsoft.Practices.IoTJourney.ColdStorage.EventProcessor
                 _currentFrameLength += bytes.Length;
                 _lastEventData = e;
             }
-
-            ColdStorageEventSource.Log.MessagesProcessed(processedEvents);
         }
 
         // You should provide your own implementation of this method if you need 
