@@ -9,29 +9,26 @@ using Microsoft.WindowsAzure;
 using Microsoft.WindowsAzure.Diagnostics;
 using Microsoft.WindowsAzure.ServiceRuntime;
 using Microsoft.WindowsAzure.Storage;
+using Microsoft.Practices.IoTJourney.ScenarioSimulator;
 using Microsoft.Practices.IoTJourney;
-using Microsoft.Practices.IoTJourney.ColdStorage.EventProcessor;
-using Microsoft.Practices.IoTJourney.ColdStorage;
 
-namespace Microsoft.Practices.IoTJourney.ColdStorage.ScenarioSimulator.WorkerRole
+namespace Microsoft.Practices.IoTJourney.ScenarioSimulator.WorkerRole
 {
     public class WorkerRole : RoleEntryPoint
     {
         private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
         private readonly ManualResetEvent _runCompleteEvent = new ManualResetEvent(false);
-
-        private ColdStorageCoordinator _coordinator;
+        private SimulationProfile _deviceSimulator;
 
         public override bool OnStart()
         {
             try
             {
-                // Set up the process defaults for connections to optimize storage performance
-                ServicePointManager.DefaultConnectionLimit = int.MaxValue;
-
-                var configuration = Configuration.GetCurrentConfiguration();
-
-                _coordinator = ColdStorageCoordinator.CreateAsync(RoleEnvironment.CurrentRoleInstance.Id, configuration).Result;
+                var configuration = SimulatorConfiguration.GetCurrentConfiguration();
+                var hostName = ConfigurationHelper.SourceName;
+                _deviceSimulator = new SimulationProfile(hostName, configuration);  
+                
+                _deviceSimulator.ProvisionDevices(true);
 
                 return base.OnStart();
             }
@@ -48,13 +45,13 @@ namespace Microsoft.Practices.IoTJourney.ColdStorage.ScenarioSimulator.WorkerRol
             try
             {
                 Trace.TraceInformation("ScenarioSimulator.WorkerRole is running");
-                _cancellationTokenSource.Token.WaitHandle.WaitOne();
-                _coordinator.Dispose();
+                var scenario = SimulationScenarios.DefaultScenario();
+                _deviceSimulator.RunSimulationAsync(scenario, _cancellationTokenSource.Token).Wait();
                 Trace.TraceInformation("ScenarioSimulator.WorkerRole is complete");
             }
             catch (Exception ex)
             {
-                Trace.TraceError(ex.ToString());
+                 Trace.TraceError(ex.ToString());
             }
             finally
             {

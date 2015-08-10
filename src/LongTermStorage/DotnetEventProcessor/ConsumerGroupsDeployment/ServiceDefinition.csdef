@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ServiceDefinition name="ConsumerGroupsDeployment" xmlns="http://schemas.microsoft.com/ServiceHosting/2008/10/ServiceDefinition" schemaVersion="2015-04.2.6">
-  <WorkerRole name="ScenarioSimulator.WorkerRole" vmsize="Medium">
+  <WorkerRole name="ConsumerGroups.WorkerRole" vmsize="Small">
     <ConfigurationSettings>
       <Setting name="Coldstorage.ConsumerGroupName" />
       <Setting name="Coldstorage.CheckpointStorageAccount" />
@@ -17,11 +17,6 @@
       <Setting name="Coldstorage.CircuitBreaker.TripLevel" />
       <Setting name="Coldstorage.CircuitBreaker.StallInterval" />
       <Setting name="Coldstorage.CircuitBreaker.LogCooldownInterval" />
-      <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" />
     </ConfigurationSettings>
-    <Imports>
-      <Import moduleName="RemoteAccess" />
-      <Import moduleName="RemoteForwarder" />
-    </Imports>
   </WorkerRole>
 </ServiceDefinition>
