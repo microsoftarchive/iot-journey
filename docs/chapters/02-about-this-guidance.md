@@ -1,15 +1,21 @@
-# Introducing the Journey
+# About this guidance
 
-This project has two aspects:
+Our goal is to help you be successful in implementing your IoT solution on Microsoft Azure. Our focus is on the cloud-hosted backend, and not necessarily on the development of the devices.
 
-- Guidance on designing an IoT solution, with a particular focus on the cloud back end.
-- A reference implementation.
+This guidance has two aspects:
+
+- Documentation.
+- Reference implementations.
 
 The reference implementation is designed to test and validate our assumptions, and to keep our guidance honest. 
 
+The documentation is intended to explain key concepts and to enumerate solutions and considerations.
+
 > To find out what we mean by "IoT solution", see [_What is an IoT solution?_][intro-to-iot].
 
-## The problem space  
+## The problem space 
+
+>  TODO: I'm wondering if we should move this section somewhere else. Perhaps where we establish the common architecture?
 
 We've identified some common scenarios and challenges in IoT, which fall naturally into several broad categories.  
 
@@ -73,13 +79,9 @@ Here are the scenario parameters that we decided on:
 
 Our goal was to make the scenario *representative* of typical IoT solutions, so the lessons we learn will apply more broadly.  
 
+## The Guidance
 
-## The Journal
-
-We are using this journal to record the decisions that we make for each scenario. In our view, there isn't a single "right" solution (although there may be wrong solutions!). Therefore, our reference implementation is most useful in the context of the decisions that we made and the alternatives that we explored.      
-
-You can follow our progress by reading the journal entries, or dive into our [backlog][]. We welcome feedback. 
-
+In this guidance we have recorded the decisions that we made for each scenario. In our view, there often isn't a single "right" solution (although there may be wrong solutions!). Therefore, our reference implementations are most useful in the context of the decisions that we made and the alternatives that we explored.      
 
 ## Logical architecture
 
