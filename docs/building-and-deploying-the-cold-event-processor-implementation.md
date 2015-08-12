@@ -14,7 +14,7 @@ You should also download the [setup scripts](../setup) that create the Azure ass
 
 ## Prerequisites
 
-To use the sample solution, you must have an Azure account with a subscription. You should also have installed the following software on your computer:
+You must have an Azure account with a subscription. You should also have installed the following software on your computer:
 
 - [Visual Studio](https://www.visualstudio.com/)
 
