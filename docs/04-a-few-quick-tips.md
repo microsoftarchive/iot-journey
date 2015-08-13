@@ -12,7 +12,7 @@ Implementing an initial subset of the system will help to highlight where possib
 
 ## Focus on telemetry first
 
-Devices and sensors are intended to report information about their state, while many devices can also accept commands to change their state controlled by the business logic of the system. It can be inefficient to try and incorporate complex state-changing business processes in an IoT system until the data reported by devices and device capabilities are fully understood. Instead, start by focussing on the telemetry provided by devices (not only the state information that a device reports, but also diagnostics that help to establish device health). Privacy and security issues tend to be simpler for telemetry than for command and control, so this approach enables you to focus on security and manageability of the system before becoming embroiled in detailed transformational logic.
+Devices and sensors are intended to report information about their state, while many devices can also accept commands to change their state controlled by the business logic of the system. It can be inefficient to try and incorporate complex state-changing business processes in an IoT system until the data reported by devices and device capabilities are fully understood. Instead, start by focusing on the telemetry provided by devices (not only the state information that a device reports, but also diagnostics that help to establish device health). Privacy and security issues tend to be simpler for telemetry than for command and control, so this approach enables you to focus on security and manageability of the system before becoming embroiled in detailed transformational logic.
 
 Prototyping with telemetry can also give you an idea of how your system will respond under load. The system must be capable of ingesting data quickly, processing it within the expected time-frame, and storing the results without becoming overwhelmed.
 
@@ -46,10 +46,10 @@ You should also consider that the nature of technology is such that newer, more 
 
 ## Design for change
 
-Design the system with the understanding that there will be change. A monolithic system with rigid expectations about the shape of flow of data is cheaper and easy to build, but prohibitively expensive to extend and maintain. Designing systeem for change is the topic of entire books; we can only emphasize its value here.
-- Separate concerns. This is the [same principe][separation-of-conerns] mentioned above. It's a fundamental concept.
+Design the system with the understanding that there will be change. A monolithic system with rigid expectations about the shape of flow of data is cheaper and easy to build, but prohibitively expensive to extend and maintain. Designing system for change is the topic of entire books; we can only emphasize its value here.
+- Separate concerns. This is the [same principle][separation-of-conerns] mentioned above. It's a fundamental concept.
 - Design for failure. Failures can and will occur at all levels in system; from missing fields in data to missing services. See the [resiliency patterns][resiliency-patterns] in our _Cloud Design Patterns_.
-- Enable composition. Break down tasks into discrete units that can be reused and combined using patterns like [Pipes & Filters][pipes-and-filters]. Consider patterns like [Event Sourcing][event-sourcing] that enable future unanticapted components to easy integrate into an existing system. 
+- Enable composition. Break down tasks into discrete units that can be reused and combined using patterns like [Pipes & Filters][pipes-and-filters]. Consider patterns like [Event Sourcing][event-sourcing] that enable future unanticipated components to easy integrate into an existing system. 
 
 It is also worth exploring the communities and materials about ideas like [Event-driven Architecture][event-driven-architecture] and [Microservices][microservices].
 
