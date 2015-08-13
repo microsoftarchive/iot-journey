@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ServiceConfiguration serviceName="ConsumerGroupsDeployment" xmlns="http://schemas.microsoft.com/ServiceHosting/2008/10/ServiceConfiguration" osFamily="4" osVersion="*" schemaVersion="2015-04.2.6">
+  <Role name="WarmStorage.EventProcessor.WorkerRole">
+    <Instances count="1" />
+    <ConfigurationSettings>
+      <Setting name="Warmstorage.EventHubConnectionString" value="Endpoint=sb://[YourServiceNamespace].servicebus.windows.net/;SharedAccessKeyName=[YourAccessKeyName];SharedAccessKey=[YourAccessKey];TransportType=Amqp" />
+      <Setting name="Warmstorage.EventHubName" value="[YourEventHubName]" />
+      <Setting name="Warmstorage.CheckpointStorageAccount" value="DefaultEndpointsProtocol=https;AccountName=[YourStorageAccount];AccountKey=[YourAccountKey]" />
+      <Setting name="Warmstorage.ConsumerGroupName" value="cg-elastic" />
+      <Setting name="Warmstorage.MaxBatchSize" value="500" />
+      <Setting name="Warmstorage.PreFetchCount" value="500" />
+      <Setting name="Warmstorage.ReceiveTimeout" value="0.00:01:00" />
+      <Setting name="Warmstorage.ElasticSearchUri" value="http://localhost:9200" />
+      <Setting name="Warmstorage.ElasticSearchIndexPrefix" value="iot" />
+      <Setting name="Warmstorage.ElasticSearchIndexType" value="temperature" />
+      <Setting name="Warmstorage.RetryCount" value="3" />
+      <Setting name="Warmstorage.ReferenceDataStorageContainer" value="warm-processor-refdata" />
+      <Setting name="Warmstorage.ReferenceDataFilePath" value="fabrikam/buildingdevice.json" />
+      <Setting name="WarmStorage.ReferenceDataCacheTTLMinutes" value="10" />
+    </ConfigurationSettings>
+  </Role>
+</ServiceConfiguration>

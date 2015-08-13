@@ -9,11 +9,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Practices.EnterpriseLibrary.SemanticLogging;
 using Microsoft.Practices.IoTJourney;
-using Microsoft.Practices.IoTJourney.WarmStorage.Logging;
+using Microsoft.Practices.IoTJourney.WarmStorage.EventProcessor.Logging;
 using Microsoft.ServiceBus;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.Practices.IoTJourney.WarmStorage;
 using CommonConsoleHost = Microsoft.Practices.IoTJourney.Tests.Common.ConsoleHost;
+using Microsoft.Practices.IoTJourney.WarmStorage.EventProcessor;
 
 
 namespace WarmStorage.ConsoleHost

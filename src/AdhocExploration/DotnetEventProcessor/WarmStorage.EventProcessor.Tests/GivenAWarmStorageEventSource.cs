@@ -1,5 +1,5 @@
 ﻿using Microsoft.Practices.EnterpriseLibrary.SemanticLogging.Utility;
-using Microsoft.Practices.IoTJourney.WarmStorage.Logging;
+using Microsoft.Practices.IoTJourney.WarmStorage.EventProcessor.Logging;
 using Xunit;
 
 namespace Microsoft.Practices.IoTJourney.WarmStorage.Tests

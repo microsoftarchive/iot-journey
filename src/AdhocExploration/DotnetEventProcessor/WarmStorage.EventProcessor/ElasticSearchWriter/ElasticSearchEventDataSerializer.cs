@@ -10,7 +10,7 @@ using Microsoft.ServiceBus.Messaging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace Microsoft.Practices.IoTJourney.WarmStorage.ElasticSearchWriter
+namespace Microsoft.Practices.IoTJourney.WarmStorage.EventProcessor.ElasticSearchWriter
 {
     /// <summary>
     /// Converts Microsoft.ServiceBus.Messaging.EventData to JSON formatted Elasticsearch _bulk service index operation.

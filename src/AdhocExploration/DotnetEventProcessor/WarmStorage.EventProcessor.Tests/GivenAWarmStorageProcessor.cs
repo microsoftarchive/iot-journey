@@ -4,10 +4,11 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Practices.IoTJourney.Tests.Common.Mocks;
-using Microsoft.Practices.IoTJourney.WarmStorage.ElasticSearchWriter;
+using Microsoft.Practices.IoTJourney.WarmStorage.EventProcessor.ElasticSearchWriter;
 using Microsoft.ServiceBus.Messaging;
 using Moq;
 using Xunit;
+using Microsoft.Practices.IoTJourney.WarmStorage.EventProcessor;
 
 namespace Microsoft.Practices.IoTJourney.WarmStorage.Tests
 {

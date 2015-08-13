@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using Microsoft.Practices.IoTJourney.WarmStorage.Logging;
+using Microsoft.Practices.IoTJourney.WarmStorage.EventProcessor.Logging;
 using Microsoft.ServiceBus;
 using Microsoft.ServiceBus.Messaging;
 using Newtonsoft.Json;
@@ -18,7 +18,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Practices.IoTJourney.TransientFaultHandling;
 
-namespace Microsoft.Practices.IoTJourney.WarmStorage.ElasticSearchWriter
+namespace Microsoft.Practices.IoTJourney.WarmStorage.EventProcessor.ElasticSearchWriter
 {
     public class ElasticSearchWriter : IElasticSearchWriter
     {
@@ -75,11 +75,15 @@ namespace Microsoft.Practices.IoTJourney.WarmStorage.ElasticSearchWriter
 
                         if(response.StatusCode != HttpStatusCode.OK)
                         {
+                            WarmStorageEventSource.Log.WriteToElasticSearchFailedPerf(events.Count);
+
                             await HandleErrorResponse(response);
                         }
 
                         //This is for retry strategy. If response is not successful it will raise an exception catched by the retry strategy.
                         response.EnsureSuccessStatusCodeEx();
+
+                        WarmStorageEventSource.Log.WriteToElasticSearchSuccessPerf(events.Count);
 
                         return response;
                     });
