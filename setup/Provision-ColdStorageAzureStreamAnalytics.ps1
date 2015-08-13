@@ -74,6 +74,7 @@ PROCESS
 
     # Load modules.
     Load-Module -ModuleName Config -ModuleLocation .\modules
+	Load-Module -ModuleName Utility -ModuleLocation .\modules
     Load-Module -ModuleName AzureARM -ModuleLocation .\modules
     Load-Module -ModuleName AzureStorage -ModuleLocation .\modules
     Load-Module -ModuleName AzureServiceBus -ModuleLocation .\modules
@@ -90,7 +91,7 @@ PROCESS
                                              -ContainerName $ContainerName `
                                              -Location $Location
         
-    Provision-EventHub -SubscriptionName $SubscriptionName `
+    $EventHubInfo = Provision-EventHub -SubscriptionName $SubscriptionName `
                                     -ServiceBusNamespace $ServiceBusNamespace `
                                     -EventHubName $EventHubName `
                                     -ConsumerGroupName $ConsumerGroupName `
@@ -98,6 +99,20 @@ PROCESS
                                     -Location $Location `
                                     -PartitionCount 16 `
                                     -MessageRetentionInDays 7 `
+
+    # Update settings
+
+    $simulatorSettings = @{
+        'Simulator.EventHubNamespace'= $EventHubInfo.EventHubNamespace;
+        'Simulator.EventHubName' = $EventHubInfo.EventHubName;
+        'Simulator.EventHubSasKeyName' = $EventHubInfo.EventHubSasKeyName;
+        'Simulator.EventHubPrimaryKey' = $EventHubInfo.EventHubPrimaryKey;
+        'Simulator.EventHubTokenLifetimeDays' = ($EventHubInfo.EventHubTokenLifetimeDays -as [string]);
+    }
+
+    Write-SettingsFile -configurationTemplateFile (Join-Path $PSScriptRoot -ChildPath "..\src\Simulator\ScenarioSimulator.ConsoleHost.Template.config") `
+                       -configurationFile (Join-Path $PSScriptRoot -ChildPath "..\src\Simulator\ScenarioSimulator.ConsoleHost.config") `
+                       -appSettings $simulatorSettings
         
     $ResourceGroupName = $ResourceGroupPrefix + "-" + $Location.Replace(" ","-")
 
