@@ -8,13 +8,16 @@
 .PARAMETER SubscriptionName
     Name of the Azure Subscription.
 
+.PARAMETER ApplicationName
+    Name of the Application.
+
 .PARAMETER StorageAccountName
     Name of the storage account name.
      
 .PARAMETER ContainerName
     Name of the container use to store output from the Stream Analytics job.
 
-.PARAMETER BlobsConsumerGroupName
+.PARAMETER ConsumerGroupName
     Stream Analytics consumer group for blob storage.
 
 .PARAMETER EventHubName
@@ -36,7 +39,7 @@
     Name of the Stream Analytics Job name used to output to blob storage.
     
 .EXAMPLE
-  .\Provision-ColdStorageAzureStreamAnalytics.ps1 -SubscriptionName [YourAzureSubscriptionName] -StorageAccountName [YourStorageAccountName] -Verbose
+  .\Provision-ColdStorageAzureStreamAnalytics.ps1 -SubscriptionName [YourAzureSubscriptionName] -ApplicationName [YourApplicationName] -Verbose
 #>
 [CmdletBinding()]
 Param
