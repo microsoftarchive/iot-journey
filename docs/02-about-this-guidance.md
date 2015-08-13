@@ -131,9 +131,8 @@ Other phases may be added as development progresses.
 
 As we proceed on this journey, we will fill out the details of each phase by adding new [milestones][]. Each milestone will have a specific set of goals, deliverables, and target date. We'll also create an entry in this journal for each milestone, describing the decisions we made, the reasons behind them, and any specific issues that we uncovered.
 
-[intro-to-iot]: ../articles/what-is-an-IoT-solution.md
-[backlog]: https://github.com/mspnp/iot-journey/issues
+[intro-to-iot]: 01-what-is-an-IoT-solution.md
 [milestones]: https://github.com/mspnp/iot-journey/milestones
-[event-ingestion]: 01-event-ingestion.md
-[long-term-storage]: 02-long-term-storage.md 
-[ad-hoc-exploration]: 03-ad-hoc-exploration.md
+[event-ingestion]: TODO
+[long-term-storage]: TODO
+[ad-hoc-exploration]: TODO

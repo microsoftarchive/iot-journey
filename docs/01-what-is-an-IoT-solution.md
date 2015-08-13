@@ -18,13 +18,13 @@ If you are interested in learning more about the potential relevance of IoT for 
 
 ## What's really new about IoT?
 
-Most of the concepts and techniques for building these types of solutions are not new. Systems supporting an array of devices generating and transmitting data have been in use for decades. Many of the characterists mentioned have been present in manufacturing, utilities management, and other industries. Search for terms like "industrial control systems (ICS)" or "supervisory control and data acquisition (SCADA)" and you'll find a wealth of knowledge.
+Most of the concepts and techniques for building these types of solutions are not new. Systems supporting an array of devices generating and transmitting data have been in use for decades. Many of the characteristics mentioned have been present in manufacturing, utilities management, and other industries. Search for terms like "industrial control systems (ICS)" or "supervisory control and data acquisition (SCADA)" and you'll find a wealth of knowledge.
 
 Nevertheless, something is new.
 
-The cost of developing IoT solutions has dramatically decreased. Even a hobbyist developer can noweasily afford to protoype custom devices. Likewise, the rise of the cloud has made high-scale backends economically feasible.
-The infrastructure needed to support these kinds of systems is now common place. The Internet has become ubiquitous and there is an increasing adundance of bandwidth.
-There is also a profileration of hardware manufacturers, development tools and programming stacks targeting IoT solutions. There's a surge of interested communities, standards bodies, and interested businesses.
+The cost of developing IoT solutions has dramatically decreased. Even a hobbyist developer can now easily afford to prototype custom devices. Likewise, the rise of the cloud has made high-scale backends economically feasible.
+The infrastructure needed to support these kinds of systems is now common place. The Internet has become ubiquitous and there is an increasing abundance of bandwidth.
+There is also a proliferation of hardware manufacturers, development tools and programming stacks targeting IoT solutions. There's a surge of interested communities, standards bodies, and interested businesses.
 
 This democratization of IoT has produced a collision of worlds. Traditionally separated developer communities, with different experiences and philosophies, are beginning to collaborate on IoT solutions. These different backgrounds, line-of-business, enterprise, consumer software, control systems, embedded devices and others, each bring their own insights (and oversights) to IoT. There are differences in strategy, culture, and concerns.
 
