@@ -85,6 +85,8 @@ In this guidance we have recorded the decisions that we made for each scenario. 
 
 ## Logical architecture
 
+> TODO: This content is related to the Fabrikam scenario, and not a general reference architecture. Can it be removed/replaced? In the least, it should come after a discussion of the reference architecture.
+
 Before we even get to specific implementations, here is the logical architecture that we are proposing:
 
 ![plan for the logical architecture](media/00-introducing-the-journey/logical-architecture.png)
