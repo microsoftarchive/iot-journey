@@ -38,7 +38,7 @@ We intend this to be an interactive act of discovery.
 
 We are basing our scenarios on requirements we've gathered from customers and advisors. The scenario is not meant to be realistic, but rather representative. That is, it should represent the most common needs and [challenges][] encountered in this space.
 
-We are very interested in your feedback. We are publishing updates about the work on [our video blog][https://channel9.msdn.com/blogs/mspnp]. We encourage you to ask questions in the chat room or to open issue on this repo.
+We are very interested in your feedback. We are publishing updates about the work on [our video blog](https://channel9.msdn.com/blogs/mspnp). We encourage you to ask questions in the chat room or to open issue on this repo.
 Any and all feedback is welcome.
 
 ## Who
