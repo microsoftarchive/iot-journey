@@ -1,11 +1,14 @@
 # Time Considerations
 
 The vast majority of IoT projects involve collecting and forwarding events.
-One usually needs to know *when* these events occurred in order to do anything
-meaningful with the data.  In other words, a *temporal context* implicitly
-applies to the data.
+Occasionally, just knowing that an event occurred can be useful to trigger an
+action.  However, that's usually not enough information to analyze the collected
+data in a meaningful way.  One also needs to know *when* the event occurred.
+In other words, a *temporal* context implicitly applies to the event data.
 
-This document covers some of the important considerations when working with time in an IoT project, from data collection (choosing a clock source) and representation (timestamp formats) to event consumption.  
+This document covers some of the important considerations when working with time
+in an IoT project, from data collection (choosing a clock source) and
+representation (timestamp formats) to event consumption.  
 
 - [Clock sources](#clock-sources)
 - [Event timestamps](#event-timestamps)
@@ -16,16 +19,18 @@ This document covers some of the important considerations when working with time
 
 ## Clock sources
 
-Events must be associated with a timestamp, but the reliability of that
-timestamp can vary significantly depending on where it originates. 
+When events are associated with a timestamp, the reliability of that timestamp
+can vary significantly depending on where it originates.
 
-Your main options are using timestamps from the device itself, from a field gateway (if present), or from the cloud gateway. The following table summarizes the relative strengths of each, along three axes: 
+The main options are using timestamps from the device itself, from a field
+gateway (if present), or from the cloud gateway.  The following table summarizes
+the relative strengths of each, along three axes:
 
 - **Latency**: How much delay occurs between the actual event and the measuring
   of its timestamp?
-- **Accuracy**: How correct is the clock's time with relation to the world's
+- **Accuracy**: How closely synchronized is the clock's time with the world's
   timekeeping systems?
-- **Precision**: What is the smallest degree of measure that we can use with
+- **Precision**: What is the smallest degree of measure that can be used with
   certainty? See also [Accuracy vs Precision][accuracy-precision].
 
 [accuracy-precision]: https://en.wikipedia.org/wiki/Accuracy_and_precision
@@ -33,163 +38,202 @@ Your main options are using timestamps from the device itself, from a field gate
 Clock Source                          | Latency            | Accuracy           | Precision
 --------------------------------------|--------------------|--------------------|--------------------
 Cloud gateway                         | :-1:               | :star::star:       | :star:
-Field gateway                         | :star::star:       | :star::star:       | :star::star:
+Field gateway                         | :star::star:       | :star::star:*      | :star::star:
 Field gateway with dedicated hardware | :star::star:       | :star::star::star: | :star::star::star:
-Device without real-time clock (RTC)  | :star::star::star: | :star:             | :star:
-Device with RTC                       | :star::star::star: | :star::star:       | :star:
+Device without real-time clock (RTC)  | :star::star::star: | :star:*            | :star:
+Device with RTC                       | :star::star::star: | :star::star:*      | :star:
 Device with traditional GPS           | :star::star::star: | :star::star::star: | :star::star:
 Device with dedicated hardware        | :star::star::star: | :star::star::star: | :star::star::star:
+<small>
+\**Assuming NTP synchronization*  
+**Legend**:  &nbsp; :-1: Poor &nbsp; :star: Good &nbsp; :star::star: Better &nbsp; :star::star::star: Best
+</small>
 
-In the next sections, we'll explore these options in more detail. 
+The next sections will explore these options in more detail.
 
 ### Using the cloud gateway's clock
 
-When you use the cloud gateway's clock, you are recording the time when the server received the event message. In some cases this is acceptable, but it's usually discouraged. 
+When using the cloud gateway's clock, timestamp represents the instant in time
+that the message was *received* by the gateway.  This is often undesirable.
 
-**Latency.**  While simple to implement, it doesn't account for the time it takes to deliver the message from the device to the cloud. This latency can be especially bad when you consider batch processing, offline devices, or ocassionally-connected devices. In these scenarios, event messages are typically stored for later transmittal. If the event time isn't captured until the message is received, it could very well be incorrect. 
+**Latency.**  While simple to implement, this approach doesn't account for the
+time it takes to deliver the message from the device to the cloud.  This latency
+can be especially bad in scenarios that involve processing, offline devices, or
+occasionally-connected devices.  In these scenarios, event messages are
+typically stored for later transmittal.  If the event time isn't captured until
+the message is received, it could quite far from being correct.
 
-In some cases, this might not matter.  For example, if you only care about *reasonably current* events, you might simply discard
-data when a device is offline. In that case, you would still have network latency,
-but this is usually less than a few seconds.
+In some cases the latency may be acceptable.  Particularly if one only cares
+about *reasonably current* events, and if it's okay for the device to discard
+events that occur when it is disconnected from the Internet, or when the gateway
+is otherwise unreachable.
 
-**Accuracy.** A cloud gateway is typically synchronized over the Internet, via servers that
-implement the Network Time Protocol (NTP).  The accuracy of a clock synchronized
-by NTP is called the [stratum][clock-strata].  Stratum 0 is the most accurate,
-and each hop away is incremented by one.  The larger the stratum, the further
-away the original timing source, and the less accurate the time.
+Be careful to only use the received time when there is certainty that the event
+was *recently* generated.  Consider that many devices will place events into a
+buffer before sending.  If the device generates events while offline, the buffer
+may contain events that are several hours or days apart.  Those messages would
+all be sent when the device re-established connectivity, causing the *received*
+timestamps to be very close together, even though the events themselves may have
+occurred quite far apart.
 
-- Stratum 0 can only be measured directly from an independent timing source.
-- Stratum 1 refers to a machine that is *directly connected* to an
-  independent timing source.  This is usually not achievable in the cloud,
-  due to the physical hardware requirement.
-- Stratum 2 is usually found on NTP host servers, such as `time.windows.com`.
-- Stratum 3 or 4 is often found on domain controllers in a network.
+Therefore, a device must either include a timestamp in the event data, or it
+must discard events that it cannot send immediately.
 
-Depending on how it is synchronized, your cloud gateway may have a clock
-stratum of 3, 4, or higher.  Each level of stratum can add anywhere from a few
-nanoseconds to a few hundred milliseconds of error. That means
-your timestamps could be a couple of seconds off, which may or may not be acceptable, depending on
-the details of your IoT scenario.
+**Accuracy.**  Many cloud-based services (including gateways, database servers,
+stream processors, etc.) run on servers that are configured for NTP
+synchronization.  See the section about the
+[Network Time Protocol](#network-time-protocol-ntp), further in this document.
 
-For our IoT Journey project, we are targeting one event per minute, per device. For our scenarios, it really doesn't if we are off by a few seconds in either direction. 
+Despite this, the accuracy can vary across different servers and services.  This
+may be attributed to several factors, such as the frequency of synchronization,
+the drift factor and clock stratum of the host machines, or which NTP servers
+are being used.  Since these details are rarely available, it's important to not
+depend on a high degree of accuracy from the timestamps generated by a cloud
+gateway.  One can only expect them to be *reasonably approximate*.
 
-[clock-strata]: https://en.wikipedia.org/wiki/Network_Time_Protocol#Clock_strata
-
-**Precision.** A cloud gateway consists of software and services that run on virtual
-machines.  The clock of the underlying physical servers is precise to about 10
-milliseconds.  However, the virtual machine infrastructure can lead to
-additional precision errors.  In general, if you are timing events that occur
-10 or more times per second, the cloud gateway is not precise enough to generate
-a sufficient timestamp.
+**Precision.** A cloud gateway consists of software and services that run on
+virtual machines.  The clock of the underlying physical servers is precise to
+about 10 milliseconds.  If all events were perfectly timed, it might be possible
+to get up to 100 distinct timestamps in a second.  However, events are rarely
+that precise.  Additionally, the virtual machine infrastructure can lead to
+additional precision errors.  Therefore, a good rule-of-thumb is that a cloud
+gateway can apply unique timestamps to about 10 events per second.  Anything
+more than that, and the same timestamp may appear on multiple consecutive
+events.  This could lead to some events being ordered out of sequence.  
 
 ### Using a field gateway's clock
 
 In IoT scenarios where many devices are in a single location, it may be desired
 to incorporate a field gateway.  This is a computer that receives event messages
-from the devices and forwards them to the cloud.
+from the devices and forwards them to the cloud.  It also performs several
+other key functions, such as collating data, sending commands to devices, and
+creating a security boundary.  It can also be used to timestamp event messages.
 
-**Latency.** If messages are timestamped by the field gateway, and the gateway is designed
-for high availability (fault-tolerant, always-on), then the latency issues
-discussed in the previous section are greatly reduced.  There is still *some*
-latency, but it is now limited by the local area network connection between the
-devices and the field gateway, rather than the Internet.
+**Latency.** If messages are timestamped by the field gateway, then the latency
+issues discussed in the previous section are greatly reduced.  There is still
+*some* latency, but it is now limited by the local area network connection
+between the devices and the field gateway, rather than the Internet.
 
-**Accuracy.** When configured correctly, a field gateway will synchronize its clock via NTP,
-either to a public NTP server (stratum 2), or to a local domain server (stratum 3).
-This means that a field gateway will typically have a stratum 3 or 4 clock,
-similar to that of a cloud gateway.
+However, be aware that the amount of latency may not be consistent.  For example
+simply sending additional traffic on the same network may add a few milliseconds
+to the time it takes for an event to be received by the field gateway.  Be sure
+to evaluate the capabilities of the local network carefully.  In high-precision
+scenarios, consider isolating segments of the network.
 
-Again, for most scenarios, this is perfectly acceptable, leading to only a few
-seconds or a few milliseconds of discrepancy.  However, if you are coordinating
-event times from multiple sites, using multiple field gateways, you may find
-this to be a limiting factor.
+**Accuracy.** Like other types of servers, a field gateway will often be
+configured to synchronize its clock via NTP, either to a public NTP server or
+to a local domain controller.  For many scenarios, this is perfectly acceptable.
+However, just like with a cloud gateway (or any other server really), there
+could still be a few milliseconds to a few seconds of discrepancy.
 
-Because a field gateway is located on premises, it is possible to achieve higher
+If the IoT solution involves coordinating event times from multiple field
+gateways, this can easily become a limiting factor.  Fortunately, because a
+field gateway is located on premises, it is possible to achieve higher
 accuracy by attaching dedicated timing hardware to the server.  See the section
 [Using dedicated timing hardware](#using-dedicated-timing-hardware), below.
 
-**Precision.** Similar to a cloud gateway, the onboard clock of most field gateway servers is
-precise to about 10 milliseconds.  However, a field gateway can be installed directly on a physical server, so it is not necessarily impacted by timing errors that can occur on a virtual machine.
+**Precision.** Similar to a cloud gateway, the onboard clock of most field
+gateway servers is precise to about 10 milliseconds.  However, a field gateway
+can be installed directly on a physical server, so it is not necessarily
+impacted by timing errors that can occur on a virtual machine.
 
-In a perfect world, that means you should be able to generate distinct
-timestamps for up to 100 events per second.  However, it practice it may be
-slightly less than that.
+That means in a perfect world one should be able to generate distinct timestamps
+for up to 100 events per second.  However, in practice it may be slightly less
+than that.
 
-If dedicated timing hardware is attached to the field gateway, it can achieve higher much higher precision levels.
+If dedicated timing hardware is attached to the field gateway, it can achieve
+higher much higher precision levels.
 
 ### Using the device's clock
 
-Most modern IoT devices have some sort of onboard clock. The clock may have similar
-precision and accuracy as computer hardware, or it may be
-significantly better or significantly worse. It's important to understand the
-timing characteristics of your specific device.
+IoT devices can vary significantly with respect to how they obtain a timestamp.
 
-However, keep in mind that some devices have no clock at all.
-Obviously, if a device doesn't have a reliable clock, you can't
-use it as a clock source. In that case, consider using a field gateway.
+- Some devices have a real-time clock chip with a battery backup, similar to a
+  desktop computer or server.
 
-**Latency.** The main advantage of using the device's clock is that it can record the timestamp 
-with very little latency.  The latency is only a factor of how long it takes the
-device to read from its sensor and request a timestamp from its clock. 
+- Some devices have no real-time clock chip, but have RTC capabilities in their
+  processor chips.  Some will use a battery backup, and some will not.
 
-In addition, a device can record a timestamp even when disconnected. In this situation, it simply stores the message until it
-can forward the message to the field gateway or cloud gateway.  This capability
-is also useful when sending events in a batch.
+- Some devices use a "software clock", which works by incrementing a counter
+  in memory based on some other timing interrupt.
 
-**Accuracy.** Many devices can synchronize using NTP during their startup sequence, but may
-need to be explicitly configured to do so. It's important to configure the device to repeat
-this synchronization periodically, to avoid [clock drift][clock-drift] &mdash; perhaps daily or more frequently, depending on the device.
+- Some devices have no clock abilities at all.
 
-On some devices, you can improve accuracy by using external timing sources, such as GPS or other dedicated hardware.  Refer to the following sections for more detail.
+It's difficult to give generalized advice, other than to be aware of the timing
+characteristics of the specific devices being used.
+
+**Latency.** The main advantage of using a device's clock is that it can
+record the timestamp with very little latency.  The latency is only a factor of
+how long it takes the device to read from its sensor and request a timestamp
+from its clock.
+
+In addition, a device can record a timestamp even when disconnected.  In this
+situation, it simply stores the message until it can forward the message to the
+field gateway or cloud gateway.  This capability is also useful when sending
+events in a batch.
+
+**Accuracy.** Some devices can synchronize using NTP during their startup
+sequence, but may need to be explicitly configured to do so.  It's important to
+configure the device to repeat this synchronization periodically, to counter the
+effects of [clock drift][clock-drift] &mdash; perhaps daily or more frequently,
+depending on the device.
+
+On some devices, the accuracy can be improved by using an external timing
+source, such as a GPS receiver, or other dedicated hardware.  Refer to the
+following sections for more detail.
 
 [clock-drift]: https://en.wikipedia.org/wiki/Clock_drift
 
-**Precision.** Clock precision varies significantly across different devices.  Some devices
-use an onboard real-time clock (RTC).  Others simply load the
-time into a CPU register or memory location, and use interrupts to update the
-value with each tick.
+**Precision.** Clock precision varies significantly across different devices.
+For devices that use an onboard real-time clock (RTC) chip, the precision may
+be similar to a desktop computer.  For devices that use a software clock, the
+precision may be much less.
 
-Precision is also highly dependent on the specific device
-hardware.  While the RTC on most computer hardware is precise to
-about 10 milliseconds, a particular device may offer more or less precision.  Again,
-understand the performance characteristics of the device you are using.  If you
-change devices or use a mix of different devices, don't assume that
-they will have the same accuracy or precision.
+Again, understand the performance characteristics of the devices being used.
+If devices are replaced with different models, or if a mix of different devices
+is employed, don't assume that they will have identical accuracy and precision
+characteristics.
+
+When a scenario demands high-precision, consider using devices with higher
+quality clock crystals, or using external timing sources.
 
 ### Using the device's GPS as a clock
 
-Many IoT scenarios use GPS signals to gather latitude and longitude
-coordinates, which are included in the event data.  If you're already using GPS for
-location, consider using it for timing also.  GPS signals are highly
-accurate, and this will relieve your device from having to synchronize its
-clock over a network connection.   However, it's important to realize that
-*precision* is usually still a function of the device's onboard hardware, and
-that not all GPS devices are capable of acting as clock sources.
+Many IoT devices use a GPS receiver to gather latitude and longitude
+coordinates for the event data.  If GPS is already being used for location,
+consider also using it for timing.  GPS timing signals are highly accurate,
+and this relieves the device from having to synchronize its clock over a network
+connection.  However, it's important to realize that *precision* is usually
+still a function of the device's onboard hardware, and that not all GPS devices
+are capable of acting as clock sources.  Even those that are capable should be
+careful about the quality of the GPS signal.  If the signal is low quality,
+such when bounced off a hi-rise building, not only might the location be
+incorrect, but the clock accuracy might be affected as well.
 
-The raw GPS signal gives a
-timestamp that is not fully aligned to Coordinated Universal Time (UTC).
-In 1980, near the introduction of the GPS system, the "GPS time" was set to
-align with UTC, but it has not been adjusted for leap seconds that have occurred
-since then.  As of July 2015, GPS time is 17 seconds ahead of UTC, and that
-will change as more leap seconds are added in future years.
+Be aware that the raw GPS signal gives a timestamp that is not fully aligned to
+Coordinated Universal Time (UTC).  In 1980, near the introduction of the GPS
+system, the "GPS time" was set to align with UTC, but it has not been adjusted
+for leap seconds that have occurred since then.  As of July 2015, GPS time is
+17 seconds ahead of UTC, and that will change as more leap seconds are added in
+future years.
 
-There are two approaches to converting GPS time to UTC time.  Traditionally, a
-table of leap seconds was maintained on the device.  However, many
-modern GPS receivers can read an additional field sent in the GPS data stream that
-gives the GPS-UTC offset, and apply it directly.   It's important to know which
-approach your device's GPS receiver uses.  If it automatically adjusts for
-leap seconds, then you have nothing more to do.  Otherwise, you may
-need to adjust the timestamp manually before using it in your application.
+There are two approaches to converting GPS time to UTC.  Traditionally, a
+table of leap seconds was maintained on the device.  However, many modern GPS
+receivers can read an additional field sent in the GPS data stream that gives
+the GPS-UTC offset, and apply it directly.  It's important to know which
+approach the device's GPS receiver uses.  If it automatically adjusts for leap
+seconds, then there is nothing more to do.  Otherwise, the timestamps may need
+to be manually adjusted before they are used in the application.
 
 ### Using dedicated timing hardware
 
-If you need both high accuracy and high precision, consider a
+If the IoT scenario demands both high accuracy and high precision, consider a
 dedicated hardware clock.  There are [several manufacturers][clock-makers] of
 high-precision timing hardware that use signals from other sources, such as
-radio, CDMA, or GPS.  There are even atomic clocks for extreme precision.  These devices can be attached to a field gateway, to your network,
-or in some cases, directly to your IoT devices.  These timing sources provide
-some of the highest precision and accuracy levels available, but also come at a
-cost.
+radio, CDMA, or GPS.  There are even atomic clocks for extreme precision.  These
+devices can be attached to a field gateway, to a network, or in some cases,
+directly to the IoT devices.  These timing sources provide some of the highest
+precision and accuracy levels available, but also come at a cost.
 
 See also [Choosing Reference Clocks][ntp-choosing].
 
@@ -204,48 +248,122 @@ The following table summarizes the pros and cons of each approach.
 Clock Source | Pros | Cons
 -------------|------|------
 Cloud Gateway | <ul><li>Simple</li><li>Already synchronized</li><li>Acceptable for some always-online scenarios</li></ul> | <ul><li>High latency impacts data</li><li>Risk of bad data or dropped events when devices are offline</li><li>VMs may impact precision</li><li>No ability to attach dedicated clock hardware</li></ul>
-Field Gateway | <ul><li>Single source of time across devices</li><li>Can attach dedicated clock hardware for improved accuracy and precision</li></ul> | <ul><li>IoT solution may not include a field gateway</li><li>Not practical for ocassionally-connected devices</li></ul>
+Field Gateway | <ul><li>Single source of time across devices</li><li>Can attach dedicated clock hardware for improved accuracy and precision</li></ul> | <ul><li>IoT solution may not include a field gateway</li><li>Not practical for occasionally-connected devices</li></ul>
 Device | <ul><li>Works when disconnected</li><li>May have a GPS clock already</li><li>May be possible to attach dedicated clock hardware</li></ul> | <ul><li>Some devices don't have a clock</li><li>Synchronization is more difficult</li><li>Device may not have an RTC </li><li>Device precision may be lower than a typical computer</li></ul>
+
+## Network Time Protocol (NTP)
+
+It's common for computers (including both devices and servers) to synchronize
+their clocks clocks over the Internet via the [Network Time Protocol][ntp]
+(NTP).  This protocol is widely implemented and distributed across the Internet
+and private networks.
+
+When using NTP, it's important to understand the [stratum][clock-strata] of the
+clock of a particular machine.  Stratum is a measure of network hops away from
+the original timing source.  Though NTP can usually compensate for network
+latency, each hop will decrease the accuracy of the original timing signal.
+
+- Stratum 0 refers to an independent timing source, such as a high fidelity
+  GPS receiver, or an atomic clock such as those operated by [NIST][nist].
+- Stratum 1 refers to a machine that is *directly connected* to an
+  independent timing source.  Top-level NTP servers usually have Stratum 1.
+- Stratum 2 is usually found on NTP host servers that service a large number of
+  machines, such as `time.windows.com`.
+- Stratum 3 or 4 is often found on domain controllers in a network.
+
+Depending on how it is synchronized, your device and/or gateway may have a clock
+stratum of 3, 4, or higher.  Each level of stratum can add up to a few hundred
+milliseconds of error.  That means devices with a high clock stratum could end
+up recording timestamps that are a couple of seconds off, which may or may not
+be acceptable depending on the details of the scenario.
+
+In our IoT Journey project, we are targeting one event per minute, per device.
+Therefore, it really doesn't if the timestamps are displaced by a few seconds in
+either direction.
+
+It's also important to regularly re-synchronize the clocks on both servers and
+on devices.  All clocks will [drift][clock-drift] to a certain degree, so one
+cannot just set the time once on startup and expect it to remain accurate.  How
+often to synchronize is highly dependent on the specific qualities of the clock
+in question, but in general one should synchronize at least daily if possible.
+
+Additionally, recognize that whenever a clock is corrected, there could be some
+data with overlapping timestamps (when the clock is adjusted backwards), or
+there might be a noticeable gap in the timestamps (when the clock is adjusted
+forward).  There's very little that can be done about this, so systems should
+be designed with a degree of tolerance.
+
+[ntp]: https://en.wikipedia.org/wiki/Network_Time_Protocol
+[clock-strata]: https://en.wikipedia.org/wiki/Network_Time_Protocol#Clock_strata
+[nist]: http://www.nist.gov/pml/div688/grp50/primary-frequency-standards.cfm
+
 
 ## Event timestamps
 
-When you record a timestamp and send it over the wire, it's important that the value has an unambiguous meaning. There are two viable options, UTC and local time + offset. 
+When an event message contains a timestamp, it's important that the recorded
+value has an exact, unambiguous meaning.
+
+There are two practical options, as explained in the next sections.
 
 ### Coordinated Universal Time (UTC)
 
-UTC time represents a single moment in time that is the same anywhere on the planet, regardless of time zone. UTC does not use daylight saving time, so it is never ambiguous.
+UTC provides timestamps that are the same anywhere on the planet, regardless of
+time zone.  UTC does not use daylight saving time, so it is never ambiguous.
+When an event contains a UTC timestamp, the exact instantaneous time of the
+event is known to all viewers of the event.
 
-:memo: UTC is sometimes referred to as GMT. Both are equivalent in modern
-times, but the term UTC is preferred because it has a precise scientific definition.
+:memo: The terms UTC and GMT are often used interchangeably.  In modern usage,
+both time scales provide identical values.  However, the term UTC is preferred
+because it has a more precise scientific definition.
 
 ### Local time + offset
 
-UTC doesn't provide any information
-about the local time.  Perhaps it matters to your scenario that an event
-happened in the morning or in the evening.  Or perhaps your data needs to be
+UTC doesn't provide any information about the local time (or "wall time") in
+effect at the device's location, but many real-world scenarios require this
+knowledge.  This is especially true for devices that record data for a specific
+location, such as temperature or pressure.  Perhaps it matters that an event
+happened in the morning or in the evening.  Or perhaps the data needs to be
 grouped by the local date, where "local" is different depending on where in the
 world the device is located.
 
-In these scenarios, it may be tempting to timestamp your events with just the local date and time.  However, that is usually not a good idea, because it creates ambiguity about the exact time when the event occurred.  Even if all your devices are located in the same time zone, if that time zone uses [daylight saving time][dst-wiki] (DST), it creates ambiguous data when the clock "falls back." 
+In these scenarios, it may be tempting to just record the local date and time in
+the event data.  However, that is usually not a good idea because it creates
+ambiguity about the exact instant that the event occurred.  Even if all of the
+devices are located in the same time zone, if that time zone uses
+[daylight saving time][dst-wiki] (DST) then there could be ambiguous data when
+the clock "falls back."
 
-To overcome this problem, you can pass the local time *and* the offset from UTC. The offset is the *current* offset when the timestamp was recorded. In many time zones, the offset changes for daylight saving time, so it is not just a fixed number.  
+To overcome this problem, record the local time *and* the offset from UTC.
+Use the *current* offset of when the timestamp was recorded.  In many time
+zones, the offset changes for daylight saving time, so it is not just a fixed
+number.
 
-Some technologies define a specific data type that represents local time + offset (for example, `DateTimeOffset` in .NET). If a particular technology does not directly support a time + offset type, you should timestamp with the UTC time, and then include either the offset or the local time in a separate field.
+Some technologies define a specific data type that already combine local time
+and offset values (for example, `DateTimeOffset` in .NET and SQL Server).
+However, if a particular technology does not directly support a DateTimeOffset
+type, then record the UTC time and then include either the offset or the local
+time in a separate field.
 
-Alternatively, you could send *just* the UTC timestamp, and compute the local offset later, based on metadata for the device. (See [Time Zones](#time-zones).)
+Alternatively, *just* the UTC timestamp, and compute the local offset later
+based on metadata for the device.  (See [Time Zones](#time-zones).)
 
 [dst-wiki]: http://stackoverflow.com/tags/dst/info
 
 
 ## Time formats
 
-There are many different date and time formats used in programming. The format
-you choose may be specific to your transport and serialization
-protocols. However, the two most commonly used options are ISO 8601 and Unix timestamps. Dates in ISO 8601 are more readable, and Unix timestamps are more compact.
+There are many different date and time formats used in programming.  The format
+chosen may be specific to the particular transport and serialization protocols
+being used.  However, in many cases there is a choice.  The two most common
+options are the ISO 8601 format, and Unix timestamps.  Both are machine-readable,
+but timestamps in the ISO 8601 format are more human-readable, while Unix
+timestamps are more compact.
 
 ### ISO 8601
 
-The [ISO 8601][iso-8601] specification provides multiple formats for representing of date and time values.  Because events need to be unambiguous, it's important that you use the subset defined in [RFC 3339][rfc-3339].
+The [ISO 8601][iso-8601] specification provides multiple formats for
+representing of date and time values.  Because events need to be unambiguous,
+it's important that the subset described in [RFC 3339][rfc-3339] is used.
 
 - An example of a UTC-based value is:  `2015-07-30T01:23:59.999Z`  
   The `Z` at the end of the string indicates "Zulu Time", which is another name
@@ -255,10 +373,11 @@ The [ISO 8601][iso-8601] specification provides multiple formats for representin
   This represents the same instant in time as the previous example, but
   falls into a different date and time in its local time zone.
 
-These particular timestamps include three decimal places of
-precision, which isn't necessarily required.  You can use fewer or more, and you may want to align the precision with the actual precision of
-your clock source.   In other words, there's no point in sending seven digits
-if you're only certain of the time to the millisecond.
+These particular timestamps include three decimal places of precision, which
+isn't necessarily required.  It's acceptable to have fewer or more decimals.
+It is often desirable to align the timestamp precision with the actual precision
+of the clock source.  In other words, there's no point in sending seven decimal
+digits if the timestamp is only accurate to the millisecond.
 
 [iso-8601]: https://en.wikipedia.org/wiki/ISO_8601
 [rfc-3339]: https://tools.ietf.org/html/rfc3339
@@ -266,51 +385,67 @@ if you're only certain of the time to the millisecond.
 ### Unix timestamps
 
 Another way to transmit a timestamp is as an integer number of some unit of time
-(typically seconds or milliseconds) that have elapsed since a particular point in time (called
-an *epoch*).
+(typically seconds or milliseconds) that have elapsed since a particular point
+in time (called an *epoch*).
 
 While there have been several different epochs used in computing, the most
-common is `1970-01-01T00:00:00Z`, known as the "Unix Epoch". If you are serializing timestamps as integers, you should base them on this epoch for maximum portability, regardless of operating system or language.  Note that the epoch is in UTC, not in any particular local time
-zone.
+common is `1970-01-01T00:00:00Z`, known as the "Unix Epoch".  Use this epoch
+whenever serializing timestamps as integers, to achieve maximum portability
+(regardless of operating system or language).  Note that the epoch is in UTC,
+not in any particular local time zone.
 
 Strictly speaking, "Unix Time" uses *seconds* as its unit of measure.  However,
-in practice, many implementations require higher precision and
-thus use *milliseconds* instead.  Use whichever makes sense for your precision
-requirements, but make sure that both sides understand which measurement is
-being used.
+in practice, many implementations require higher precision and thus use
+*milliseconds* instead.  Use whichever makes sense for the application's
+specific precision requirements, but make sure that both sides understand which
+measurement is being used.
 
-Consider Unitx timestamps if your event messages use a compact binary
-representation, because integers require fewer bytes than strings.  For JSON, XML,
-and other text formats that are intended to be human readable, use ISO 8601
-instead.
+Consider Unix timestamps if the event messages use a compact binary
+representation, because integers require fewer bytes than strings.
+For JSON, XML, and other text formats that are intended to be human readable,
+use ISO 8601 instead.
 
-For example, the timestamp `2015-07-30T01:23:59.999Z` can be represented by the number `1438219439999`, which is a Unix
-timestamp based on milliseconds.  This only occupies 4 bytes, instead of the
-24 bytes used by the ISO 8601 string.
+For example, the timestamp `2015-07-30T01:23:59.999Z` can be represented by the
+number `1438219439999`, which is a Unix timestamp based on milliseconds.  This
+only occupies 4 bytes, instead of the 24 bytes used by the ISO 8601 string.
 
 [unix-time]: https://en.wikipedia.org/wiki/Unix_time
 
 
 ## Time zones
 
-We've already discussed using the local offset in the event timestamp. It's important to recognize that an *offset* is not the same thing as a *time zone*. An offset just tells how
-a single point in time relates to UTC.  A time zone *might* use a single offset,
-or it might use different offsets at different points in time.  For example,
-the US Pacific time zone has a standard offset of `-08:00`, but switches to
-`-07:00` when [daylight saving time][dst-wiki] is in effect.  
+We've already discussed using the local offset in the event timestamp.
+It's important to recognize that an *offset* is not the same thing as a
+*time zone*.  An offset just tells how a single point in time relates to UTC.
+A time zone *might* use a single offset, or it might use different offsets at
+different points in time.  For example, the US Pacific time zone has a standard
+offset of `-08:00`, but switches to `-07:00` when
+[daylight saving time][dst-wiki] is in effect.  
 
-You might want to assign a time zone to a device or group of devices.  This can be useful when performing certain types of aggregations in ad-hoc exploration, and when querying long-term
-storage.
+It may be desirable to associate a device or group of devices with an actual
+time zone.  This can be useful when performing certain types of aggregations
+in ad-hoc exploration, and when querying long-term storage.
 
-For example, consider sensors in "smart" buildings. Each sensor belongs to a particular building.  You could assign a time zone to the building, and then use that time zone to group events by the local day of that particular building.
+For example, consider sensors in "smart" buildings.  Each sensor belongs to a
+particular building.  Assigning a time zone to the building allows the UTC time
+of an event to be converted to the local time of the building, which can then
+be used to filter or group events by day.
 
 In this example, each building would have a time zone *identifier*,
 rather than a numerical offset.  This could be either a Windows time zone ID
-such as `"Pacific Standard Time"`, or an IANA time zone ID such as
+such as `"Pacific Standard Time"`, or a TZDB time zone ID such as
 `"America/Los_Angeles"`.  
 
-:memo: In .NET, you can use the [`TimeZoneInfo`][timezoneinfo] class to work with Windows time zones, or use the open-source [Noda Time][nodatime] library to work with either type
-of time zone identifier.
+Keep in mind that time zones are rules created by governments, and thus are
+subject to change.  Every year, about a dozen or so updates are made to time
+zones around the world.  It's important to stay current.  For this reason, it
+is often more practical to convert from UTC time to a time zone's local time
+on a server, than it is to ship updates to time zone data down to each device.
+
+:memo: In .NET, the [`TimeZoneInfo`][timezoneinfo] class can manipulate time
+using Windows time zones.  There are also open-source libraries, such as
+[Noda Time][nodatime], which can work with both Windows and TZDB time zones
+identifiers.
 
 See also: [The timezone tag wiki on StackOverflow][tz-wiki]
 
@@ -321,15 +456,16 @@ See also: [The timezone tag wiki on StackOverflow][tz-wiki]
 
 ## Time-based load leveling
 
-It's common to send an event from a device at some predetermined
-interval &mdash; for example, once per minute, or once per hour. In this situation, it's *critical* that all your devices do not send
-events at the exact same time.  Doing so can create peaks of high activity
-spaced by long stretches of idle time.  Depending on load, this may make it
-difficult to process your event stream efficiently.
+It's common to send an event from a device at some predetermined interval
+&mdash; for example, once per minute, or once per hour.  In this situation, it's
+*critical* that all of the devices do not send events at the exact same time.
+Doing so can create peaks of high activity spaced by long stretches of idle
+time.  Depending on load, this may make it difficult to process the event
+stream efficiently.
 
 Instead, consider leveling out the load.  One easy approach is simply to
-pause for some amount of random delay on device startup, and then start a timer on
-the device to fire every interval. 
+pause for some amount of random delay on device startup, and then start a timer
+on the device to fire every interval.
 
 Consider:
 
@@ -340,22 +476,24 @@ Device | Bad Example            | Good Example
  C     | `0:00`, `1:00`, `2:00` | `0:02`, `1:02`, `2:02`
  D     | `0:00`, `1:00`, `2:00` | `0:03`, `1:03`, `2:03`
 
-If your scenario requires synchronized event times, you
-can *record* the events at the exact same time, and then add a
-small random delay before *sending* the event.  Remember, it's not the *value* of the
-timestamp that creates a problem, but rather the *simultaneous transmittal* of
-many messages from many devices.
+If the scenario requires synchronized event times, then *record* the events at
+the exact time, but add a small random delay before *sending* the event.
+Remember, it's not the *value* of the timestamp that creates a problem, but
+rather the *simultaneous transmittal* of many messages from many devices.
 
-In other words, don't [DDOS][ddos] your own services.
+In other words, don't create a [Distributed Denial of Service attack][ddos]
+on your own services.
 
 [ddos]: https://en.wikipedia.org/wiki/Denial-of-service_attack#Distributed_attack
 
 ## Time-based aggregation and windowing
 
-Windowing functions provide a way to group events that occur within a
-period of time. If you are using an event stream processor such as Azure Stream Analytics, you should be familiar with the different types of windowing functions that are available.
+Windowing functions provide a way to group events that occur within a period of
+time.  When using an event stream processor such as Azure Stream Analytics, be
+familiar with the different types of windowing functions that are available.
 
-For example, you could use a 1-hour *tumbling* window to see which hours have the most
-activity or a 5-minute *sliding* window to watch for trends in
-the incoming data across groups of devices. Different technologies make different assumptions about windowing, so make sure you understand the details of your particular technology.   
-
+For example, one could use a 1-hour *tumbling* window to see which hours have
+the most activity, or a 5-minute *sliding* window to watch for trends in the
+incoming data across groups of devices.  Different technologies make different
+assumptions about windowing, so make sure to understand the details of the
+particular technology being used.
