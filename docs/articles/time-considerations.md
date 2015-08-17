@@ -54,17 +54,17 @@ The next sections will explore these options in more detail.
 ### Using the cloud gateway's clock
 
 When using the cloud gateway's clock, timestamp represents the instant in time
-that the message was *recieved* by the gateway.  This is often undesirable.
+that the message was *received* by the gateway.  This is often undesirable.
 
 **Latency.**  While simple to implement, this approach doesn't account for the
 time it takes to deliver the message from the device to the cloud.  This latency
 can be especially bad in scenarios that involve processing, offline devices, or
-ocassionally-connected devices.  In these scenarios, event messages are
+occasionally-connected devices.  In these scenarios, event messages are
 typically stored for later transmittal.  If the event time isn't captured until
 the message is received, it could quite far from being correct.
 
 In some cases the latency may be acceptable.  Particularly if one only cares
-about *reasonably current* events, and if it's ok for the device to discard
+about *reasonably current* events, and if it's okay for the device to discard
 events that occur when it is disconnected from the Internet, or when the gateway
 is otherwise unreachable.
 
@@ -248,7 +248,7 @@ The following table summarizes the pros and cons of each approach.
 Clock Source | Pros | Cons
 -------------|------|------
 Cloud Gateway | <ul><li>Simple</li><li>Already synchronized</li><li>Acceptable for some always-online scenarios</li></ul> | <ul><li>High latency impacts data</li><li>Risk of bad data or dropped events when devices are offline</li><li>VMs may impact precision</li><li>No ability to attach dedicated clock hardware</li></ul>
-Field Gateway | <ul><li>Single source of time across devices</li><li>Can attach dedicated clock hardware for improved accuracy and precision</li></ul> | <ul><li>IoT solution may not include a field gateway</li><li>Not practical for ocassionally-connected devices</li></ul>
+Field Gateway | <ul><li>Single source of time across devices</li><li>Can attach dedicated clock hardware for improved accuracy and precision</li></ul> | <ul><li>IoT solution may not include a field gateway</li><li>Not practical for occasionally-connected devices</li></ul>
 Device | <ul><li>Works when disconnected</li><li>May have a GPS clock already</li><li>May be possible to attach dedicated clock hardware</li></ul> | <ul><li>Some devices don't have a clock</li><li>Synchronization is more difficult</li><li>Device may not have an RTC </li><li>Device precision may be lower than a typical computer</li></ul>
 
 ## Network Time Protocol (NTP)
