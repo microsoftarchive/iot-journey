@@ -6,7 +6,7 @@ _An exploration into building a solution in the cloud_
 
 [![Join the chat at https://gitter.im/mspnp/iot-journey](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/mspnp/iot-journey?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-**There will be limited activity in this project on late September 2015.**
+**There will be limited activity on this project until late September 2015.**
 
 ## Why
 
