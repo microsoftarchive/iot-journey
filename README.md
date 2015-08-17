@@ -6,6 +6,8 @@ _An exploration into building a solution in the cloud_
 
 [![Join the chat at https://gitter.im/mspnp/iot-journey](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/mspnp/iot-journey?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
+**There will be limited activity in this project on late September 2015.**
+
 ## Why
 
 There is no one-size-fits-all answer when it comes to building an [IoT solution][intro-to-iot].
@@ -22,11 +24,9 @@ Our focus will be on problems related to the back-end architecture, such as:
 - event stream processing
 - facilitation of analysis
 
-We will be using the same tools and services that are available to you. 
-Instead of a single final snapshot of our source code, we'll be sharing the history and intermediate
-[releases][]. We'll grow the _reference implementation_ (our fancy name for an
-end-to-end sample) over time; responding to new business requirements and
-taking advantage of new services as they are released.
+We have identified a number of high-level scenarios; described and explored in the [docs][/docs]. We will be using the same tools and services that are available to you. 
+We are creating a set of _reference implementations_ (our fancy name for an
+end-to-end sample). Some of the reference implementation are meant to work in concert while others are alternative implementations.
 
 In addition to the **source code**, we'll also produce a **set of written
 articles** covering the general concepts and patterns, the rationale behind
@@ -36,26 +36,10 @@ We intend this to be an interactive act of discovery.
 
 ## How
 
-We've constructed a [scenario][] that reflects business requirements we've
-gathered from customers and advisors. The scenario is not meant to be
-realistic, but rather representative. That is, it should represent the most
-common needs and [challenges][] you will face.
+We are basing our scenarios on requirements we've gathered from customers and advisors. The scenario is not meant to be realistic, but rather representative. That is, it should represent the most common needs and [challenges][] encountered in this space.
 
-:memo: _We'd like your immediate feedback on the [scenario][] to help make sure
-that it is truly representative._
-
-We'll use this scenario to define our [backlog][] for the reference
-implementation. Both the scenario and backlog will change over time. We'll
-deliberately break the scenario up into [milestones][]. Each milestone will have
-a specific set of goals, deliverables, and target date. We will tag the source
-as a [release][releases] at the end of each milestone. Our engineering team will
-be working in two week iterations against the backlog.
-
-We will also establish an advisory council with regular meetings. The council
-will be asked to continuously review our work and provide critical feedback.
-
-Likewise, we intend to keep the conversation open. Any and all feedback is
-welcome.
+We are very interested in your feedback. We are publishing updates about the work on [our video blog][https://channel9.msdn.com/blogs/mspnp]. We encourage you to ask questions in the chat room or to open issue on this repo.
+Any and all feedback is welcome.
 
 ## Who
 
@@ -65,8 +49,7 @@ If you feel that there is anything more that we can do to make this guidance acc
 
 ## Next Step
 
-- Go to the [docs](docs) folder and review the readme.
-- Start reading the [journal](docs/journal).
+- Go to the [docs](docs) folder, review the readme, and begin reviewing the content.
 
 ## Problems, Concerns, and Feedback
 If something doesn't make sense, start with the [FAQ](FAQ.md).
@@ -82,10 +65,4 @@ If you want to contribute directly, please review our
 | [![In Progress](https://badge.waffle.io/mspnp/iot-journey.svg?label=in progress&title=In Progress)](https://waffle.io/mspnp/iot-journey)
 | [![Awaiting Review](https://badge.waffle.io/mspnp/iot-journey.svg?label=awaiting-review&title=Awaiting Review)](https://waffle.io/mspnp/iot-journey)
 
-
-[intro-to-iot]: docs/articles/what-is-an-IoT-solution.md
-[scenario]: docs/journal/00-introducing-the-journey.md
-[challenges]: docs/challenges-and-questions.md
-[backlog]: https://github.com/mspnp/iot-journey/issues
-[milestones]: https://github.com/mspnp/iot-journey/milestones
-[releases]: https://help.github.com/articles/about-releases/
+[intro-to-iot]: docs/01-what-is-an-IoT-solution.md

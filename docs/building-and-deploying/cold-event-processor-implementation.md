@@ -108,7 +108,7 @@ Perform the following steps to run the cold storage event processor.
 
 - On the menu, select option 2 (*Run Cold Storage Consumer*).
 
-- Allow the Cold Storage Conumer to run.
+- Allow the Cold Storage Consumer to run.
 
 
 ### Verifying the Raw Event Data Output by the Cold Storage Event Processor
