@@ -33,4 +33,6 @@ PROCESS
     .\Provision-WarmStorageAzureStreamAnalyticsAndSql.ps1 -SubscriptionName $SubscriptionName -ApplicationName $ApplicationName -AddAccount $False
 
     .\Provision-ColdStorageHDInsight.ps1 -SubscriptionName $SubscriptionName -ApplicationName $ApplicationName -AddAccount $False    
+
+	.\Provision-DeviceProvisioningWebApi.ps1 -SubscriptionName $SubscriptionName -ApplicationName $ApplicationName -AddAccount $False 
 }
