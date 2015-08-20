@@ -116,16 +116,23 @@ There are a number of common problems you will encounter when consuming events.
 
 You do not want delays in the processing to accumulate. Problems that cause the processing to take longer that expected, especially in services external to the consumer, can quickly compound. For this reason, you should consider having reasonable timeouts on all processing operations.
 
+Sometimes processing, either for an individual event data or for a batch, will fail. This may be due to a transient error, such as an external service being temporarily unavailable, or to something malformed about the event data itself. Exactly how failures are treated is specific to your business, however errors and handling of errors can cause delays.
 
+Failures often result in retries. Because of this processing event data should be idempotent.
 
-### Checkpoint and The High Watermark Problem
-	
-	What happens when you process an event twice?
-	What do failures really mean?
-	Delays in processing affect subsequent work.
+A consumer might end up in a situation where there is more data than it is able to process. This might be due to the fact that event data is being ingested faster than the consumer can process it. In that case, the consumer needs to be scaled out if possible. However, a consumer can also struggle to keep up because of unexpected failures in processing. In one of these situations you should consider _load shedding_; that is, abandoning the processing of some of the event data to keep the consumer from being overwhelmed.
 
->	If a single event data takes a long time to process, then subsequent event data are delayed. This can be mitigated by incorporating a timeout mechanism into the processing logic.
+If you need to abandon data, which data should be abandoned? Of course, the answer depends on business requirements. The easiest choice is to not accept new data until all of the existing data has been processed. However, there are many situations where the newer data is more relevant than than older.
 
+The best way to avoid data loss is thorough testing and monitoring of your system.
+
+### The High Watermark Problem
+
+We've mentioned that _checkpointing_ is the act of latest recording the the point in the event stream that has been processed by a consumer. Many of the patterns we've discussed involve working with a contiguous batch of event data in the event stream.
+
+If we have a partial failure when processing a batch, how should we checkpoint? If we checkpoint at the latest successfully processed event data, we may miss processing an failed event data that was earlier in the stream. If we checkpoint the earliest successfully processed event data, then we may end up reprocessing an event data that was already successful (demonstrating the value of idempotency). Furthermore, in both approaches, calculating the the event data to use for checkpointing involves reviewing the entire set of operations for success and failure after they all complete. 
+
+This is primarily an issue when we process a batch concurrently.
 
 ## Related Topics and Resources
 
