@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ServiceConfiguration serviceName="SimulatorDeployment" xmlns="http://schemas.microsoft.com/ServiceHosting/2008/10/ServiceConfiguration" osFamily="4" osVersion="*" schemaVersion="2015-04.2.6">
+  <Role name="ScenarioSimulator.WorkerRole">
+    <Instances count="1" />
+    <ConfigurationSettings>
+      <Setting name="Simulator.Scenario" value="" />
+      <Setting name="Simulator.NumberOfDevices" value="100" />
+      <Setting name="Simulator.EventHubNamespace" value="[YourEventHubNamespace]" />
+      <Setting name="Simulator.EventHubName" value="[YourEventHubName]" />
+      <Setting name="Simulator.EventHubSasKeyName" value="[YourSasKeyName]" />
+      <Setting name="Simulator.EventHubPrimaryKey" value="[YourEventHubPrimaryKey]" />
+      <Setting name="Simulator.EventHubTokenLifetimeDays" value="7" />
+      <Setting name="Simulator.WarmUpDuration" value="0.00:00:30" />
+      <!--See: https://msdn.microsoft.com/en-us/library/system.diagnostics.tracing.eventlevel(v=vs.110).aspx -->
+      <Setting name="Simulator.LogLevel" value="Informational" />
+    </ConfigurationSettings>
+  </Role>
+</ServiceConfiguration>

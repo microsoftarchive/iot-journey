@@ -183,7 +183,6 @@ namespace Microsoft.Practices.IoTJourney.ColdStorage.EventProcessor
                 _currentFrameLength += bytes.Length;
                 _lastEventData = e;
             }
-
         }
 
         // You should provide your own implementation of this method if you need 

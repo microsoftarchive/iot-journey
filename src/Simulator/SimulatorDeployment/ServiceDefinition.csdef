@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ServiceDefinition name="SimulatorDeployment" xmlns="http://schemas.microsoft.com/ServiceHosting/2008/10/ServiceDefinition" schemaVersion="2015-04.2.6">
+  <WorkerRole name="ScenarioSimulator.WorkerRole" vmsize="ExtraLarge">
+    <ConfigurationSettings>
+      <Setting name="Simulator.Scenario" />
+      <Setting name="Simulator.NumberOfDevices" />
+      <Setting name="Simulator.EventHubNamespace" />
+      <Setting name="Simulator.EventHubName" />
+      <Setting name="Simulator.EventHubSasKeyName" />
+      <Setting name="Simulator.EventHubPrimaryKey" />
+      <Setting name="Simulator.EventHubTokenLifetimeDays" />
+      <Setting name="Simulator.WarmUpDuration" />
+      <Setting name="Simulator.LogLevel" />
+    </ConfigurationSettings>
+  </WorkerRole>
+</ServiceDefinition>

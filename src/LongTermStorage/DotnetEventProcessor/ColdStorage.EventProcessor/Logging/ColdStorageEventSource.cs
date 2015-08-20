@@ -10,6 +10,11 @@ namespace Microsoft.Practices.IoTJourney.ColdStorage.EventProcessor.Logging
 {
     public class ColdStorageEventSource : EventSource
     {
+        public class Keywords
+        {
+            public const EventKeywords Performance = (EventKeywords)1;
+        }
+
         public static ColdStorageEventSource Log = new ColdStorageEventSource();
 
         [Event(1, Level = EventLevel.Informational, Message = "Processor for partition {1} in hub {0} invoked without events. Flushing {2} cached blocks.")]
@@ -213,6 +218,12 @@ namespace Microsoft.Practices.IoTJourney.ColdStorage.EventProcessor.Logging
         public void ConsumerGroupFound(string eventHubName, string consumerGroupName)
         {
             WriteEvent(24, eventHubName, consumerGroupName);
+        }
+
+        [Event(25, Level = EventLevel.Verbose, Keywords = Keywords.Performance, Message = "{0}")]
+        public void WriteToBlobEndedPerf(long bytes)
+        {
+            WriteEvent(25, bytes);
         }
     }
 }
