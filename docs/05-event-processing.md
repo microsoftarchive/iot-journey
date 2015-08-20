@@ -58,7 +58,74 @@ One notable feature available in the .NET SDK for Event Hubs is the [event proce
 
 ## Event Consumption Patterns
 
-> TODO
+> TODO This content may also need to be relocated to another section
+
+These are not meant to be a formal taxonomy of patterns for consuming event data, rather they are some common practices that we have observed while working with Event Hubs. 
+
+There are a few assumptions common across all of these patterns:
+- We typically receive a batch of event data at a time, rather than single event data. 
+- We receive events within the context of an Event Hub _partition_.
+- A consumer of events has a single purpose. This aligns with the idea of logical consumers with independent views of the event stream. Note that both Event Hubs and Kafka refer to these as _consumer groups_.
+
+For more background on concepts like partitions and consumer groups, we recommend reading this [overview of Event Hubs][event-hub-overview].
+
+We will also use the term _checkpoint_ to describe the act of an event consumer recording the most recent point in the event stream that it has successfully processed.
+
+### Serial Processing
+
+The most simple consumption pattern is to serially process each event data. This means that when a batch of event data is received, we iterate over each one, successfully processing it before moving on to the next event data. You would also likely checkpoint after each successfully processed event data. All of the event data in the batch would be processed before the next batch is received.
+
+This approach is most attractive when the order of processing is significant.
+
+This pattern has the worst performance characteristics. It has the most overhead for checkpointing, due to the frequency of checkpointing. It also compounds delays in processing more quickly due to its serial nature.
+
+### Parallel Processing
+
+All of the event data in a batch can be processed concurrently instead of serially. You would only checkpoint after the entire batch was successfully processed. The entire batch would be processed before the next batch is received.
+
+This approach is attractive when the order of processing is not significant. Contention over system resources inhibits the benefits of parallelization.
+
+Depending on your platform and system resources, you may want to bound the concurrency. For example, if your processing is CPU-bound consider limiting the concurrency to the number of available cores.
+
+While this pattern is likely to perform better than serial processing, it introduces complications when checkpointing. See the _high watermark problem_ below.
+
+### Buffering and Batching
+
+In this pattern, a batch of event data is buffered in memory when received. Multiple batches may be received and buffered. At some point, a certain threshold is reached and processing of everything in the buffer is triggered. 
+The trigger might be based on the number of event data, the total size in bytes of the buffered data, or a timeout.
+
+This is a useful technique when data needs to be written to some store; since writing a batch of records in a single operation is frequently more efficient than writing them individually.
+
+Processing the buffered data is typically an atomic operation; especially if the processing in question is writing the data to storage as a batch. However, this means that a failure during processing affects all of the event data that participated in the batch operation. 
+
+Allowing for partial processing of the buffered data might make sense in others scenarios, but it complicates the logic needed to checkpoint. See the _high watermark problem_ below.
+
+### Dispatching
+
+Sometimes there is a need to examine each event data and process it differently depending on its characteristics. The characteristics used to classify event data can vary from schema to serialization format to the presence or value of specific fields. Generally, some sort promoted property is used for classification in order to avoid the cost of deserialization. For example, an event data might have property called `SchemaType` that identifies how the body of the event data should be interpreted. 
+
+This classification is then used to look up some method of processing. This processing method might be a function invoked by the consumer itself. Alternatively, the method might be to place the event data in some other event stream or message queue that has its own set of consumers.
+
+This pattern breaks our assumption about single-purpose event consumers. However, there are sometime strong technical reasons for using this pattern. For example, there are limits on the number of consumer groups supported by an Event Hub. If the functionality required by your system exceeds this limit, you should consider this approach.
+
+This pattern can also be combined with _Serial Processing_ and _Parallel Processing_.
+
+## Problems with Consumption
+
+There are a number of common problems you will encounter when consuming events.
+
+You do not want delays in the processing to accumulate. Problems that cause the processing to take longer that expected, especially in services external to the consumer, can quickly compound. For this reason, you should consider having reasonable timeouts on all processing operations.
+
+
+
+### Checkpoint and The High Watermark Problem
+	
+	What happens when you process an event twice?
+	What do failures really mean?
+	Delays in processing affect subsequent work.
+
+>	If a single event data takes a long time to process, then subsequent event data are delayed. This can be mitigated by incorporating a timeout mechanism into the processing logic.
+
 
 ## Related Topics and Resources
 
@@ -75,6 +142,7 @@ One notable feature available in the .NET SDK for Event Hubs is the [event proce
 - Finally, there are a lot of interesting ideas about events being discussed in the [functional reactive programming][functional-reactive-programming] community.
 
 [fabrikam-scenario]: TODO
+[event-hub-overview]: https://azure.microsoft.com/en-us/documentation/articles/event-hubs-overview/
 [event-processor-host]: https://azure.microsoft.com/en-us/documentation/articles/event-hubs-programming-guide/#event-processor-host
 [apache-kafka]: https://kafka.apache.org/
 [azure-service-bus]: http://azure.microsoft.com/en-us/documentation/services/service-bus/
