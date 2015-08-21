@@ -1,4 +1,4 @@
-# Journal: Device Provisioning
+# Reference Implementation: Device Provisioning
 
 We use the term *provisioning* to describe adding a new device to an IoT solution. This scenario also encompasses *deprovisioning* a device &mdash; that is, taking it out of service.
 
@@ -23,7 +23,7 @@ If the IoT solution uses a field gateway to communicate with the cloud backend, 
 
 ## Fabrikam requirements
 
-:memo: For more about our Fabrikam scenario, see [Introducing the Journey][00-intro]. 
+:memo: For more about our Fabrikam scenario, see [About the Reference Implementation][reference-impl]. 
 
 For our scenario, we are assuming the following:
 
@@ -37,7 +37,7 @@ For our scenario, we are assuming the following:
 
 The big challenge for provisioning is authentication. 
 
-We are using Azure Event Hubs for event ingestion. (See the event ingestion [journal entry][event-ingestion-journal] for context.) Event hubs lets you define *shared access policies*. For example, you can define a Send policy that can send messages to the hub, but cannot listen or manage.  
+We are using Azure Event Hubs for event ingestion. (See the [Event Ingestion][event-ingestion] for context.) Event hubs lets you define *shared access policies*. For example, you can define a Send policy that can send messages to the hub, but cannot listen or manage.  
 
 Given the choice of Event Hubs, we looked at two approaches to authentication. 
 
@@ -57,6 +57,6 @@ Drawbacks:
 
 For the reference implementation, we created a simple web API, which can be hosted as a Azure App Service web app. A field technician would log into the app, enter the device ID, and receive a SAS token for the device. (We're assuming the technician has some way to get the SAS token into the device's firmware.) 
 
-
-[event-ingestion-journal]: 01-event-ingestion.md
+[reference-impl]: 03-reference-implementation.md
+[event-ingestion]: 04-event-ingestion.md
 [event-hub-publisher-policy]: http://blogs.msdn.com/b/servicebus/archive/2015/02/02/event-hub-publisher-policy-in-action.aspx
