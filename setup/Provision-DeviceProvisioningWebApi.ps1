@@ -67,10 +67,10 @@ PROCESS
 
     Select-AzureSubscription $SubscriptionName
 
-    $StorageAccountInfo = Provision-StorageAccount -StorageAccountName $StorageAccountName `
+    $StorageAccountInfo = New-ProvisionedStorageAccount -StorageAccountName $StorageAccountName `
                                                 -Location $Location
 
-    $EventHubInfo = Provision-EventHub -SubscriptionName $SubscriptionName `
+    $EventHubInfo = New-ProvisionedEventHub -SubscriptionName $SubscriptionName `
                                     -ServiceBusNamespace $ServiceBusNamespace `
                                     -EventHubName $EventHubName `
                                     -EventHubSharedAccessPolicyName $EventHubSharedAccessPolicyName `

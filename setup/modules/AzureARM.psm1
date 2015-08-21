@@ -1,5 +1,5 @@
 #Executes an script in ARM and inmediatly sets ASM back.
-function Using-AzureResourceManagerMode
+function Invoke-InAzureResourceManagerMode
 {
     [CmdletBinding()]
     param (
@@ -45,5 +45,5 @@ function New-AzureResourceGroupIfNotExists
     }
 }
 
-Export-ModuleMember Using-AzureResourceManagerMode
+Export-ModuleMember Invoke-InAzureResourceManagerMode
 Export-ModuleMember New-AzureResourceGroupIfNotExists

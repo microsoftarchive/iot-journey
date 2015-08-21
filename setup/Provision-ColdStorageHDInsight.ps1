@@ -31,7 +31,7 @@ PROCESS
 
     Select-AzureSubscription $SubscriptionName
 
-    $StorageAccountInfo = Provision-StorageAccount -StorageAccountName $StorageAccountName `
+    $StorageAccountInfo = New-ProvisionedStorageAccount -StorageAccountName $StorageAccountName `
                                              -ContainerName $ContainerName `
                                              -Location $Location
 
