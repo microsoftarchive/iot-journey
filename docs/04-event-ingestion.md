@@ -1,6 +1,6 @@
-# Journal 1: Event Ingestion
+# Event Ingestion
 
-This journal entry covers the most basic end-to-end IoT task: Getting events into the system.
+Getting events into the system is the most basic task for an IoT solution, and yet also the most critical. 
 
 - [Common requirements](#common-requirements)
 - [Fabrikam requirements](#fabrikam-requirements)
@@ -10,16 +10,15 @@ This journal entry covers the most basic end-to-end IoT task: Getting events int
 
 ## Common requirements
 
-Here are some common requirements that you should consider when building an IoT solution:
+Here are some common requirements for event ingestion in an IoT solution:
 
 - Authentication. Only authenticated devices can send data. (Provisioning devices is a separate scenario, although closely related.)
 - Achieving scale. That means both hitting the expected target data rate, but also designing the system to be scalable in the future.
 - Protecting the data stream.
-
   
 ## Fabrikam requirements
 
-:memo: For more about our Fabrikam scenario, see [Introducing the Journey][00-intro]. 
+:memo: For more about our Fabrikam scenario, see [About the Reference Implementation][reference-impl]. 
 
 Here are some specific requirements for our scenario:
 
@@ -46,7 +45,7 @@ In this approach, devices (or the field gateway) send HTTP requests. The cloud s
 
 Notice that in this design, the HTTP service handles both ingestion and processing.
 
-![cloud service solution based on web roles](media/01-event-ingestion/physical-architecture-cloud-service.png)
+![cloud service solution based on web roles](media/physical-architecture-cloud-service.png)
 
 This approach has some significant drawbacks: 
 
@@ -71,7 +70,7 @@ To ameliorate items 1 &ndash; 3, you can put the incoming messages onto a queue,
 
 In this approach, devices (or a field gateway) send event data to a Service Bus topic. Worker role instances subscribe to this topic to process the events. 
 
-![cloud service solution based on Service Bus Topics and Work Roles](media/01-event-ingestion/physical-architecture-worker-role-and-service-bus.png)
+![cloud service solution based on Service Bus Topics and Work Roles](media/physical-architecture-worker-role-and-service-bus.png)
 
 
 **Pros:**
@@ -98,7 +97,7 @@ In this approach, devices (or a field gateway) send event data to a Service Bus 
 
 In this approach, devices (or a field gateway) send events to an event hub. Worker role instances process the events.
 
-![cloud service solution based on Event Hubs and Worker Roles](media/01-event-ingestion/physical-architecture-worker-role-and-event-hub.png)
+![cloud service solution based on Event Hubs and Worker Roles](media/physical-architecture-worker-role-and-event-hub.png)
 
 **Pros:**
 
@@ -125,7 +124,7 @@ In this approach, devices (or a field gateway) send events to an event hub. Work
 
 In this approach, devices (or a field gateway) send events to an event hub. Stream Analytics takes the events as input and writes them directly to storage. (Stream Analytics can write to Azure Blob storage, Azure Table storage, or Azure SQL database.)  
 
-![cloud service solution based on Service Bus Topics and Work Roles](media/01-event-ingestion/physical-architecture-stream-analytics-and-event-hub.png)
+![cloud service solution based on Service Bus Topics and Work Roles](media/physical-architecture-stream-analytics-and-event-hub.png)
 
 
 **Pros:**
@@ -168,9 +167,9 @@ We hit the following issues when using Stream Analytics to save data to Blob sto
 *TODO Others?*
 
 
-[00-intro]: .\00-introducing-the-journey.md
-[Long-term storage]: .\02-long-term-storage.md
-[Ad hoc exploration]: .\03-ad-hoc-exploration.md
+[reference-impl]: 03-reference-implementation.md
+[Long-term storage]: 05-long-term-storage.md
+[Ad hoc exploration]: 06-ad-hoc-exploration.md
 [traffic-manager]: https://azure.microsoft.com/documentation/articles/traffic-manager-overview/
 [AMQP]: https://www.amqp.org/
 [event-hubs-programming-guide]: https://msdn.microsoft.com/library/azure/dn789972.aspx

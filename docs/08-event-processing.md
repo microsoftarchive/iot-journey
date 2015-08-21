@@ -148,7 +148,7 @@ This is primarily an issue when we process a batch concurrently.
 
 - Finally, there are a lot of interesting ideas about events being discussed in the [functional reactive programming][functional-reactive-programming] community.
 
-[fabrikam-scenario]: TODO
+[fabrikam-scenario]: 03-reference-implementation.md
 [event-hub-overview]: https://azure.microsoft.com/en-us/documentation/articles/event-hubs-overview/
 [event-processor-host]: https://azure.microsoft.com/en-us/documentation/articles/event-hubs-programming-guide/#event-processor-host
 [apache-kafka]: https://kafka.apache.org/
