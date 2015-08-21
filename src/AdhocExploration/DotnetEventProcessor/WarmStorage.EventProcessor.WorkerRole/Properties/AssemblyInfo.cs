@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Microsoft.Practices.IoTJourney.WarmStorage.EventProcessor")]
+[assembly: AssemblyTitle("Microsoft.Practices.IoTJourney.WarmStorage.EventProcessor.WorkerRole")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("Microsoft.Practices.IoTJourney.WarmStorage.EventProcessor")]
+[assembly: AssemblyProduct("Microsoft.Practices.IoTJourney.WarmStorage.EventProcessor.WorkerRole")]
 [assembly: AssemblyCopyright("Copyright ©  2015")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("fbb0e33c-7ed6-4ee4-995f-bc20bd28cddd")]
+[assembly: Guid("4c1634e3-d6a8-4787-af6e-967b4db81470")]
 
 // Version information for an assembly consists of the following four values:
 //

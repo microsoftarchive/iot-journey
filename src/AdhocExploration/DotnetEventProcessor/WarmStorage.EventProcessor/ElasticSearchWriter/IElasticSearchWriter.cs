@@ -6,7 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.ServiceBus.Messaging;
 
-namespace Microsoft.Practices.IoTJourney.WarmStorage.ElasticSearchWriter
+namespace Microsoft.Practices.IoTJourney.WarmStorage.EventProcessor.ElasticSearchWriter
 {
     public interface IElasticSearchWriter
     {

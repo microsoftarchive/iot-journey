@@ -8,13 +8,13 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Practices.IoTJourney.Devices.Events;
-using Microsoft.Practices.IoTJourney.WarmStorage.ElasticSearchWriter;
-using Microsoft.Practices.IoTJourney.WarmStorage.Logging;
+using Microsoft.Practices.IoTJourney.WarmStorage.EventProcessor.ElasticSearchWriter;
+using Microsoft.Practices.IoTJourney.WarmStorage.EventProcessor.Logging;
 using Microsoft.ServiceBus.Messaging;
 using Microsoft.WindowsAzure.Storage;
 using Newtonsoft.Json;
 
-namespace Microsoft.Practices.IoTJourney.WarmStorage
+namespace Microsoft.Practices.IoTJourney.WarmStorage.EventProcessor
 {
     public class WarmStorageProcessor : IEventProcessor
     {

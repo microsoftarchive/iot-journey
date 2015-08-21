@@ -2,10 +2,10 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
-using Microsoft.Practices.IoTJourney.WarmStorage.ElasticSearchWriter;
+using Microsoft.Practices.IoTJourney.WarmStorage.EventProcessor.ElasticSearchWriter;
 using Microsoft.ServiceBus.Messaging;
 
-namespace Microsoft.Practices.IoTJourney.WarmStorage
+namespace Microsoft.Practices.IoTJourney.WarmStorage.EventProcessor
 {
     public class WarmStorageEventProcessorFactory : IEventProcessorFactory
     {

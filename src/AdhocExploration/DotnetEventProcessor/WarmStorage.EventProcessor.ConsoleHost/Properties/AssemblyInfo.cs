@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("WarmStorage.ConsoleHost")]
+[assembly: AssemblyTitle("Microsoft.Practices.IoTJourney.WarmStorage.ConsoleHost")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("WarmStorage.ConsoleHost")]
+[assembly: AssemblyProduct("Microsoft.Practices.IoTJourney.WarmStorage.ConsoleHost")]
 [assembly: AssemblyCopyright("Copyright ©  2015")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

@@ -11,7 +11,7 @@ using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
 using Newtonsoft.Json;
 
-namespace Microsoft.Practices.IoTJourney.WarmStorage
+namespace Microsoft.Practices.IoTJourney.WarmStorage.EventProcessor
 {
     public class BuildingLookupService : IBuildingLookupService
     {
@@ -47,6 +47,11 @@ namespace Microsoft.Practices.IoTJourney.WarmStorage
             var blobClient = storageAccount.CreateCloudBlobClient();
             var container = blobClient.GetContainerReference(_configuration.ReferenceDataStorageContainer);
             _blockBlob = container.GetBlockBlobReference(_configuration.ReferenceDataFilePath);
+            
+            if(!await _blockBlob.ExistsAsync())
+            {
+                throw new ApplicationException(string.Format("Could not find blob named {0}.", _configuration.ReferenceDataFilePath));
+            }
 
             await _blockBlob.FetchAttributesAsync();
 
