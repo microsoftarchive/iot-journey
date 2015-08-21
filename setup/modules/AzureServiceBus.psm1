@@ -4,7 +4,7 @@
 ##
 ############################
 
-function Provision-EventHub
+function New-ProvisionedEventHub
 {
     [CmdletBinding()]
     param 
@@ -244,6 +244,6 @@ function New-ConsumerGroupIfNotExists
     }
 }
 
-Export-ModuleMember Provision-EventHub
+Export-ModuleMember New-ProvisionedEventHub
 Export-ModuleMember Assert-ServiceBusDll
 Export-ModuleMember Get-EventHubSharedAccessPolicyKey

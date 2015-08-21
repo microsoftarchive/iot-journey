@@ -109,11 +109,11 @@ PROCESS
 
     Select-AzureSubscription $SubscriptionName
 
-    Provision-StorageAccount -StorageAccountName $StorageAccountName `
+    New-ProvisionedStorageAccount -StorageAccountName $StorageAccountName `
                                              -ContainerName $ContainerName `
                                              -Location $Location
         
-    $EventHubInfo = Provision-EventHub -SubscriptionName $SubscriptionName `
+    $EventHubInfo = New-ProvisionedEventHub -SubscriptionName $SubscriptionName `
                                     -ServiceBusNamespace $ServiceBusNamespace `
                                     -EventHubName $EventHubName `
                                     -ConsumerGroupName $ConsumerGroupName `

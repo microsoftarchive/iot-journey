@@ -18,7 +18,7 @@ function Provision-SqlDatabase
     )
     PROCESS
     {
-        Using-AzureResourceManagerMode ({
+        Invoke-InAzureResourceManagerMode ({
             
             New-AzureResourceGroupIfNotExists -ResourceGroupName $ResourceGroupName -Location $Location
 

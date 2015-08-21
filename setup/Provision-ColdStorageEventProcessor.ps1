@@ -77,11 +77,11 @@ PROCESS
 
     Select-AzureSubscription $SubscriptionName
 
-    $StorageAccountInfo = Provision-StorageAccount -StorageAccountName $StorageAccountName `
+    $StorageAccountInfo = New-ProvisionedStorageAccount -StorageAccountName $StorageAccountName `
                                                 -ContainerName $ContainerName `
                                                 -Location $Location
 
-    $EventHubInfo = Provision-EventHub -SubscriptionName $SubscriptionName `
+    $EventHubInfo = New-ProvisionedEventHub -SubscriptionName $SubscriptionName `
                                     -ServiceBusNamespace $ServiceBusNamespace `
                                     -EventHubName $EventHubName `
                                     -ConsumerGroupName $ConsumerGroupName `
@@ -104,6 +104,8 @@ PROCESS
                        -configurationFile (Join-Path $PSScriptRoot -ChildPath "..\src\Simulator\ScenarioSimulator.ConsoleHost.config") `
                        -appSettings $simulatorSettings
     
+	$serviceConfigFiles = Get-ChildItem -Include "ServiceConfiguration.Cloud.cscfg" -Path $(Join-Path $PSScriptRoot -ChildPath "..\src\Simulator") -Recurse
+	Write-CloudSettingsFiles -serviceConfigFiles $serviceConfigFiles -appSettings $simulatorSettings
     
     # Bug: Originated in AzureServiceBus function New-EventHubIfNotExists which createes ConnectionString and returns it to EventHubInfo. 
     # Which also loads AzureServiceBus DLL that adds an identical 
@@ -125,6 +127,9 @@ PROCESS
     Write-SettingsFile -configurationTemplateFile (Join-Path $PSScriptRoot -ChildPath "..\src\LongTermStorage\DotnetEventProcessor\ColdStorage.EventProcessor.ConsoleHost.Template.config") `
                        -configurationFile (Join-Path $PSScriptRoot -ChildPath "..\src\LongTermStorage\DotnetEventProcessor\ColdStorage.EventProcessor.ConsoleHost.config") `
                        -appSettings $settings
+
+	$serviceConfigFiles = Get-ChildItem -Include "ServiceConfiguration.Cloud.cscfg" -Path $(Join-Path $PSScriptRoot -ChildPath "..\src\LongTermStorage\DotnetEventProcessor") -Recurse
+	Write-CloudSettingsFiles -serviceConfigFiles $serviceConfigFiles -appSettings $settings
     
     Write-Output "Provision Finished OK"
 }
