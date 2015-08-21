@@ -1,6 +1,6 @@
-# Journal 2: Long-Term Storage
+# Writing Event Data to Long-Term Storage
 
-This journal entry covers writing raw event data into long-term storage. 
+This topic explores options for writing raw event data into long-term storage. 
 
 - [Requirements](#requirements)
 - [Exploring solutions](#exploring-solutions)
@@ -73,7 +73,7 @@ For the reference implementation, we picked **Blob storage**. Stream Analytics o
 
 
 
-[Event ingestion]: 01-event-ingestion.md
+[Event ingestion]: 04-event-ingestion.md
 [sql]: http://azure.microsoft.com/en-us/services/sql-database/
 [table-storage]: https://azure.microsoft.com/documentation/articles/storage-dotnet-how-to-use-tables/
 [storage-scalability-targets]: https://azure.microsoft.com/documentation/articles/storage-scalability-targets/
