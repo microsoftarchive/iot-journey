@@ -26,7 +26,7 @@
 .EXAMPLE
   <Example goes here. Repeat this attribute for more than one example>
 #>
-function Provision-StorageAccount
+function New-ProvisionedStorageAccount
 {
     [CmdletBinding()]
     param
@@ -128,6 +128,6 @@ function New-StorageAccountIfNotExists
     }
 }
 
-Export-ModuleMember Provision-StorageAccount
+Export-ModuleMember New-ProvisionedStorageAccount
 Export-ModuleMember New-StorageContainerIfNotExists
 Export-ModuleMember Set-BlobData
