@@ -1,4 +1,4 @@
-# Journal 3: Ad Hoc Exploration
+# Ad Hoc Exploration
 
 We use the term "ad hoc exploration" for scenarios where the user wants to query event data on the fly. 
  
@@ -17,12 +17,12 @@ For example, you might use ad hoc exploration for incident investigation. Some f
 - Ad hoc exploration is generally "user initiated," meaning the user submits a query (or perhaps logs into a dashboard), versus having the system detect a condition and notify the user.
 - Some latency may be acceptable, in making event data available for ad hoc queries. For example, it might take 5 minutes to index the data. 
 
-	> We don't include critical alerts and other real-time processing under ad hoc exploration. See the [real-time processing][real-time-milestone] milestone.
+	> We don't include critical alerts and other real-time processing under ad hoc exploration. 
 
 
 ## Fabrikam requirements
 
-:memo: For more about our Fabrikam scenario, see [Introducing the Journey](00-introducing-the-journey.md). 
+:memo: For more about our Fabrikam scenario, see [About the Reference Implementation][reference-impl]. 
 
 Here are the specific requirements for our scenario:
 
@@ -48,7 +48,7 @@ We explored the following solutions:
 
 In this approach, we use Stream Analytics to aggregate the event data in real time and store the results in SQL. The aggregated data has smaller throughput than the raw data, making SQL feasible for this purpose.
 
-![Stream analytics diagram](./media/03-ad-hoc-exploration/stream-analytics.png)
+![Stream analytics diagram](./media/stream-analytics.png)
 
 
 **Advantages:**
@@ -56,7 +56,7 @@ In this approach, we use Stream Analytics to aggregate the event data in real ti
 - Easy to configure. Stream Analytics uses a declarative model to specify the input and output streams, and the transformations to be performed by the processing.
 - Easy to manage. Stream Analytics is an Azure service, so you don't need to provision or maintain VMs. 
 - Stream Analytics can pull in *reference data* from blob storage. Reference data is static or infrequently changing data. For example, in our Fabrikam scenario, we use this look up the building number from the device ID.   
-- Stream Analytics is integrated with Event Hubs, which we picked for event ingestion. (See [Journal entry 1][journal1].)
+- Stream Analytics is integrated with Event Hubs, which we picked for [event ingestion]. 
 
 **Concerns: **
 
@@ -69,7 +69,7 @@ In this approach, we use Stream Analytics to aggregate the event data in real ti
 
 In this approach, a custom event processor fetches the data from Event Hubs and writes it to Elasticsearch. To get enough throughput, you might need to use batch writes. 
 
-![Elasticsearch diagram](./media/03-ad-hoc-exploration/elasticsearch.png)
+![Elasticsearch diagram](media/elasticsearch.png)
 
 
 **Advantages:**
@@ -109,8 +109,8 @@ The Stream Analytics approach solves this problem by aggregating the events befo
 
 With Elasticsearch and other NoSQL options, you give up some of the advantages of a fully relational database (e.g., ACID transactions). 
 
-
-[journal1]: ./01-cold-storage.md
+[reference-impl]: 03-reference-implementation.md
+[event-ingestion]: 04-event-ingestion.md
 [Azure Stream Analytics]: http://azure.microsoft.com/en-us/services/stream-analytics/
 [Elasticsearch]: https://www.elastic.co/products/elasticsearch
 [Kibana]: https://www.elastic.co/products/kibana
