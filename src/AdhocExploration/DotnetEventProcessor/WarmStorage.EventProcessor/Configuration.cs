@@ -3,7 +3,7 @@
 
 using System;
 
-namespace Microsoft.Practices.IoTJourney.WarmStorage
+namespace Microsoft.Practices.IoTJourney.WarmStorage.EventProcessor
 {
     public class Configuration
     {

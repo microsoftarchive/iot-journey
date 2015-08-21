@@ -7,8 +7,8 @@
     <ProjectGuid>{57590971-00E1-4898-85A6-B6A967D78437}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Microsoft.Practices.IoTJourney.WarmStorage</RootNamespace>
-    <AssemblyName>Microsoft.Practices.IoTJourney.WarmStorage</AssemblyName>
+    <RootNamespace>Microsoft.Practices.IoTJourney.WarmStorage.EventProcessor</RootNamespace>
+    <AssemblyName>Microsoft.Practices.IoTJourney.WarmStorage.EventProcessor</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />

@@ -3,14 +3,14 @@
 
 using System;
 using System.Threading.Tasks;
-using Microsoft.Practices.IoTJourney.WarmStorage.ElasticSearchWriter;
-using Microsoft.Practices.IoTJourney.WarmStorage.Logging;
+using Microsoft.Practices.IoTJourney.WarmStorage.EventProcessor.ElasticSearchWriter;
+using Microsoft.Practices.IoTJourney.WarmStorage.EventProcessor.Logging;
 using Microsoft.ServiceBus;
 using Microsoft.ServiceBus.Messaging;
 
-namespace Microsoft.Practices.IoTJourney.WarmStorage
+namespace Microsoft.Practices.IoTJourney.WarmStorage.EventProcessor
 {
-    public class WarmStorageCoordinator
+    public class WarmStorageCoordinator : IDisposable
     {
         private EventProcessorHost _host;
 
@@ -80,6 +80,11 @@ namespace Microsoft.Practices.IoTJourney.WarmStorage
                 await _host.UnregisterEventProcessorAsync();
                 _host = null;
             }
+        }
+
+        public void Dispose()
+        {
+            TearDownAsync().Wait();
         }
     }
 }

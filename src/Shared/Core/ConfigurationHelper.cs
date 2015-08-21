@@ -340,7 +340,7 @@ namespace Microsoft.Practices.IoTJourney
                 {
                     return RoleEnvironment.CurrentRoleInstance.Id;
                 }
-                else if(IsAzureWebJob())
+                else if (IsAzureWebJob())
                 {
                     return Environment.GetEnvironmentVariable("WEBJOBS_NAME");
                 }

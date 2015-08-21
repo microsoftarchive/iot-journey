@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ServiceDefinition name="ConsumerGroupsDeployment" xmlns="http://schemas.microsoft.com/ServiceHosting/2008/10/ServiceDefinition" schemaVersion="2015-04.2.6">
+  <WorkerRole name="WarmStorage.EventProcessor.WorkerRole" vmsize="Medium">
+    <ConfigurationSettings>
+      <Setting name="Warmstorage.EventHubConnectionString" />
+      <Setting name="Warmstorage.EventHubName" />
+      <Setting name="Warmstorage.CheckpointStorageAccount" />
+      <Setting name="Warmstorage.ConsumerGroupName" />
+      <Setting name="Warmstorage.MaxBatchSize" />
+      <Setting name="Warmstorage.PreFetchCount" />
+      <Setting name="Warmstorage.ReceiveTimeout" />
+      <Setting name="Warmstorage.ElasticSearchUri" />
+      <Setting name="Warmstorage.ElasticSearchIndexPrefix" />
+      <Setting name="Warmstorage.ElasticSearchIndexType" />
+      <Setting name="Warmstorage.RetryCount" />
+      <Setting name="Warmstorage.ReferenceDataStorageContainer" />
+      <Setting name="Warmstorage.ReferenceDataFilePath" />
+      <Setting name="WarmStorage.ReferenceDataCacheTTLMinutes" />
+    </ConfigurationSettings>
+  </WorkerRole>
+</ServiceDefinition>

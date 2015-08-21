@@ -5,10 +5,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Microsoft.Practices.IoTJourney.WarmStorage.Logging
+namespace Microsoft.Practices.IoTJourney.WarmStorage.EventProcessor.Logging
 {
     public class WarmStorageEventSource : EventSource
     {
+        public class Keywords
+        {
+            public const EventKeywords Performance = (EventKeywords)1;
+        }
+
         public static WarmStorageEventSource Log = new WarmStorageEventSource();
 
         [Event(1, Level = EventLevel.Informational, Message = "Processor {0} for partition {2} on hub {1} completed a checkpoint for offset {3}.")]
@@ -111,6 +116,18 @@ namespace Microsoft.Practices.IoTJourney.WarmStorage.Logging
         public void WriteToElasticSearchError_Inner(string exceptionString)
         {
             WriteEvent(12, exceptionString);
+        }
+
+        [Event(9100, Level = EventLevel.Verbose, Keywords = Keywords.Performance, Message = "{0}")]
+        public void WriteToElasticSearchSuccessPerf(int messageCount)
+        {
+            WriteEvent(9100, messageCount);
+        }
+
+        [Event(9101, Level = EventLevel.Verbose, Keywords = Keywords.Performance, Message = "{0}")]
+        public void WriteToElasticSearchFailedPerf(int messageCount)
+        {
+            WriteEvent(9101, messageCount);
         }
     }
 }
