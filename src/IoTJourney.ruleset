@@ -1,0 +1,6 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<RuleSet Name="IoT Journey" Description="IoT Journey ruleset" ToolsVersion="11.0">
+  <Rules AnalyzerId="Microsoft.Analyzers.ManagedCodeAnalysis" RuleNamespace="Microsoft.Rules.Managed">
+     <Rule Id="CA1305" Action="Warning" />
+  </Rules>
+</RuleSet>
