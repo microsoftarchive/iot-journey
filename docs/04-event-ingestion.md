@@ -111,11 +111,13 @@ In this approach, devices (or a field gateway) send events to an event hub. Work
 
 **Concerns:**
 
-- **Complexity.** The Event Hubs programming model is significantly different from Service Bus queues and topics. For example, in Event Hubs, the receiver does not remove message after processing. The [Event Hubs Programming Guide][event-hubs-programming-guide] contains the details. (This [blog post][event-hubs-vs-azure-messaging] has a good summary of the differences.)
+- **Complexity.** The Event Hubs programming model is significantly different from Service Bus queues and topics. For example, in Event Hubs, the receiver does not remove message after processing. The [Event Hubs Programming Guide][event-hubs-programming-guide] contains the details. (This [blog post][event-hubs-vs-azure-messaging] has a good summary of the differences.) However, the Azure .NET SDK provides a [high-level API][event-processor-host] for consuming events, that simplifies keeping track of which events in which partition have been read.
 
 - **Throttling.** Event Hubs is priced in terms of throughput units. A throughput unit specifies the rate at which data can be sent and received by using Event Hubs. If an application exceeds the number of purchased throughput units, performance will be throttled and may trigger exceptions. The DevOps team must constantly monitor the event hub to ensure that sufficient throughput units are available.
 
 - **Scalability.** There is a limit of 25 worker role instances per cloud service deployment.
+
+> [Apache Kafka][apache-kafka] is another technology that is functionally similar to Event Hubs. However, Event Hubs is offered as a managed service in Microsoft Azure. To use Kafka, you would need to provision the necessary VMs and manage your own cluster. The primary motivation for running Kafka would be if you had an existing dependency in a system that you were migrating to Azure.
 
 
 ### Event Hub + Azure Stream Analytics
@@ -179,3 +181,5 @@ We hit the following issues when using Stream Analytics to save data to Blob sto
 [queue-based-load-leveling]: https://msdn.microsoft.com/en-us/library/dn589783.aspx
 [queue-centric-work-pattern]: http://www.asp.net/aspnet/overview/developing-apps-with-windows-azure/building-real-world-cloud-apps-with-windows-azure/queue-centric-work-pattern
 [event-hubs-vs-azure-messaging]: http://microsoftintegration.guru/2015/03/03/azure-event-hubs-vs-azure-messaging
+[apache-kafka]: https://kafka.apache.org/
+[event-processor-host]: https://azure.microsoft.com/en-us/documentation/articles/event-hubs-programming-guide/#event-processor-host
