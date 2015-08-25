@@ -39,17 +39,19 @@ Before we even get to specific implementations, here is the logical architecture
 - _Dashboard_ is a user interface for exploring the recent aggregate state.
 - _Batch Analytics_ anticipates the Hive queries that the customer will want to run from time to time.
 
+(Compare this diagram with the more general [logical architecture](02-architecting-IoT-solutions.md#logical-architecture) described in [Architecting an IoT solution](02-architecting-IoT-solutions.md).)
+
 ## Implementation
 
-We are approaching the project in phases, building a functional part of the system in each phase. This strategy lets us evaluate the appropriate technologies and quickly deploy something concrete. These phases are orthogonal to the data flow model above. Each phase might touch several stages of the data flow.
+We approached the project in phases, building a functional part of the system in each phase. This strategy allowed us to evaluate the appropriate technologies and quickly deploy something concrete. 
 
 1. **[Capturing event data][event-ingestion]**. It sounds obvious, but the most basic task for an IoT solution is getting event data into the cloud.
 
-1. **[Saving raw event data in long-term storage][long-term-storage]**. Assuming that all event data must be stored indefinitely, the volume of data held in cold storage could become very large. Cold storage must therefore be inexpensive.
+1. **[Saving raw event data in long-term storage][long-term-storage]**. Assuming that all event data must be stored indefinitely, the volume of data held in long-term storage could become very large. The storage must therefore be inexpensive.
 
-1. **[Saving event data to warm storage for ad-hoc exploration][ad-hoc-exploration]**. This phase is concerned storing data for warm processing. Analysts and operators performing ad-hoc queries are unlikely to require the details of every historical event, so warm storage will only record the data for *recent* events. This will enable queries to run more quickly, and be more cost effective for expensive data stores that support the features required to run complex queries.
+1. **[Ad-hoc exploration][ad-hoc-exploration]**. This phase is concerned storing data for warm processing. Analysts and operators performing ad-hoc queries are unlikely to require the details of every historical event, so warm storage will only record the data for *recent* events. This will enable queries to run more quickly, and be more cost effective for expensive data stores that support the features required to run complex queries.
 
-1. **Saving event data to warm storage for generating aggregated streams**. This phase considers the issues around generating information derived from the original event data. Initially, this derivative information is a rolling record of the average temperature reported by all devices in each building over the previous 5 minutes, but additional aggregations may be added as required by the client. As with the previous phase, these queries only require access to recent data, but the processing is more defined.
+	As part of this phase, we also looked at aggregating the raw event data; for example, producing a rolling record of the average temperature reported by all devices in each building over the previous 5 minutes. 
 
 1. **[Provisioning new devices][device-provisioning]**. 
 
