@@ -79,6 +79,9 @@ PROCESS
     Write-SettingsFile -configurationTemplateFile (Join-Path $PSScriptRoot -ChildPath "..\src\Simulator\ScenarioSimulator.ConsoleHost.Template.config") `
                        -configurationFile (Join-Path $PSScriptRoot -ChildPath "..\src\Simulator\ScenarioSimulator.ConsoleHost.config") `
                        -appSettings $simulatorSettings
+
+	$serviceConfigFiles = Get-ChildItem -Include "ServiceConfiguration.Cloud.cscfg" -Path $(Join-Path $PSScriptRoot -ChildPath "..\src\Simulator") -Recurse
+	Write-CloudSettingsFiles -serviceConfigFiles $serviceConfigFiles -appSettings $simulatorSettings
         
     $EventHubConnectionString = $EventHubInfo.ConnectionStringFix + ";TransportType=Amqp"
     $StorageAccountConnectionString = "DefaultEndpointsProtocol=https;AccountName={0};AccountKey={1}" -f $StorageAccountInfo.AccountName, $StorageAccountInfo.AccountKey
@@ -94,6 +97,8 @@ PROCESS
                        -configurationFile (Join-Path $PSScriptRoot -ChildPath "..\src\AdhocExploration\DotnetEventProcessor\WarmStorage.EventProcessor.ConsoleHost.config") `
                        -appSettings $settings
 
+	$serviceConfigFiles = Get-ChildItem -Include "ServiceConfiguration.Cloud.cscfg" -Path $(Join-Path $PSScriptRoot -ChildPath "..\src\AdhocExploration\DotnetEventProcessor") -Recurse
+	Write-CloudSettingsFiles -serviceConfigFiles $serviceConfigFiles -appSettings $settings
 
     Write-Warning "This scenario requires Elastich Search installed to run which is not provisioned with this script."
     Write-Output "Provision Finished OK"
