@@ -17,7 +17,7 @@
 [CmdletBinding()]
 Param
 (
-	[ValidateNotNullOrEmpty()][Parameter (Mandatory = $True)][string]$SubscriptionName,
+    [ValidateNotNullOrEmpty()][Parameter (Mandatory = $True)][string]$SubscriptionName,
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $True)][String]$ApplicationName
 )
 PROCESS
@@ -34,5 +34,5 @@ PROCESS
 
     .\Provision-ColdStorageHDInsight.ps1 -SubscriptionName $SubscriptionName -ApplicationName $ApplicationName -AddAccount $False    
 
-	.\Provision-DeviceProvisioningWebApi.ps1 -SubscriptionName $SubscriptionName -ApplicationName $ApplicationName -AddAccount $False 
+    .\Provision-DeviceProvisioningWebApi.ps1 -SubscriptionName $SubscriptionName -ApplicationName $ApplicationName -AddAccount $False 
 }

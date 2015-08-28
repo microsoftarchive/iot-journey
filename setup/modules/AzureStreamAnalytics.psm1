@@ -13,7 +13,7 @@ function Provision-StreamAnalyticsJob
     [CmdletBinding()]
     param
     (
-		[ValidateNotNullOrEmpty()][Parameter (Mandatory = $True)][String]$ServiceBusNamespace,
+        [ValidateNotNullOrEmpty()][Parameter (Mandatory = $True)][String]$ServiceBusNamespace,
         [ValidateNotNullOrEmpty()][Parameter (Mandatory = $True)][String]$EventHubName,
         [ValidateNotNullOrEmpty()][Parameter (Mandatory = $True)][String]$EventHubSharedAccessPolicyName,
         [ValidateNotNullOrEmpty()][Parameter (Mandatory = $True)][String]$StorageAccountName,
@@ -34,7 +34,7 @@ function Provision-StreamAnalyticsJob
                                                  -ResourceGroupName $ResourceGroupName
 
             Write-Verbose "Completed created Azure Stream Analytics Job"
-			            
+                        
         })
 
         Write-Verbose "Create Azure StreamAnalyticsJob Completed"

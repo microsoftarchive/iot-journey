@@ -61,7 +61,7 @@ Param
 (
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $True)][string]$SubscriptionName,
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $True)][String]$ApplicationName,
-	[ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][bool]$AddAccount = $True,
+    [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][bool]$AddAccount = $True,
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$StorageAccountName =$ApplicationName,
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$ContainerName = "warm-asa",
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$EventHubName = "eventhub-iot",
@@ -94,7 +94,7 @@ PROCESS
 
     # Load modules.
     Load-Module -ModuleName Config -ModuleLocation .\modules
-	Load-Module -ModuleName Utility -ModuleLocation .\modules
+    Load-Module -ModuleName Utility -ModuleLocation .\modules
     Load-Module -ModuleName AzureARM -ModuleLocation .\modules
     Load-Module -ModuleName AzureStorage -ModuleLocation .\modules
     Load-Module -ModuleName AzureServiceBus -ModuleLocation .\modules
@@ -110,8 +110,8 @@ PROCESS
     Select-AzureSubscription $SubscriptionName
 
     New-ProvisionedStorageAccount -StorageAccountName $StorageAccountName `
-                                             -ContainerName $ContainerName `
-                                             -Location $Location
+                                  -ContainerName $ContainerName `
+                                  -Location $Location
         
     $EventHubInfo = New-ProvisionedEventHub -SubscriptionName $SubscriptionName `
                                     -ServiceBusNamespace $ServiceBusNamespace `
@@ -139,9 +139,9 @@ PROCESS
     $ResourceGroupName = $ResourceGroupPrefix + "-" + $Location.Replace(" ","-")
 
     Provision-SqlDatabase -SqlServerName $SqlServerName `
-							            -SqlServerAdminLogin $SqlServerAdminLogin `
-							            -SqlServerAdminPassword $SqlServerAdminPassword `
-							            -SqlDatabaseName $SqlDatabaseName `
+                                        -SqlServerAdminLogin $SqlServerAdminLogin `
+                                        -SqlServerAdminPassword $SqlServerAdminPassword `
+                                        -SqlDatabaseName $SqlDatabaseName `
                                         -ResourceGroupName $ResourceGroupName `
                                         -Location $Location
 
