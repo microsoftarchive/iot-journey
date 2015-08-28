@@ -100,10 +100,12 @@ Ultimately, the best way to avoid data loss is by testing and monitoring your sy
 
 ## Related Topics and Resources
 
-- **Complex Event Processing** or CEP is a more advanced topic associated with event stream processing. It deals with relationships between simpler events. For a brief overview, start with the [wikipedia article][complex-event-processing]. For a more thorough discussion, see [The Power of Events][power-of-events] by David Luckham.
+- The book, [**Event Processing in Action**][event-processing-in-action] (2010) by Opher Etzion and Peter Niblett, is a thorough discussion of the concepts and patterns in event processing.
+
+- **Complex Event Processing** or CEP is a more advanced topic associated with event stream processing. It deals with relationships between simpler events. For a brief overview, start with the [wikipedia article][complex-event-processing]. For a more thorough discussion, see [The Power of Events][power-of-events] (2002) by David Luckham.
 
 - The book, [**I ♥ Logs**][i-heart-logs] by Jay Kreps, is an excellent introduction to a "log-centric" architecture and how it helped LinkedIn overcome problems of complexity and scale.
-
+ 
 - The documentation for Apache Kafka has a great overview about the [motivations behind its design][kafka-design].
 
 - When searching for information on event processing, you will likely encounter [event-driven architecture][event-driven-architecture]. There are many useful ideas in this pattern, but it tends to focus on message queues and not event streams.
@@ -118,6 +120,7 @@ Ultimately, the best way to avoid data loss is by testing and monitoring your sy
 [azure-service-bus]: http://azure.microsoft.com/en-us/documentation/services/service-bus/
 [azure-event-hubs]: http://azure.microsoft.com/en-us/services/event-hubs/
 [event-stream-processing]: https://en.wikipedia.org/wiki/Event_stream_processing
+[event-processing-in-action]: https://www.manning.com/books/event-processing-in-action
 [complex-event-processing]: https://en.wikipedia.org/wiki/Complex_event_processing
 [event-driven-architecture]:https://en.wikipedia.org/wiki/Event-driven_architecture
 [service-bus-pattern]: https://en.wikipedia.org/wiki/Enterprise_service_bus
