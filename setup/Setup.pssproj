@@ -27,6 +27,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="data\CreateSqlDatabase_Schema.sql" />
     <Compile Include="data\fabrikam_buildingdevice.json" />
     <Compile Include="Init.ps1" />
     <Compile Include="modules\AzureARM.psm1" />
@@ -44,14 +45,10 @@
     <Compile Include="Provision-DeviceProvisioningWebApi.ps1" />
     <Compile Include="Provision-WarmStorageAzureStreamAnalyticsAndSql.ps1" />
     <Compile Include="Provision-WarmStorageEventProcessor.ps1" />
-    <Compile Include="utility\CreateSqlDatabase_Schema.sql" />
-    <Compile Include="utility\ExecuteSQL.exe" />
-    <Compile Include="utility\ProvisionDatabase.cmd" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="data\" />
     <Folder Include="modules\" />
-    <Folder Include="utility\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Target Name="Build" />
