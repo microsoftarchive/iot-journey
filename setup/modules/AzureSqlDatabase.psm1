@@ -40,20 +40,89 @@ function Provision-SqlDatabase
 
         $Configuration = Get-Configuration
 
-        try
-        {
-            Push-Location $Configuration.UtilityFolderPath
+		$schemaFilePath = Join-Path $PSScriptRoot -ChildPath "..\data\CreateSqlDatabase_Schema.sql"
 
-            .\ProvisionDatabase.cmd $QualifiedSqlServerName $SqlDatabaseName $SqlServerAdminLogin $SqlServerAdminPassword
-        }
-        finally
-        {
-            Pop-Location 
-        }
+		Invoke-SqlScript -SqlServerName $QualifiedSqlServerName `
+						 -SqlDatabaseName $SqlDatabaseName `
+						 -SqlServerAdminLogin $SqlServerAdminLogin `
+						 -SqlServerAdminPassword $SqlServerAdminPassword `
+						 -ScriptFileName $schemaFilePath
     }
 }
 
 # private
+
+function Invoke-SqlScript
+{
+	[CmdletBinding()]
+    param
+    (
+        [Parameter(Mandatory=$True)][string]$SqlServerName,
+        [Parameter(Mandatory=$True)][string]$SqlDatabaseName,
+        [Parameter(Mandatory=$True)][string]$SqlServerAdminLogin,
+        [Parameter(Mandatory=$True)][string]$SqlServerAdminPassword,
+		[Parameter(Mandatory=$True)][string]$ScriptFileName,
+		[Parameter(Mandatory=$false)][bool]$IntegratedSecurity = $false
+    )
+    PROCESS
+    {
+		$connStrBuilder = New-Object System.Data.SqlClient.SqlConnectionStringBuilder
+		$connStrBuilder["Integrated Security"] = $IntegratedSecurity
+		$connStrBuilder["Data Source"] = $SqlServerName
+		$connStrBuilder["Initial Catalog"] = $SqlDatabaseName
+		$connStrBuilder["User ID"] = $SqlServerAdminLogin
+		$connStrBuilder["Password"] = $SqlServerAdminPassword
+
+		$connection = New-Object System.Data.SqlClient.SqlConnection($connStrBuilder.ConnectionString)
+		$command = $connection.CreateCommand()
+
+		$builder = New-Object System.Text.StringBuilder
+		[int]$num = 0
+        
+        $connection.Open()
+
+		$reader = [System.IO.File]::OpenText($ScriptFileName)
+		try
+		{
+			for(;;) 
+			{
+				$line = $reader.ReadLine()
+				$num++
+				if (($line -eq $null) -or $line.ToUpper().Trim().Equals("GO"))
+				{
+					if($builder.Length -gt 0) 
+					{
+						$command.CommandText = $builder.ToString()
+						try
+						{
+							$command.ExecuteNonQuery() | out-null
+						}
+						catch
+						{
+							$errorMessage = $_.Exception.Message
+							Write-Error "Error at or before line $num : $errorMessage"
+						}
+                        
+						$builder.Length = 0
+					}
+                    if($line -eq $null)
+                    {
+                        break
+                    }
+				}
+				else
+				{
+					$builder.AppendLine($line)
+				}
+			}
+		}
+		finally 
+		{
+			$reader.Close()
+			$connection.Close()
+		}
+	}
+}
 
 function New-SqlServerIfNotExists
 {
