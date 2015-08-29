@@ -47,4 +47,4 @@ function Assert-AzurePowershellVersion
 ##
 ############################
 
-Assert-AzurePowershellVersion "0.9.3"
+Assert-AzurePowershellVersion "0.9.7"
