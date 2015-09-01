@@ -22,7 +22,7 @@ namespace Microsoft.Practices.IoTJourney.Monitoring.EventProcessor
         private TimeSpan _samplingRate;
         private STimer _samplingTimer;
         private STimer _sessionTimer;
-        private ISubject<PartitionSnapshot> _stream = new Subject<PartitionSnapshot>();
+        private ISubject<EventEntry> _stream = new Subject<EventEntry>();
 
         private string _consumerGroupName;
         private string _checkpointContainerName;
@@ -32,7 +32,7 @@ namespace Microsoft.Practices.IoTJourney.Monitoring.EventProcessor
         private Configuration _configuration;
         private CloudStorageAccount _storageAccount;
 
-        public ISubject<PartitionSnapshot> Stream
+        public ISubject<EventEntry> Stream
         {
             get { return _stream; }
         }
@@ -74,7 +74,7 @@ namespace Microsoft.Practices.IoTJourney.Monitoring.EventProcessor
             var checkpointContainer = blobClient.GetContainerReference(_checkpointContainerName);
 
             var partitionBlobRefereces = new List<CloudBlockBlob>();
-            var previousSnapshots = new List<PartitionSnapshot>();
+            var previousSnapshots = new List<EventEntry>();
 
             for (int i = 0; i < runtime.PartitionCount; i++)
             {
@@ -82,7 +82,7 @@ namespace Microsoft.Practices.IoTJourney.Monitoring.EventProcessor
                 var partitionBlob = checkpointContainer.GetBlockBlobReference(_consumerGroupName + "/" + i);
                 partitionBlobRefereces.Add(partitionBlob);
 
-                previousSnapshots.Add(new PartitionSnapshot());
+                previousSnapshots.Add(new EventEntry());
             }
 
             _samplingTimer.Elapsed += async (sender, e) =>
@@ -98,7 +98,7 @@ namespace Microsoft.Practices.IoTJourney.Monitoring.EventProcessor
                         var partitionInfo = await _nsm.GetEventHubPartitionAsync(_configuration.EventHubName, _consumerGroupName, partitionId).ConfigureAwait(false);
 
                         var checkpointBlobText = await partitionBlobRefereces[i].DownloadTextAsync().ConfigureAwait(false);
-                        var partitionSnapshot = JsonConvert.DeserializeObject<PartitionSnapshot>(checkpointBlobText);
+                        var partitionSnapshot = JsonConvert.DeserializeObject<EventEntry>(checkpointBlobText);
 
                         var unprocessedEvents = partitionInfo.EndSequenceNumber - partitionSnapshot.SequenceNumber;
 

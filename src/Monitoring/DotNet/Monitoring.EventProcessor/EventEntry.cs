@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Microsoft.Practices.IoTJourney.Monitoring.EventProcessor
 {
-    public class PartitionSnapshot
+    public class EventEntry
     { 
         /// <summary>
         /// Timestamp of the sample. All partitions collected in the same Sample will have this same Timestamp.

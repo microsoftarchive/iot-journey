@@ -1,10 +1,13 @@
-﻿using Microsoft.ServiceBus;
+﻿using Microsoft.Practices.IoTJourney.Monitoring.EventProcessor.ConsoleHost.Formatters;
+using Microsoft.Practices.IoTJourney.Monitoring.EventProcessor.ConsoleHost.Sinks;
+using Microsoft.ServiceBus;
 using Microsoft.ServiceBus.Messaging;
 using Microsoft.WindowsAzure.Storage;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -17,27 +20,41 @@ namespace Microsoft.Practices.IoTJourney.Monitoring.EventProcessor.ConsoleHost
     {
         static void Main(string[] args)
         {
+            var consumerGroupName = "cg-elasticsearch";
+
             var monitor = new PartitionMonitor
             (
                 samplingRate: TimeSpan.FromSeconds(30),
-                sessionTimeout: TimeSpan.FromMinutes(5),
-                consumerGroupName: "cg-elasticsearch",
+                sessionTimeout: TimeSpan.FromMinutes(60),
+                consumerGroupName: consumerGroupName,
                 checkpointContainerName: "eventhub-iot"
             );
 
+            var formatter = new CsvEventTextFormatter();
+            var filename = string.Format("Data\\{0}-{1}.csv", consumerGroupName, DateTime.Now.ToString("yyyy-MM-dd-hh-mm"));
+            var sink = new FlatFileSink(filename, formatter, true);
+
+            var outputDir = Path.Combine(Environment.CurrentDirectory, "Data");
+            if(!Directory.Exists(outputDir))
+            {
+                Directory.CreateDirectory(outputDir);
+            }
+
             monitor.StartAsync().Wait();
 
-            monitor.Stream.Subscribe(pi =>
+            monitor.Stream.Subscribe(@event =>
             {
-                Console.WriteLine("Partition {0}", pi.PartitionId);
+                sink.OnNext(@event);
+                
+                Console.WriteLine("Partition {0}", @event.PartitionId);
                 Console.WriteLine("----------");
-                Console.WriteLine("- TimeStamp: {0}", pi.TimeStamp);
-                Console.WriteLine("- PreciseTimeStamp: {0}", pi.PreciseTimeStamp);
-                Console.WriteLine("- IncomingEventsPerSecond: {0}", pi.IncomingEventsPerSecond);
-                Console.WriteLine("- IncomingBytesPerSecond: {0}", pi.IncomingBytesPerSecond);
-                Console.WriteLine("- OutgoingEventsPerSecond: {0}", pi.OutgoingEventsPerSecond);
-                Console.WriteLine("- OutgoingBytesPerSecond: {0}", pi.OutgoingBytesPerSecond);
-                Console.WriteLine("- UnprocessedEvents: {0}", pi.UnprocessedEvents);
+                Console.WriteLine("- TimeStamp: {0}", @event.TimeStamp);
+                Console.WriteLine("- PreciseTimeStamp: {0}", @event.PreciseTimeStamp);
+                Console.WriteLine("- IncomingEventsPerSecond: {0}", @event.IncomingEventsPerSecond);
+                Console.WriteLine("- IncomingBytesPerSecond: {0}", @event.IncomingBytesPerSecond);
+                Console.WriteLine("- OutgoingEventsPerSecond: {0}", @event.OutgoingEventsPerSecond);
+                Console.WriteLine("- OutgoingBytesPerSecond: {0}", @event.OutgoingBytesPerSecond);
+                Console.WriteLine("- UnprocessedEvents: {0}", @event.UnprocessedEvents);
                 Console.WriteLine("");
             });
 
