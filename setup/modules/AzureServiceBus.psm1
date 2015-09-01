@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft. All rights reserved.
+# Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
 ############################
 ##
 ## Azure Service Bus
@@ -171,7 +174,7 @@ function New-EventHubIfNotExists
             $EventHubDescription.UserMetadata = $UserMetadata 
             $EventHubDescription.Path = $EventHubName
 
-	        $RuleKey = [Microsoft.ServiceBus.Messaging.SharedAccessAuthorizationRule]::GenerateRandomKey();
+            $RuleKey = [Microsoft.ServiceBus.Messaging.SharedAccessAuthorizationRule]::GenerateRandomKey();
             $AccessRights = [Microsoft.ServiceBus.Messaging.AccessRights[]](@("Manage", "Listen", "Send"))
             $Rule = New-Object Microsoft.ServiceBus.Messaging.SharedAccessAuthorizationRule($EventHubSharedAccessPolicyName, $RuleKey, $AccessRights)
             Write-Verbose "Rule created"

@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft. All rights reserved.
+# Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
 <#
 .SYNOPSIS
   
@@ -46,7 +49,7 @@ Param
 (
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $True)][string]$SubscriptionName,
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $True)][String]$ApplicationName,
-	[ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][bool]$AddAccount = $True,
+    [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][bool]$AddAccount = $True,
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$StorageAccountName =$ApplicationName,
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$ContainerName = "blobs-asa",
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$ConsumerGroupName  = "cg-blobs-asa",
@@ -77,7 +80,7 @@ PROCESS
 
     # Load modules.
     Load-Module -ModuleName Config -ModuleLocation .\modules
-	Load-Module -ModuleName Utility -ModuleLocation .\modules
+    Load-Module -ModuleName Utility -ModuleLocation .\modules
     Load-Module -ModuleName AzureARM -ModuleLocation .\modules
     Load-Module -ModuleName AzureStorage -ModuleLocation .\modules
     Load-Module -ModuleName AzureServiceBus -ModuleLocation .\modules
@@ -91,8 +94,8 @@ PROCESS
     Select-AzureSubscription $SubscriptionName
 
     New-ProvisionedStorageAccount -StorageAccountName $StorageAccountName `
-                                             -ContainerName $ContainerName `
-                                             -Location $Location
+                                  -ContainerName $ContainerName `
+                                  -Location $Location
         
     $EventHubInfo = New-ProvisionedEventHub -SubscriptionName $SubscriptionName `
                                     -ServiceBusNamespace $ServiceBusNamespace `
@@ -127,7 +130,7 @@ PROCESS
     $storageAccountKey = Get-AzureStorageKey -StorageAccountName $StorageAccountName
     $storageAccountKeyPrimary = $storageAccountKey.Primary
 
-	# Create Job Definition
+    # Create Job Definition
     [string]$JobDefinitionText = (Get-Content -LiteralPath (Join-Path $PSScriptRoot -ChildPath $JobDefinitionPath)).
                                     Replace("_StreamAnalyticsJobName",$StreamAnalyticsJobName).
                                     Replace("_Location",$Location).
@@ -141,13 +144,13 @@ PROCESS
                                     Replace("_Container",$ContainerName)
 
     Provision-StreamAnalyticsJob -ServiceBusNamespace $ServiceBusNamespace `
-                                            -EventHubName $EventHubName `
-                                            -EventHubSharedAccessPolicyName $EventHubSharedAccessPolicyName `
-                                            -StorageAccountName $StorageAccountName `
-                                            -ContainerName $ContainerName `
-                                            -ResourceGroupName $ResourceGroupName `
-                                            -Location $Location `
-                                            -JobDefinitionText $JobDefinitionText
+                                 -EventHubName $EventHubName `
+                                 -EventHubSharedAccessPolicyName $EventHubSharedAccessPolicyName `
+                                 -StorageAccountName $StorageAccountName `
+                                 -ContainerName $ContainerName `
+                                 -ResourceGroupName $ResourceGroupName `
+                                 -Location $Location `
+                                 -JobDefinitionText $JobDefinitionText
     
     Write-Output "Provision Finished OK"                                               
 }

@@ -1,11 +1,14 @@
+# Copyright (c) Microsoft. All rights reserved.
+# Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
 function Write-SettingsFile
 {
     Param 
     (
         [Parameter(Mandatory = $true)][string] $configurationTemplateFile,
-		[Parameter(Mandatory = $true)][string] $configurationFile,
-		[Parameter(Mandatory = $false)][hashtable] $appSettings,
-		[string] $useLocation
+        [Parameter(Mandatory = $true)][string] $configurationFile,
+        [Parameter(Mandatory = $false)][hashtable] $appSettings,
+        [string] $useLocation
     )
     PROCESS
     {
@@ -49,12 +52,12 @@ function Write-SettingsFile
             if ($appSettings -ne $null) {
                 Write-Output "Updating appSettings"
                 foreach ($key in $appSettings.Keys) {
-		            if ($useLocation -eq 'true') {
-			            $node = $xmlServiceConfiguration.SelectSingleNode("/appSettings/add[@key='${key}']", $ns)
-		            } else {
-			            $node = $xmlServiceConfiguration.SelectSingleNode("/appSettings/add[@key='${key}']", $ns)
-		            }
-		
+                    if ($useLocation -eq 'true') {
+                        $node = $xmlServiceConfiguration.SelectSingleNode("/appSettings/add[@key='${key}']", $ns)
+                    } else {
+                        $node = $xmlServiceConfiguration.SelectSingleNode("/appSettings/add[@key='${key}']", $ns)
+                    }
+        
                     if ($node -ne $null) {
                         $node.value = $appSettings.Item($key)
 
@@ -78,55 +81,55 @@ function Write-SettingsFile
 
 function Write-CloudSettingsFiles
 {
-	Param
-	(
-		[Parameter(Mandatory = $true)]
-		[System.IO.FileInfo[]] $serviceConfigFiles,
+    Param
+    (
+        [Parameter(Mandatory = $true)]
+        [System.IO.FileInfo[]] $serviceConfigFiles,
 
-		[Parameter(Mandatory = $true)]
-		[hashtable] $appSettings
-	)
-	PROCESS
-	{
-		$ErrorActionPreference = "Stop"
+        [Parameter(Mandatory = $true)]
+        [hashtable] $appSettings
+    )
+    PROCESS
+    {
+        $ErrorActionPreference = "Stop"
 
-		if ($appSettings -eq $null)
-		{
-			Write-Error "[appSettings] paremeter cannot be null"
-		}
+        if ($appSettings -eq $null)
+        {
+            Write-Error "[appSettings] paremeter cannot be null"
+        }
 
-		foreach ($file in $serviceConfigFiles)
-		{
-			$fileExists = Test-Path -Path $file.FullName -PathType Leaf
+        foreach ($file in $serviceConfigFiles)
+        {
+            $fileExists = Test-Path -Path $file.FullName -PathType Leaf
 
-			if (!$fileExists)
-			{
-				Write-Error "Could not find file {0}" -f $file
-			}
+            if (!$fileExists)
+            {
+                Write-Error "Could not find file {0}" -f $file
+            }
 
-			[Xml]$xmlServiceConfiguration = Get-Content $file.FullName
-			$ns = New-Object Xml.XmlNamespaceManager $xmlServiceConfiguration.NameTable
-			$ns.AddNamespace('dns', 'http://schemas.microsoft.com/ServiceHosting/2008/10/ServiceConfiguration')
+            [Xml]$xmlServiceConfiguration = Get-Content $file.FullName
+            $ns = New-Object Xml.XmlNamespaceManager $xmlServiceConfiguration.NameTable
+            $ns.AddNamespace('dns', 'http://schemas.microsoft.com/ServiceHosting/2008/10/ServiceConfiguration')
 
-			foreach ($key in $appSettings.Keys)
-			{
+            foreach ($key in $appSettings.Keys)
+            {
        
-				$nodes = $xmlServiceConfiguration.SelectNodes("/dns:ServiceConfiguration/dns:Role/dns:ConfigurationSettings/dns:Setting[@name='${key}']", $ns)
+                $nodes = $xmlServiceConfiguration.SelectNodes("/dns:ServiceConfiguration/dns:Role/dns:ConfigurationSettings/dns:Setting[@name='${key}']", $ns)
 
-				if ($nodes -ne $null)
-				{
-					foreach ($node in $nodes)
-					{
-						$node.value = $appSettings.Item($key)
-					}
-				}
-			}
+                if ($nodes -ne $null)
+                {
+                    foreach ($node in $nodes)
+                    {
+                        $node.value = $appSettings.Item($key)
+                    }
+                }
+            }
 
-			$xmlServiceConfiguration.Save($file)
-			""
-			"Service Configuration File (Cloud) updated : {0}" -f $file.FullName
-		}
-	}
+            $xmlServiceConfiguration.Save($file)
+            ""
+            "Service Configuration File (Cloud) updated : {0}" -f $file.FullName
+        }
+    }
 }
 
 Export-ModuleMember Write-SettingsFile

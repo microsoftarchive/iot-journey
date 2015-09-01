@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft. All rights reserved.
+# Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
 #Executes an script in ARM and inmediatly sets ASM back.
 function Invoke-InAzureResourceManagerMode
 {
@@ -9,7 +12,7 @@ function Invoke-InAzureResourceManagerMode
     {
         try
         {
-            Switch-AzureMode –Name AzureResourceManager
+            Switch-AzureMode ï¿½Name AzureResourceManager
 
             . $ScriptBlock
         }

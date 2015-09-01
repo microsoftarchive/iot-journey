@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft. All rights reserved.
+# Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
 ############################
 ##
 ## Azure Sql Database
@@ -40,13 +43,13 @@ function Provision-SqlDatabase
 
         $Configuration = Get-Configuration
 
-		$schemaFilePath = Join-Path $PSScriptRoot -ChildPath "..\data\CreateSqlDatabase_Schema.sql"
+        $schemaFilePath = Join-Path $PSScriptRoot -ChildPath "..\data\CreateSqlDatabase_Schema.sql"
 
-		Invoke-SqlScript -SqlServerName $QualifiedSqlServerName `
-						 -SqlDatabaseName $SqlDatabaseName `
-						 -SqlServerAdminLogin $SqlServerAdminLogin `
-						 -SqlServerAdminPassword $SqlServerAdminPassword `
-						 -ScriptFileName $schemaFilePath
+        Invoke-SqlScript -SqlServerName $QualifiedSqlServerName `
+                         -SqlDatabaseName $SqlDatabaseName `
+                         -SqlServerAdminLogin $SqlServerAdminLogin `
+                         -SqlServerAdminPassword $SqlServerAdminPassword `
+                         -ScriptFileName $schemaFilePath
     }
 }
 
@@ -54,74 +57,74 @@ function Provision-SqlDatabase
 
 function Invoke-SqlScript
 {
-	[CmdletBinding()]
+    [CmdletBinding()]
     param
     (
         [Parameter(Mandatory=$True)][string]$SqlServerName,
         [Parameter(Mandatory=$True)][string]$SqlDatabaseName,
         [Parameter(Mandatory=$True)][string]$SqlServerAdminLogin,
         [Parameter(Mandatory=$True)][string]$SqlServerAdminPassword,
-		[Parameter(Mandatory=$True)][string]$ScriptFileName,
-		[Parameter(Mandatory=$false)][bool]$IntegratedSecurity = $false
+        [Parameter(Mandatory=$True)][string]$ScriptFileName,
+        [Parameter(Mandatory=$false)][bool]$IntegratedSecurity = $false
     )
     PROCESS
     {
-		$connStrBuilder = New-Object System.Data.SqlClient.SqlConnectionStringBuilder
-		$connStrBuilder["Integrated Security"] = $IntegratedSecurity
-		$connStrBuilder["Data Source"] = $SqlServerName
-		$connStrBuilder["Initial Catalog"] = $SqlDatabaseName
-		$connStrBuilder["User ID"] = $SqlServerAdminLogin
-		$connStrBuilder["Password"] = $SqlServerAdminPassword
+        $connStrBuilder = New-Object System.Data.SqlClient.SqlConnectionStringBuilder
+        $connStrBuilder["Integrated Security"] = $IntegratedSecurity
+        $connStrBuilder["Data Source"] = $SqlServerName
+        $connStrBuilder["Initial Catalog"] = $SqlDatabaseName
+        $connStrBuilder["User ID"] = $SqlServerAdminLogin
+        $connStrBuilder["Password"] = $SqlServerAdminPassword
 
-		$connection = New-Object System.Data.SqlClient.SqlConnection($connStrBuilder.ConnectionString)
-		$command = $connection.CreateCommand()
+        $connection = New-Object System.Data.SqlClient.SqlConnection($connStrBuilder.ConnectionString)
+        $command = $connection.CreateCommand()
 
-		$builder = New-Object System.Text.StringBuilder
-		[int]$num = 0
+        $builder = New-Object System.Text.StringBuilder
+        [int]$num = 0
         
         $connection.Open()
 
-		$reader = [System.IO.File]::OpenText($ScriptFileName)
-		try
-		{
-			for(;;) 
-			{
-				$line = $reader.ReadLine()
-				$num++
-				if (($line -eq $null) -or $line.ToUpper().Trim().Equals("GO"))
-				{
-					if($builder.Length -gt 0) 
-					{
-						$command.CommandText = $builder.ToString()
-						try
-						{
-							$command.ExecuteNonQuery() | out-null
-						}
-						catch
-						{
-							$errorMessage = $_.Exception.Message
-							Write-Error "Error at or before line $num : $errorMessage"
-						}
+        $reader = [System.IO.File]::OpenText($ScriptFileName)
+        try
+        {
+            for(;;) 
+            {
+                $line = $reader.ReadLine()
+                $num++
+                if (($line -eq $null) -or $line.ToUpper().Trim().Equals("GO"))
+                {
+                    if($builder.Length -gt 0) 
+                    {
+                        $command.CommandText = $builder.ToString()
+                        try
+                        {
+                            $command.ExecuteNonQuery() | out-null
+                        }
+                        catch
+                        {
+                            $errorMessage = $_.Exception.Message
+                            Write-Error "Error at or before line $num : $errorMessage"
+                        }
                         
-						$builder.Length = 0
-					}
+                        $builder.Length = 0
+                    }
                     if($line -eq $null)
                     {
                         break
                     }
-				}
-				else
-				{
-					$builder.AppendLine($line)
-				}
-			}
-		}
-		finally 
-		{
-			$reader.Close()
-			$connection.Close()
-		}
-	}
+                }
+                else
+                {
+                    $builder.AppendLine($line)
+                }
+            }
+        }
+        finally 
+        {
+            $reader.Close()
+            $connection.Close()
+        }
+    }
 }
 
 function New-SqlServerIfNotExists
