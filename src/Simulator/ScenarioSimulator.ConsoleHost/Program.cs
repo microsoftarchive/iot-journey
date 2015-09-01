@@ -39,7 +39,7 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator.ConsoleHost
             {
                 var scenario = args.Contains("/default", StringComparer.OrdinalIgnoreCase)
                     ? SimulationScenarios.DefaultScenario()
-                    : args.First(x => !x.StartsWith("/"));
+                    : args.First(x => !x.StartsWith("/",StringComparison.Ordinal));
 
                 var ct = args.Contains("/webjob", StringComparer.OrdinalIgnoreCase)
                     ? GetWebJobCancellationToken()

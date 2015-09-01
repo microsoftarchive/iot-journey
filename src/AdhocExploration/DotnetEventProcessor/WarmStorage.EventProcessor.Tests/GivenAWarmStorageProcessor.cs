@@ -64,7 +64,7 @@ namespace Microsoft.Practices.IoTJourney.WarmStorage.Tests
             await _processor.ProcessEventsAsync(context, eventDataArray);
 
             _writerMock.Verify(
-                w => w.WriteAsync(It.Is<List<EventData>>(p => p.First().Properties["BuildingId"] == "456"), It.IsAny<CancellationToken>()),
+                w => w.WriteAsync(It.Is<List<EventData>>(p => p.First().Properties["BuildingId"] as string == "456"), It.IsAny<CancellationToken>()),
                 Times.Once);
         }
     }

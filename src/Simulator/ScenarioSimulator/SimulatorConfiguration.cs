@@ -3,6 +3,7 @@
 
 using System;
 using System.Diagnostics.Tracing;
+using System.Globalization;
 
 namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
 {
@@ -55,7 +56,7 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
 
         public override string ToString()
         {
-            return String.Format(
+            return String.Format(CultureInfo.InvariantCulture,
                 "Simulation SimulatorConfiguration; device count = {0} event hub name = {1}",
                 NumberOfDevices,
                 EventHubName);

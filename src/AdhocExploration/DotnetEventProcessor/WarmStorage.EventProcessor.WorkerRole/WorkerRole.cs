@@ -1,18 +1,12 @@
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Net;
 using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.WindowsAzure;
-using Microsoft.WindowsAzure.Diagnostics;
 using Microsoft.WindowsAzure.ServiceRuntime;
-using Microsoft.WindowsAzure.Storage;
 
 namespace Microsoft.Practices.IoTJourney.WarmStorage.EventProcessor.WorkerRole
 {
-    public class WorkerRole : RoleEntryPoint
+    public class WorkerRole : RoleEntryPoint, IDisposable
     {
         private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
         private readonly ManualResetEvent _runCompleteEvent = new ManualResetEvent(false);
@@ -28,13 +22,14 @@ namespace Microsoft.Practices.IoTJourney.WarmStorage.EventProcessor.WorkerRole
 
                 var configuration = Configuration.GetCurrentConfiguration();
 
-                _coordinator = WarmStorageCoordinator.CreateAsync(RoleEnvironment.CurrentRoleInstance.Id, configuration).Result;
+                _coordinator =
+                    WarmStorageCoordinator.CreateAsync(RoleEnvironment.CurrentRoleInstance.Id, configuration).Result;
 
                 return base.OnStart();
             }
-            catch(AggregateException ae)
+            catch (AggregateException ae)
             {
-                ae.Handle((ex) =>
+                ae.Handle(ex =>
                 {
                     Trace.TraceError(ex.ToString());
 
@@ -87,6 +82,12 @@ namespace Microsoft.Practices.IoTJourney.WarmStorage.EventProcessor.WorkerRole
                 Trace.TraceError(ex.ToString());
                 throw;
             }
+        }
+
+        public void Dispose()
+        {
+            _cancellationTokenSource.Dispose();
+            _runCompleteEvent.Dispose();
         }
     }
 }

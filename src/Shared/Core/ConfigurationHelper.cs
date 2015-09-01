@@ -4,6 +4,7 @@
 using System;
 using System.Configuration;
 using System.Data.SqlClient;
+using System.Globalization;
 using System.Linq;
 using Microsoft.WindowsAzure.ServiceRuntime;
 using Microsoft.WindowsAzure.Storage;
@@ -179,7 +180,7 @@ namespace Microsoft.Practices.IoTJourney
             {
                 // When the trace destination is being looked up from configuration settings for the
                 // azure trace listener _trace may yet be invalid
-                System.Diagnostics.Trace.WriteLine(String.Format(
+                System.Diagnostics.Trace.WriteLine(String.Format(CultureInfo.InvariantCulture,
                     "The requested key {0} does not exist in Azure role configuration", key));
                 return false;
             }
@@ -234,7 +235,7 @@ namespace Microsoft.Practices.IoTJourney
                     val = (T)obj;
                 else if (typeof(T) == typeof(TimeSpan))
                 {
-                    val = (T)(object)TimeSpan.Parse(obj.ToString());
+                    val = (T)(object)TimeSpan.Parse(obj.ToString(), CultureInfo.InvariantCulture);
                 }
                 else if (typeof(T) == typeof(Guid))
                 {
@@ -254,14 +255,15 @@ namespace Microsoft.Practices.IoTJourney
                 }
                 else
                 {
-                    val = (T)Convert.ChangeType(obj, typeof(T));
+                    val = (T)Convert.ChangeType(obj, typeof(T), CultureInfo.InvariantCulture);
                 }
                 return val;
             }
             catch (Exception ex0)
             {
-                System.Diagnostics.Trace.WriteLine(String.Format("Could not convert key {0} for value {1} to type {2}: {3}",
-                    key, obj, typeof(T).Name, ex0.ToString()));
+                System.Diagnostics.Trace.WriteLine(string.Format(CultureInfo.InvariantCulture,
+                    "Could not convert key {0} for value {1} to type {2}: {3}",
+                    key, obj, typeof(T).Name, ex0));
                 throw;
             }
         }
@@ -283,7 +285,7 @@ namespace Microsoft.Practices.IoTJourney
                     val = obj;
                 else if (destType == typeof(TimeSpan))
                 {
-                    val = TimeSpan.Parse(obj.ToString());
+                    val = TimeSpan.Parse(obj.ToString(), CultureInfo.InvariantCulture);
                 }
                 else if (destType == typeof(Guid))
                 {
@@ -299,14 +301,15 @@ namespace Microsoft.Practices.IoTJourney
                 }
                 else
                 {
-                    val = Convert.ChangeType(obj, destType);
+                    val = Convert.ChangeType(obj, destType, CultureInfo.InvariantCulture);
                 }
                 return val;
             }
             catch (Exception ex0)
             {
-                System.Diagnostics.Trace.WriteLine(String.Format("Could not convert key {0} for value {1} to type {2}: {3}",
-                    key, obj, destType.Name, ex0.ToString()));
+                System.Diagnostics.Trace.WriteLine(string.Format(CultureInfo.InvariantCulture,
+                    "Could not convert key {0} for value {1} to type {2}: {3}",
+                    key, obj, destType.Name, ex0));
                 throw;
             }
         }
@@ -394,11 +397,11 @@ namespace Microsoft.Practices.IoTJourney
                 if (RoleEnvironment.IsAvailable)
                 {
                     var id = RoleEnvironment.CurrentRoleInstance.Id;
-                    var lastIndex = id.LastIndexOf(".", StringComparison.InvariantCulture);
-                    if (lastIndex > -1)
-                        return id.Substring(lastIndex + 1);
-                    else
-                        return "NOTCLOUD";
+                    var lastIndex = id.LastIndexOf(".", StringComparison.Ordinal);
+
+                    return (lastIndex > -1)
+                        ? id.Substring(lastIndex + 1) 
+                        : "NOTCLOUD";
                 }
                 else if(IsAzureWebJob())
                 {
@@ -450,18 +453,18 @@ namespace Microsoft.Practices.IoTJourney
             var now = DateTime.UtcNow;
             var minuteValue = new DateTime(now.Year, now.Month, now.Day, now.Hour, now.Minute, 0);
 
-            var ticks = "0" + minuteValue.Ticks.ToString();
+            var ticks = "0" + minuteValue.Ticks.ToString(CultureInfo.InvariantCulture);
             return ticks;
         }
 
         public static string GetEventHubName(Uri uri, string eventHubName)
         {
-            if (uri == null || String.IsNullOrEmpty(uri.DnsSafeHost))
+            if (uri == null || string.IsNullOrEmpty(uri.DnsSafeHost))
                 return "UNKNOWN";
             if (uri.DnsSafeHost.IndexOf('.') < 0)
-                return String.Concat(uri.DnsSafeHost, '/', eventHubName);
+                return string.Concat(uri.DnsSafeHost, '/', eventHubName);
             else
-                return String.Concat(
+                return string.Concat(
                     uri.DnsSafeHost.Substring(0, uri.DnsSafeHost.IndexOf('.')),
                     "/",
                     eventHubName

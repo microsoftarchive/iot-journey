@@ -4,6 +4,7 @@
 using Microsoft.Practices.IoTJourney;
 using Microsoft.ServiceBus;
 using System;
+using System.Globalization;
 using System.Threading.Tasks;
 
 namespace DeviceProvisioning.AccessTokens
@@ -23,7 +24,9 @@ namespace DeviceProvisioning.AccessTokens
             EventHubName = ConfigurationHelper.GetConfigValue<string>("EventHubName");
             EventHubSasKeyName = ConfigurationHelper.GetConfigValue<string>("EventHubSasKeyName");
             EventHubConnectionString = ConfigurationHelper.GetConfigValue<string>("EventHubConnectionString");
-            EndpointUri = new Uri(String.Format("https://{0}.servicebus.windows.net", EventHubNamespace));
+            EndpointUri = new Uri(string.Format(CultureInfo.InvariantCulture,
+                "https://{0}.servicebus.windows.net", 
+                EventHubNamespace));
         }
 
         public Uri EndpointUri { get; private set; }

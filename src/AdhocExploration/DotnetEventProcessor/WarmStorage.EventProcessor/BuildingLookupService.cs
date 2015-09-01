@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.Globalization;
 using System.IO;
 using System.Text;
 using System.Threading;
@@ -30,7 +31,7 @@ namespace Microsoft.Practices.IoTJourney.WarmStorage.EventProcessor
         {
             await CheckForUpdateAsync();
 
-            _timer = new Timer((s) => CheckForUpdateAsync(), null, TimeSpan.FromMinutes(_configuration.ReferenceDataCacheTTLMinutes),
+            _timer = new Timer(async s => await CheckForUpdateAsync(), null, TimeSpan.FromMinutes(_configuration.ReferenceDataCacheTTLMinutes),
                 TimeSpan.FromMinutes(_configuration.ReferenceDataCacheTTLMinutes));
         }
 
@@ -50,7 +51,9 @@ namespace Microsoft.Practices.IoTJourney.WarmStorage.EventProcessor
             
             if(!await _blockBlob.ExistsAsync())
             {
-                throw new ApplicationException(string.Format("Could not find blob named {0}.", _configuration.ReferenceDataFilePath));
+                throw new ApplicationException(string.Format(CultureInfo.InvariantCulture,
+                    "Could not find blob named {0}.",
+                    _configuration.ReferenceDataFilePath));
             }
 
             await _blockBlob.FetchAttributesAsync();

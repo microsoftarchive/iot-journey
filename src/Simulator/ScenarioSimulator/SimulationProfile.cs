@@ -2,26 +2,25 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
-using System.Diagnostics;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Practices.IoTJourney.Logging;
-using Microsoft.ServiceBus.Messaging;
 using Microsoft.ServiceBus;
 
 namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
 {
-    public class SimulationProfile
+    public class SimulationProfile:IDisposable
     {
         private readonly SimulatorConfiguration _simulatorConfiguration;
 
         private readonly string _hostName;
 
-        private readonly ISubject<int> _eventsSentCount = new Subject<int>();
+        private readonly Subject<int> _eventsSentCount = new Subject<int>();
 
         private readonly IList<Device> _devices = new List<Device>();
 
@@ -34,6 +33,8 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
 
             _hostName = hostName;
             _simulatorConfiguration = simulatorConfiguration;
+
+            _eventsSentCount.Dispose();
         }
 
         public void ProvisionDevices(bool force)
@@ -50,7 +51,9 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
             for (int i = 0; i < _simulatorConfiguration.NumberOfDevices; i++)
             {
                 // Use the short form of the host or instance name to generate the device id.
-                var deviceId = String.Format("{0}-{1}", ConfigurationHelper.InstanceName, i);
+                var deviceId = string.Format(CultureInfo.InvariantCulture,
+                    "{0}-{1}", 
+                    ConfigurationHelper.InstanceName, i);
 
                 var endpoint = ServiceBusEnvironment.CreateServiceUri("sb", _simulatorConfiguration.EventHubNamespace, string.Empty);
                 var eventHubName = _simulatorConfiguration.EventHubName;
@@ -163,6 +166,13 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
                 .Subscribe(totalCount.OnNext);
 
             await device.RunSimulationAsync(messagingEntries, sendEventsAsync, token).ConfigureAwait(false);
+        }
+
+        public void Dispose()
+        {
+            // This should unsubscribe all observers.
+            // https://msdn.microsoft.com/en-us/library/hh229225(v=vs.103).aspx
+            _eventsSentCount.Dispose();
         }
     }
 }
