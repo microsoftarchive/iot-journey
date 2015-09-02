@@ -14,7 +14,7 @@ using Microsoft.ServiceBus;
 
 namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
 {
-    public class SimulationProfile:IDisposable
+    public class SimulationProfile : IDisposable
     {
         private readonly SimulatorConfiguration _simulatorConfiguration;
 
@@ -33,8 +33,6 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
 
             _hostName = hostName;
             _simulatorConfiguration = simulatorConfiguration;
-
-            _eventsSentCount.Dispose();
         }
 
         public void ProvisionDevices(bool force)
@@ -52,7 +50,7 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator
             {
                 // Use the short form of the host or instance name to generate the device id.
                 var deviceId = string.Format(CultureInfo.InvariantCulture,
-                    "{0}-{1}", 
+                    "{0}-{1}",
                     ConfigurationHelper.InstanceName, i);
 
                 var endpoint = ServiceBusEnvironment.CreateServiceUri("sb", _simulatorConfiguration.EventHubNamespace, string.Empty);
