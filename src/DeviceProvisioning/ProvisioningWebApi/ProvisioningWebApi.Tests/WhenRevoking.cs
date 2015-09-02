@@ -1,6 +1,6 @@
-﻿using DeviceProvisioning.AccessTokens;
-using DeviceProvisioning.Controllers;
-using DeviceProvisioning.DeviceRegistry;
+﻿using Microsoft.Practices.IoTJourney.ProvisioningWebApi.AccessTokens;
+using Microsoft.Practices.IoTJourney.ProvisioningWebApi.Controllers;
+using Microsoft.Practices.IoTJourney.ProvisioningWebApi.DeviceRegistry;
 using Microsoft.Practices.IoTJourney.DeviceProvisioningModels;
 using Moq;
 using System;
@@ -12,7 +12,7 @@ using System.Web.Http;
 using System.Web.Http.Results;
 using Xunit;
 
-namespace ProvisioningWebApi.Tests
+namespace Microsoft.Practices.IoTJourney.ProvisioningWebApi.Tests
 {
     public class WhenRevoking
     {

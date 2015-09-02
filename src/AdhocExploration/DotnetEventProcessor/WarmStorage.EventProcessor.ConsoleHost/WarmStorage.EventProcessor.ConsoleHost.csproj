@@ -8,7 +8,7 @@
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Microsoft.Practices.IoTJourney.WarmStorage.ConsoleHost</RootNamespace>
-    <AssemblyName>Microsoft.Practices.IoTJourney.WarmStorage.ConsoleHost</AssemblyName>
+    <AssemblyName>WarmStorage.ConsoleHost</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />

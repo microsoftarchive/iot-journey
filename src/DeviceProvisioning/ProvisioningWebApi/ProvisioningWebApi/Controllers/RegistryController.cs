@@ -1,12 +1,12 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using DeviceProvisioning.DeviceRegistry;
+using Microsoft.Practices.IoTJourney.ProvisioningWebApi.DeviceRegistry;
 using Microsoft.Practices.IoTJourney.DeviceProvisioningModels;
 using System.Threading.Tasks;
 using System.Web.Http;
 
-namespace ProvisioningWebApi.Controllers
+namespace Microsoft.Practices.IoTJourney.ProvisioningWebApi.Controllers
 {
     public class RegistryController : ApiController
     {

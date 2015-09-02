@@ -4,7 +4,7 @@
 using Microsoft.Practices.IoTJourney.DeviceProvisioningModels;
 using System.Threading.Tasks;
 
-namespace DeviceProvisioning.DeviceRegistry
+namespace Microsoft.Practices.IoTJourney.ProvisioningWebApi.DeviceRegistry
 {
     public interface IDeviceRegistry
     {

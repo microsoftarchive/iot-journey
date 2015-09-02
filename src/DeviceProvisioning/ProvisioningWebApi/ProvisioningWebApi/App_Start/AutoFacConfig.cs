@@ -3,12 +3,12 @@
 
 using Autofac;
 using Autofac.Integration.WebApi;
-using DeviceProvisioning.AccessTokens;
-using DeviceProvisioning.DeviceRegistry;
+using Microsoft.Practices.IoTJourney.ProvisioningWebApi.AccessTokens;
+using Microsoft.Practices.IoTJourney.ProvisioningWebApi.DeviceRegistry;
 using System.Reflection;
 using System.Web.Http;
 
-namespace DeviceProvisioning
+namespace Microsoft.Practices.IoTJourney.ProvisioningWebApi
 {
     public static class AutoFacConfig
     {

@@ -7,7 +7,7 @@ using System;
 using System.Globalization;
 using System.Threading.Tasks;
 
-namespace DeviceProvisioning.AccessTokens
+namespace Microsoft.Practices.IoTJourney.ProvisioningWebApi.AccessTokens
 {
     public class TokenProvider : ITokenProvider
     {

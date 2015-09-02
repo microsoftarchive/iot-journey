@@ -1,16 +1,16 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using DeviceProvisioning.DeviceRegistry;
+using Microsoft.Practices.IoTJourney.ProvisioningWebApi.DeviceRegistry;
 using Microsoft.Practices.IoTJourney.DeviceProvisioningModels;
 using Moq;
-using ProvisioningWebApi.Controllers;
+using Microsoft.Practices.IoTJourney.ProvisioningWebApi.Controllers;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Results;
 using Xunit;
 
-namespace ProvisioningWebApi.Tests
+namespace Microsoft.Practices.IoTJourney.ProvisioningWebApi.Tests
 {
     public class WhenGettingDeviceMetadata
     {

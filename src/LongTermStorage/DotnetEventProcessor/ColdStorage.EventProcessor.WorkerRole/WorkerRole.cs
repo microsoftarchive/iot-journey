@@ -8,7 +8,7 @@ using System.Threading;
 using Microsoft.Practices.IoTJourney.ColdStorage.EventProcessor;
 using Microsoft.WindowsAzure.ServiceRuntime;
 
-namespace Microsoft.Practices.IoTJourney.ColdStorage.ScenarioSimulator.WorkerRole
+namespace Microsoft.Practices.IoTJourney.ColdStorage.EventProcessor.WorkerRole
 {
     public class WorkerRole : RoleEntryPoint, IDisposable
     {
@@ -26,8 +26,7 @@ namespace Microsoft.Practices.IoTJourney.ColdStorage.ScenarioSimulator.WorkerRol
 
                 var configuration = Configuration.GetCurrentConfiguration();
 
-                _coordinator =
-                    ColdStorageCoordinator.CreateAsync(RoleEnvironment.CurrentRoleInstance.Id, configuration).Result;
+                _coordinator = ColdStorageCoordinator.CreateAsync(RoleEnvironment.CurrentRoleInstance.Id, configuration).Result;
 
                 return base.OnStart();
             }

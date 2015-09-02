@@ -5,7 +5,7 @@ using Microsoft.Practices.EnterpriseLibrary.SemanticLogging.Utility;
 using Microsoft.Practices.IoTJourney.Logging;
 using Xunit;
 
-namespace Core.Tests
+namespace Microsoft.Practices.IoTJourney.Core.Test
 {
     public class WhenLoggingEvents
     {

@@ -17,7 +17,7 @@ using CommonConsoleHost = Microsoft.Practices.IoTJourney.Tests.Common.ConsoleHos
 using Microsoft.Practices.IoTJourney.WarmStorage.EventProcessor;
 
 
-namespace WarmStorage.ConsoleHost
+namespace Microsoft.Practices.IoTJourney.WarmStorage.ConsoleHost
 {
     internal class Program
     {

@@ -3,7 +3,7 @@
 
 using System.Web.Http;
 
-namespace ProvisioningWebApi
+namespace Microsoft.Practices.IoTJourney.ProvisioningWebApi
 {
     public static class WebApiConfig
     {
