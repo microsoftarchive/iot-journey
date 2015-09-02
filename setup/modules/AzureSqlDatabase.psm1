@@ -17,7 +17,8 @@ function Provision-SqlDatabase
         [Parameter(Mandatory=$True)][string]$SqlServerAdminPassword,
         [Parameter(Mandatory=$True)][string]$SqlDatabaseName,
         [Parameter(Mandatory=$True)][string]$ResourceGroupName,
-        [Parameter(Mandatory=$True)][string]$Location
+        [Parameter(Mandatory=$True)][string]$Location,
+        [Parameter(Mandatory=$False)][string]$Edition = "Standard"
     )
     PROCESS
     {
@@ -32,7 +33,8 @@ function Provision-SqlDatabase
         })
 
         New-SqlDatabaseIfNotExists -SqlServerName $SqlServerName `
-                                   -SqlDatabaseName $SqlDatabaseName
+                                   -SqlDatabaseName $SqlDatabaseName `
+                                   -Edition $Edition
 
         New-SqlFirewallRuleIfNotExists -SqlServerName $SqlServerName `
                                        -FirewallRuleName "DeleteThisRule" `
@@ -77,12 +79,11 @@ function Invoke-SqlScript
         $connStrBuilder["Password"] = $SqlServerAdminPassword
 
         $connection = New-Object System.Data.SqlClient.SqlConnection($connStrBuilder.ConnectionString)
+        $connection.Open()
         $command = $connection.CreateCommand()
 
         $builder = New-Object System.Text.StringBuilder
         [int]$num = 0
-        
-        $connection.Open()
 
         $reader = [System.IO.File]::OpenText($ScriptFileName)
         try
@@ -165,7 +166,8 @@ function New-SqlDatabaseIfNotExists
     param
     (
         [Parameter(Mandatory=$True)][string]$SqlServerName,
-        [Parameter(Mandatory=$True)][string]$SqlDatabaseName
+        [Parameter(Mandatory=$True)][string]$SqlDatabaseName,
+        [Parameter(Mandatory=$True)][string]$Edition
     )
     PROCESS
     {
@@ -173,7 +175,7 @@ function New-SqlDatabaseIfNotExists
         {
             Write-Verbose "Creating database"
 
-            New-AzureSqlDatabase -ServerName $SqlServerName -DatabaseName $SqlDatabaseName
+            New-AzureSqlDatabase -ServerName $SqlServerName -DatabaseName $SqlDatabaseName -Edition $Edition
 
             Write-Verbose ("Created database: {0}" -f $SqlDatabaseName)
 

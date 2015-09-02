@@ -12,7 +12,7 @@ function Invoke-InAzureResourceManagerMode
     {
         try
         {
-            Switch-AzureMode �Name AzureResourceManager
+            Switch-AzureMode -Name AzureResourceManager
 
             . $ScriptBlock
         }
