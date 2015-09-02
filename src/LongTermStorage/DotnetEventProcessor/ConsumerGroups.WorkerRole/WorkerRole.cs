@@ -1,21 +1,16 @@
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Net;
 using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.WindowsAzure;
-using Microsoft.WindowsAzure.Diagnostics;
-using Microsoft.WindowsAzure.ServiceRuntime;
-using Microsoft.WindowsAzure.Storage;
-using Microsoft.Practices.IoTJourney;
 using Microsoft.Practices.IoTJourney.ColdStorage.EventProcessor;
-using Microsoft.Practices.IoTJourney.ColdStorage;
+using Microsoft.WindowsAzure.ServiceRuntime;
 
 namespace Microsoft.Practices.IoTJourney.ColdStorage.ScenarioSimulator.WorkerRole
 {
-    public class WorkerRole : RoleEntryPoint
+    public class WorkerRole : RoleEntryPoint, IDisposable
     {
         private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
         private readonly ManualResetEvent _runCompleteEvent = new ManualResetEvent(false);
@@ -31,7 +26,8 @@ namespace Microsoft.Practices.IoTJourney.ColdStorage.ScenarioSimulator.WorkerRol
 
                 var configuration = Configuration.GetCurrentConfiguration();
 
-                _coordinator = ColdStorageCoordinator.CreateAsync(RoleEnvironment.CurrentRoleInstance.Id, configuration).Result;
+                _coordinator =
+                    ColdStorageCoordinator.CreateAsync(RoleEnvironment.CurrentRoleInstance.Id, configuration).Result;
 
                 return base.OnStart();
             }
@@ -79,6 +75,12 @@ namespace Microsoft.Practices.IoTJourney.ColdStorage.ScenarioSimulator.WorkerRol
                 Trace.TraceError(ex.ToString());
                 throw;
             }
+        }
+
+        public void Dispose()
+        {
+            _cancellationTokenSource.Dispose();
+            _runCompleteEvent.Dispose();
         }
     }
 }

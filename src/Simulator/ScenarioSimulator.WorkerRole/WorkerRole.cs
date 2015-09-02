@@ -1,20 +1,14 @@
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Net;
 using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.WindowsAzure;
-using Microsoft.WindowsAzure.Diagnostics;
 using Microsoft.WindowsAzure.ServiceRuntime;
-using Microsoft.WindowsAzure.Storage;
-using Microsoft.Practices.IoTJourney.ScenarioSimulator;
-using Microsoft.Practices.IoTJourney;
 
 namespace Microsoft.Practices.IoTJourney.ScenarioSimulator.WorkerRole
 {
-    public class WorkerRole : RoleEntryPoint
+    public class WorkerRole : RoleEntryPoint, IDisposable
     {
         private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
         private readonly ManualResetEvent _runCompleteEvent = new ManualResetEvent(false);
@@ -76,6 +70,13 @@ namespace Microsoft.Practices.IoTJourney.ScenarioSimulator.WorkerRole
                 Trace.TraceError(ex.ToString());
                 throw;
             }
+        }
+
+        public void Dispose()
+        {
+            _deviceSimulator.Dispose();
+            _cancellationTokenSource.Dispose();
+            _runCompleteEvent.Dispose();
         }
     }
 }
