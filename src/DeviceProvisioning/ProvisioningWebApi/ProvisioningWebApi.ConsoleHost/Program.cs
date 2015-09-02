@@ -14,7 +14,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using CommonConsoleHost = Microsoft.Practices.IoTJourney.Tests.Common.ConsoleHost;
 
-namespace ProvisioningWebApi.ConsoleHost
+namespace Microsoft.Practices.IoTJourney.ProvisioningWebApi.ConsoleHost
 {
     internal class Program
     {

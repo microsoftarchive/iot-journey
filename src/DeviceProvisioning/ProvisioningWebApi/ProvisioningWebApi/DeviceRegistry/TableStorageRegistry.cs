@@ -7,7 +7,7 @@ using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Table;
 using System.Threading.Tasks;
 
-namespace DeviceProvisioning.DeviceRegistry
+namespace Microsoft.Practices.IoTJourney.ProvisioningWebApi.DeviceRegistry
 {
     public class TableStorageRegistry : IDeviceRegistry
     {

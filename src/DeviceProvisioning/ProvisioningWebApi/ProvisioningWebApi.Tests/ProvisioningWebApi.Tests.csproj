@@ -9,8 +9,8 @@
     <ProjectGuid>{97C4DE76-FA81-42A0-BB6F-8040CAB1EAC2}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ProvisioningWebApi.Tests</RootNamespace>
-    <AssemblyName>ProvisioningWebApi.Tests</AssemblyName>
+    <RootNamespace>Microsoft.Practices.IoTJourney.ProvisioningWebApi.Tests</RootNamespace>
+    <AssemblyName>Microsoft.Practices.IoTJourney.ProvisioningWebApi.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <NuGetPackageImportStamp>a7cb200d</NuGetPackageImportStamp>

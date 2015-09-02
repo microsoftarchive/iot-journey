@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("ConsumerGroups.WorkerRole")]
+[assembly: AssemblyTitle("Microsoft.Practices.IoTJourney.ColdStorage.EventProcessor.WorkerRole")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("ConsumerGroups.WorkerRole")]
+[assembly: AssemblyProduct("Microsoft.Practices.IoTJourney.ColdStorage.EventProcessor.WorkerRole")]
 [assembly: AssemblyCopyright("Copyright ©  2015")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("695510ec-d636-4b1f-b2b6-92d43c33e66a")]
+[assembly: Guid("90987cda-741d-406a-89d7-432ed4e18fb0")]
 
 // Version information for an assembly consists of the following four values:
 //

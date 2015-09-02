@@ -5,7 +5,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>2.7</ProductVersion>
-    <ProjectGuid>0ed001ae-19de-407c-be6d-94b80c4f3072</ProjectGuid>
+    <ProjectGuid>{0ed001ae-19de-407c-be6d-94b80c4f3072}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>ConsumerGroupsDeployment</RootNamespace>
@@ -37,17 +37,17 @@
     <ServiceConfiguration Include="ServiceConfiguration.Cloud.cscfg" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ConsumerGroups.WorkerRole\ConsumerGroups.WorkerRole.csproj">
-      <Name>ConsumerGroups.WorkerRole</Name>
-      <Project>{028c6e5d-7c9f-4414-a793-d94f362a7bd0}</Project>
+    <ProjectReference Include="..\ColdStorage.EventProcessor.WorkerRole\ColdStorage.EventProcessor.WorkerRole.csproj">
+      <Name>ColdStorage.EventProcessor.WorkerRole</Name>
+      <Project>{90987cda-741d-406a-89d7-432ed4e18fb0}</Project>
       <Private>True</Private>
       <RoleType>Worker</RoleType>
-      <RoleName>ConsumerGroups.WorkerRole</RoleName>
+      <RoleName>ColdStorage.EventProcessor.WorkerRole</RoleName>
       <UpdateDiagnosticsConnectionStringOnPublish>True</UpdateDiagnosticsConnectionStringOnPublish>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="ConsumerGroups.WorkerRoleContent\" />
+    <Folder Include="ColdStorage.EventProcessor.WorkerRoleContent\" />
   </ItemGroup>
   <!-- Import the target files for this project template -->
   <PropertyGroup>

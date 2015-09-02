@@ -4,7 +4,7 @@
 using System;
 using System.Threading.Tasks;
 
-namespace DeviceProvisioning.AccessTokens
+namespace Microsoft.Practices.IoTJourney.ProvisioningWebApi.AccessTokens
 {
     public interface ITokenProvider
     {
