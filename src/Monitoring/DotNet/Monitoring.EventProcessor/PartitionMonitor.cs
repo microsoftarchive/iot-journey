@@ -1,63 +1,61 @@
-﻿using Microsoft.ServiceBus;
+﻿using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Reactive.Subjects;
+using System.Threading.Tasks;
+using Microsoft.ServiceBus;
 using Microsoft.ServiceBus.Messaging;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
 using Newtonsoft.Json;
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Reactive.Subjects;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using STimer = System.Timers.Timer;
 
 namespace Microsoft.Practices.IoTJourney.Monitoring.EventProcessor
 {
     public class PartitionMonitor
     {
-        private int MinSamplingRateSeconds = 30;
+        private const int MinSamplingRateSeconds = 30;
+
+        private readonly string _checkpointContainerName;
+        private readonly Configuration _configuration;
+
+        private readonly string _consumerGroupName;
+        private readonly EventHubClient _eventHubClient;
+
+        private readonly NamespaceManager _nsm;
         private TimeSpan _samplingRate;
-        private STimer _samplingTimer;
-        private STimer _sessionTimer;
-        private ISubject<EventEntry> _stream = new Subject<EventEntry>();
+        private readonly STimer _samplingTimer;
+        private readonly STimer _sessionTimer;
+        private readonly CloudStorageAccount _storageAccount;
 
-        private string _consumerGroupName;
-        private string _checkpointContainerName;
-
-        private NamespaceManager _nsm;
-        private EventHubClient _eventHubClient;
-        private Configuration _configuration;
-        private CloudStorageAccount _storageAccount;
-
-        public ISubject<EventEntry> Stream
-        {
-            get { return _stream; }
-        }
-
-        public PartitionMonitor(TimeSpan samplingRate, TimeSpan sessionTimeout, string consumerGroupName, string checkpointContainerName)
+        public PartitionMonitor(
+            TimeSpan samplingRate, 
+            TimeSpan sessionTimeout, 
+            string consumerGroupName,
+            string checkpointContainerName)
         {
             Guard.ArgumentNotNullOrEmpty(consumerGroupName, "consumerGroupName");
             Guard.ArgumentNotNullOrEmpty(checkpointContainerName, "checkpointContainerName");
 
-            if(samplingRate.TotalSeconds < MinSamplingRateSeconds)
+            if (samplingRate.TotalSeconds < MinSamplingRateSeconds)
             {
-                throw new ArgumentException(string.Format("samplingRate must be higher or equal to {0} seconds.", MinSamplingRateSeconds));
+                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture,
+                    "samplingRate must be higher or equal to {0} seconds.",
+                    MinSamplingRateSeconds));
             }
 
             _samplingRate = samplingRate;
             _samplingTimer = new STimer(samplingRate.TotalMilliseconds);
             _sessionTimer = new STimer(sessionTimeout.TotalMilliseconds);
+
             _configuration = Configuration.GetCurrentConfiguration();
             _consumerGroupName = consumerGroupName;
             _checkpointContainerName = checkpointContainerName;
 
             var endpoint = ServiceBusEnvironment.CreateServiceUri("sb", _configuration.EventHubNamespace, string.Empty);
             var connectionString = ServiceBusConnectionStringBuilder.CreateUsingSharedAccessKey(endpoint,
-                                                                                                _configuration.EventHubSasKeyName,
-                                                                                                _configuration.EventHubSasKey);
+                _configuration.EventHubSasKeyName,
+                _configuration.EventHubSasKey);
 
             _eventHubClient = EventHubClient.CreateFromConnectionString(connectionString, _configuration.EventHubName);
 
@@ -66,6 +64,8 @@ namespace Microsoft.Practices.IoTJourney.Monitoring.EventProcessor
 
             _storageAccount = CloudStorageAccount.Parse(_configuration.CheckpointStorageAccount);
         }
+
+        public ISubject<EventEntry> Stream { get; } = new Subject<EventEntry>();
 
         public async Task StartAsync()
         {
@@ -76,7 +76,7 @@ namespace Microsoft.Practices.IoTJourney.Monitoring.EventProcessor
             var partitionBlobRefereces = new List<CloudBlockBlob>();
             var previousSnapshots = new List<EventEntry>();
 
-            for (int i = 0; i < runtime.PartitionCount; i++)
+            for (var i = 0; i < runtime.PartitionCount; i++)
             {
                 //Initialize block blobs references
                 var partitionBlob = checkpointContainer.GetBlockBlobReference(_consumerGroupName + "/" + i);
@@ -89,15 +89,19 @@ namespace Microsoft.Practices.IoTJourney.Monitoring.EventProcessor
             {
                 var timestamp = DateTime.UtcNow;
 
-                for (int i = 0; i < runtime.PartitionCount; i++)
+                for (var i = 0; i < runtime.PartitionCount; i++)
                 {
-                    string partitionId = i.ToString();
-                    
+                    var partitionId = i.ToString();
+
                     try
                     {
-                        var partitionInfo = await _nsm.GetEventHubPartitionAsync(_configuration.EventHubName, _consumerGroupName, partitionId).ConfigureAwait(false);
+                        var partitionInfo =
+                            await
+                                _nsm.GetEventHubPartitionAsync(_configuration.EventHubName, _consumerGroupName,
+                                    partitionId).ConfigureAwait(false);
 
-                        var checkpointBlobText = await partitionBlobRefereces[i].DownloadTextAsync().ConfigureAwait(false);
+                        var checkpointBlobText =
+                            await partitionBlobRefereces[i].DownloadTextAsync().ConfigureAwait(false);
                         var partitionSnapshot = JsonConvert.DeserializeObject<EventEntry>(checkpointBlobText);
 
                         var unprocessedEvents = partitionInfo.EndSequenceNumber - partitionSnapshot.SequenceNumber;
@@ -107,13 +111,21 @@ namespace Microsoft.Practices.IoTJourney.Monitoring.EventProcessor
                         partitionSnapshot.TimeStamp = timestamp;
                         partitionSnapshot.PreciseTimeStamp = DateTime.UtcNow;
                         partitionSnapshot.UnprocessedEvents = unprocessedEvents;
-                        partitionSnapshot.IncomingEventsPerSecond = (int)Math.Round((partitionInfo.EndSequenceNumber - previousSnapshot.EndSequenceNumber) / _samplingRate.TotalSeconds, 0);
-                        partitionSnapshot.OutgoingEventsPerSecond = (int)Math.Round((partitionSnapshot.SequenceNumber - previousSnapshot.SequenceNumber) / _samplingRate.TotalSeconds, 0);
+                        partitionSnapshot.IncomingEventsPerSecond =
+                            (int)
+                                Math.Round(
+                                    (partitionInfo.EndSequenceNumber - previousSnapshot.EndSequenceNumber)/
+                                    _samplingRate.TotalSeconds, 0);
+                        partitionSnapshot.OutgoingEventsPerSecond =
+                            (int)
+                                Math.Round(
+                                    (partitionSnapshot.SequenceNumber - previousSnapshot.SequenceNumber)/
+                                    _samplingRate.TotalSeconds, 0);
                         partitionSnapshot.EndSequenceNumber = partitionInfo.EndSequenceNumber;
                         partitionSnapshot.IncomingBytesPerSecond = partitionInfo.IncomingBytesPerSecond;
                         partitionSnapshot.OutgoingBytesPerSecond = partitionInfo.OutgoingBytesPerSecond;
 
-                        _stream.OnNext(partitionSnapshot);
+                        Stream.OnNext(partitionSnapshot);
 
                         previousSnapshots[i] = partitionSnapshot;
                     }
