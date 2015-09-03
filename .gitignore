@@ -202,7 +202,6 @@ FakesAssemblies/
 *-local.config
 *.ConsoleHost.config
 settings.config
-Monitoring.EventProcessor.config
 
 #Java
 
