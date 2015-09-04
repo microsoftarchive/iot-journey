@@ -104,7 +104,7 @@ PROCESS
                                     -EventHubSharedAccessPolicyName $EventHubSharedAccessPolicyName `
                                     -Location $Location `
                                     -PartitionCount 16 `
-                                    -MessageRetentionInDays 7 `
+                                    -MessageRetentionInDays 7
 
     # Update settings
 
