@@ -7,6 +7,7 @@
         public string EventHubSasKeyName { get; set; }
         public string EventHubSasKey { get; set; }
         public string CheckpointStorageAccount { get; set; }
+        public string ConsumerGroupName { get; set; }
 
         public static Configuration GetCurrentConfiguration()
         {
@@ -16,7 +17,8 @@
                 EventHubName = ConfigurationHelper.GetConfigValue<string>("EventHubName"),
                 EventHubSasKeyName = ConfigurationHelper.GetConfigValue<string>("EventHubSasKeyName"),
                 EventHubSasKey = ConfigurationHelper.GetConfigValue<string>("EventHubSasKey"),
-                CheckpointStorageAccount = ConfigurationHelper.GetConfigValue<string>("CheckpointStorageAccount")
+                CheckpointStorageAccount = ConfigurationHelper.GetConfigValue<string>("CheckpointStorageAccount"),
+                ConsumerGroupName = ConfigurationHelper.GetConfigValue<string>("ConsumerGroupName")
             };
         }
     }

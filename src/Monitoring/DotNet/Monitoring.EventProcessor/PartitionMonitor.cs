@@ -1,154 +1,126 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
-using System.Reactive.Subjects;
+using System.Linq;
+using System.Reactive.Concurrency;
+using System.Reactive.Linq;
+using System.Reactive.Threading.Tasks;
 using System.Threading.Tasks;
-using Microsoft.ServiceBus;
 using Microsoft.ServiceBus.Messaging;
-using Microsoft.WindowsAzure.Storage;
-using Microsoft.WindowsAzure.Storage.Blob;
-using Newtonsoft.Json;
-using STimer = System.Timers.Timer;
 
 namespace Microsoft.Practices.IoTJourney.Monitoring.EventProcessor
 {
-    public class PartitionMonitor
+    public class PartitionMonitor : IObservable<EventEntry>
     {
-        private const int MinSamplingRateSeconds = 30;
-
-        private readonly string _checkpointContainerName;
-        private readonly Configuration _configuration;
-
-        private readonly string _consumerGroupName;
-        private readonly EventHubClient _eventHubClient;
-
-        private readonly NamespaceManager _nsm;
-        private TimeSpan _samplingRate;
-        private readonly STimer _samplingTimer;
-        private readonly STimer _sessionTimer;
-        private readonly CloudStorageAccount _storageAccount;
+        private readonly string[] _partitionIds;
+        private readonly Func<string, Task<PartitionCheckpoint>> _getLastCheckpointAsync;
+        private readonly Func<string, Task<PartitionDescription>> _getEventHubPartitionAsync;
+        private readonly IScheduler _scheduler;
+        private readonly TimeSpan _betweenEachPartition;
+        private readonly TimeSpan _afterAllPartitions;
 
         public PartitionMonitor(
-            TimeSpan samplingRate, 
-            TimeSpan sessionTimeout, 
-            string consumerGroupName,
-            string checkpointContainerName)
+                string[] partitionIds,
+                Func<string,Task<PartitionCheckpoint>> getLastCheckpointAsync,
+                Func<string, Task<PartitionDescription>> getEventHubPartitionAsync,
+                TimeSpan betweenEachPartition,
+                TimeSpan afterAllPartitions,
+                IScheduler scheduler = null)
         {
-            Guard.ArgumentNotNullOrEmpty(consumerGroupName, "consumerGroupName");
-            Guard.ArgumentNotNullOrEmpty(checkpointContainerName, "checkpointContainerName");
+            _partitionIds = partitionIds;
+            _getLastCheckpointAsync = getLastCheckpointAsync;
+            _getEventHubPartitionAsync = getEventHubPartitionAsync;
+            _betweenEachPartition = betweenEachPartition;
+            _afterAllPartitions = afterAllPartitions;
 
-            if (samplingRate.TotalSeconds < MinSamplingRateSeconds)
-            {
-                throw new ArgumentException(string.Format(CultureInfo.InvariantCulture,
-                    "samplingRate must be higher or equal to {0} seconds.",
-                    MinSamplingRateSeconds));
-            }
-
-            _samplingRate = samplingRate;
-            _samplingTimer = new STimer(samplingRate.TotalMilliseconds);
-            _sessionTimer = new STimer(sessionTimeout.TotalMilliseconds);
-
-            _configuration = Configuration.GetCurrentConfiguration();
-            _consumerGroupName = consumerGroupName;
-            _checkpointContainerName = checkpointContainerName;
-
-            var endpoint = ServiceBusEnvironment.CreateServiceUri("sb", _configuration.EventHubNamespace, string.Empty);
-            var connectionString = ServiceBusConnectionStringBuilder.CreateUsingSharedAccessKey(endpoint,
-                _configuration.EventHubSasKeyName,
-                _configuration.EventHubSasKey);
-
-            _eventHubClient = EventHubClient.CreateFromConnectionString(connectionString, _configuration.EventHubName);
-
-            _nsm = NamespaceManager.CreateFromConnectionString(connectionString);
-            _nsm.Settings.OperationTimeout = samplingRate;
-
-            _storageAccount = CloudStorageAccount.Parse(_configuration.CheckpointStorageAccount);
+            // We allow a scheduler to be passed in for testing purposes
+            _scheduler = scheduler ?? DefaultScheduler.Instance;
         }
 
-        public ISubject<EventEntry> Stream { get; } = new Subject<EventEntry>();
-
-        public async Task StartAsync()
+        public async Task<EventEntry> Calculate(
+            string partitionId,
+            IDictionary<string, EventEntry> previousSnapshots,
+            Dictionary<string, PartitionCheckpoint> previousCheckpoints)
         {
-            var runtime = await _eventHubClient.GetRuntimeInformationAsync().ConfigureAwait(false);
-            var blobClient = _storageAccount.CreateCloudBlobClient();
-            var checkpointContainer = blobClient.GetContainerReference(_checkpointContainerName);
+            var partition = await _getEventHubPartitionAsync(partitionId)
+                .ConfigureAwait(false);
 
-            var partitionBlobRefereces = new List<CloudBlockBlob>();
-            var previousSnapshots = new List<EventEntry>();
+            var checkpoint = await _getLastCheckpointAsync(partitionId)
+                .ConfigureAwait(false);
 
-            for (var i = 0; i < runtime.PartitionCount; i++)
+            var pastCheckpoint = previousCheckpoints[partitionId];
+
+            var past = previousSnapshots[partitionId];
+            var current = new EventEntry
             {
-                //Initialize block blobs references
-                var partitionBlob = checkpointContainer.GetBlockBlobReference(_consumerGroupName + "/" + i);
-                partitionBlobRefereces.Add(partitionBlob);
+                PartitionId = partitionId,
+                UnprocessedEvents = partition.EndSequenceNumber - checkpoint.SequenceNumber,
+                EndSequenceNumber = partition.EndSequenceNumber,
+                IncomingBytesPerSecond = partition.IncomingBytesPerSecond,
+                OutgoingBytesPerSecond = partition.OutgoingBytesPerSecond,
+                LastEnqueuedTimeUtc = partition.LastEnqueuedTimeUtc,
+                LastCheckpointTimeUtc = checkpoint.LastCheckpointTimeUtc
+            };
 
-                previousSnapshots.Add(new EventEntry());
+            var deltaIngressTime = partition.LastEnqueuedTimeUtc - past.LastEnqueuedTimeUtc;
+            current.IncomingEventsPerSecond = (partition.EndSequenceNumber - past.EndSequenceNumber) / deltaIngressTime.TotalSeconds;
+
+            // if we don't have a new checkpoint, then we don't have
+            // the data that we need to calculate the egress rate.
+            if (checkpoint != pastCheckpoint)
+            {
+                var deltaEgressTime = checkpoint.LastCheckpointTimeUtc - pastCheckpoint.LastCheckpointTimeUtc;
+                var deltaEgressCount = checkpoint.SequenceNumber - pastCheckpoint.SequenceNumber;
+                current.OutgoingEventsPerSecond = deltaEgressCount / deltaEgressTime.TotalSeconds;
+            }
+            else
+            {
+                current.OutgoingEventsPerSecond = past.OutgoingEventsPerSecond;
             }
 
-            _samplingTimer.Elapsed += async (sender, e) =>
-            {
-                var timestamp = DateTime.UtcNow;
+            // store for the next iteration
+            previousSnapshots[partitionId] = current;
+            previousCheckpoints[partitionId] = checkpoint;
 
-                for (var i = 0; i < runtime.PartitionCount; i++)
+            return current;
+        }
+
+        public IDisposable Subscribe(IObserver<EventEntry> observer)
+        {
+            var delayBetweenEachPartition = _betweenEachPartition;
+            var delayBetweenPartitionSet = _afterAllPartitions;
+
+            var previousSnapshots = _partitionIds
+                .ToDictionary(partitionId => partitionId, partitionId => new EventEntry());
+
+            var previousCheckpoints = _partitionIds
+                .ToDictionary(partitionId => partitionId, partitionId => new PartitionCheckpoint());
+
+            var lastIndex = _partitionIds.Length - 1;
+
+            var firstTime = true;
+            Func<int, TimeSpan> timeSelector = index =>
+            {
+                if (firstTime)
                 {
-                    var partitionId = i.ToString();
-
-                    try
-                    {
-                        var partitionInfo =
-                            await
-                                _nsm.GetEventHubPartitionAsync(_configuration.EventHubName, _consumerGroupName,
-                                    partitionId).ConfigureAwait(false);
-
-                        var checkpointBlobText =
-                            await partitionBlobRefereces[i].DownloadTextAsync().ConfigureAwait(false);
-                        var partitionSnapshot = JsonConvert.DeserializeObject<EventEntry>(checkpointBlobText);
-
-                        var unprocessedEvents = partitionInfo.EndSequenceNumber - partitionSnapshot.SequenceNumber;
-
-                        var previousSnapshot = previousSnapshots[i];
-
-                        partitionSnapshot.TimeStamp = timestamp;
-                        partitionSnapshot.PreciseTimeStamp = DateTime.UtcNow;
-                        partitionSnapshot.UnprocessedEvents = unprocessedEvents;
-                        partitionSnapshot.IncomingEventsPerSecond =
-                            (int)
-                                Math.Round(
-                                    (partitionInfo.EndSequenceNumber - previousSnapshot.EndSequenceNumber)/
-                                    _samplingRate.TotalSeconds, 0);
-                        partitionSnapshot.OutgoingEventsPerSecond =
-                            (int)
-                                Math.Round(
-                                    (partitionSnapshot.SequenceNumber - previousSnapshot.SequenceNumber)/
-                                    _samplingRate.TotalSeconds, 0);
-                        partitionSnapshot.EndSequenceNumber = partitionInfo.EndSequenceNumber;
-                        partitionSnapshot.IncomingBytesPerSecond = partitionInfo.IncomingBytesPerSecond;
-                        partitionSnapshot.OutgoingBytesPerSecond = partitionInfo.OutgoingBytesPerSecond;
-
-                        Stream.OnNext(partitionSnapshot);
-
-                        previousSnapshots[i] = partitionSnapshot;
-                    }
-                    catch (TimeoutException ex)
-                    {
-                        Console.WriteLine(ex.Message);
-                    }
+                    firstTime = false;
+                    return TimeSpan.Zero;
                 }
+
+                return index != 0
+                    ? delayBetweenEachPartition
+                    : delayBetweenPartitionSet;
             };
 
-            _sessionTimer.Elapsed += (sender, e) =>
-            {
-                Stop();
-                _sessionTimer.Stop();
-            };
-
-            _samplingTimer.Start();
-            _sessionTimer.Start();
-        }
-
-        public void Stop()
-        {
-            _samplingTimer.Stop();
+            return Observable.Generate(
+                initialState: 0,
+                condition: _ => true, // never terminate
+                iterate: index => index < lastIndex ? index + 1 : 0,
+                resultSelector: index => _partitionIds[index],
+                timeSelector: timeSelector,
+                scheduler: _scheduler
+                )
+                .SelectMany(partitionId => Calculate(partitionId, previousSnapshots, previousCheckpoints).ToObservable())
+                .Subscribe(observer);
         }
     }
 }
