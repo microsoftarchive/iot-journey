@@ -19,7 +19,7 @@ namespace Microsoft.Practices.IoTJourney.Monitoring.EventProcessor
 
         public PartitionCheckpointManager(
             string consumerGroupName,
-            string[] partitionIds,
+            IEnumerable<string> partitionIds,
             CloudBlobContainer blobContainer,
             Func<CloudBlockBlob, Task<DateTimeOffset>> getLastModified = null,
             Func<CloudBlockBlob, Task<PartitionCheckpoint>> getCheckpoint = null)

@@ -1,5 +1,4 @@
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.ServiceBus;
 using Microsoft.ServiceBus.Messaging;
@@ -9,13 +8,20 @@ namespace Microsoft.Practices.IoTJourney.Monitoring.EventProcessor
 {
     public static class EventHubMonitorFactory
     {
+        public static Task<PartitionMonitor> CreateAsync(Configuration configuration)
+        {
+            return CreateAsync(configuration,
+                TimeSpan.FromMilliseconds(100),
+                TimeSpan.FromSeconds(10));
+        }
+
         public static async Task<PartitionMonitor> CreateAsync(
             Configuration configuration,
-            CancellationToken cancellationToken)
+            TimeSpan pauseBetweenParitions,
+            TimeSpan pauseAfterAllPartitions
+            )
         {
-            var samplingRate = TimeSpan.FromSeconds(1);
-
-            var nsm = CreateNamespaceManager(configuration, samplingRate);
+            var nsm = CreateNamespaceManager(configuration, pauseBetweenParitions);
 
             // create a partially applied function so that 
             // we'll only need to pass the partition id
@@ -41,19 +47,21 @@ namespace Microsoft.Practices.IoTJourney.Monitoring.EventProcessor
                 eventhub.PartitionIds,
                 checkpoints.GetLastCheckpointAsync,
                 getEventHubPartitionAsync,
-                samplingRate,
-                TimeSpan.FromSeconds(3));
+                pauseBetweenParitions,
+                pauseAfterAllPartitions);
         }
 
-        private static NamespaceManager CreateNamespaceManager(Configuration configuration, TimeSpan samplingRate)
+        private static NamespaceManager CreateNamespaceManager(Configuration configuration, TimeSpan timeout)
         {
             var endpoint = ServiceBusEnvironment.CreateServiceUri("sb", configuration.EventHubNamespace, string.Empty);
             var connectionString = ServiceBusConnectionStringBuilder.CreateUsingSharedAccessKey(endpoint,
                 configuration.EventHubSasKeyName,
                 configuration.EventHubSasKey);
 
+            var timeoutbuffer = TimeSpan.FromMilliseconds(100);
+
             var nsm = NamespaceManager.CreateFromConnectionString(connectionString);
-            //nsm.Settings.OperationTimeout = samplingRate;
+            nsm.Settings.OperationTimeout = timeout.Add(timeoutbuffer);
             return nsm;
         }
     }
