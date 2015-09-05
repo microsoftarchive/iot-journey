@@ -11,7 +11,7 @@ namespace Microsoft.Practices.IoTJourney.Monitoring.EventProcessor.ConsoleHost
         private static void Main(string[] args)
         {
             var configuration = Configuration.GetCurrentConfiguration();
-            var monitor = EventHubMonitorFactory.CreateAsync(configuration, CancellationToken.None).Result;
+            var monitor = EventHubMonitorFactory.CreateAsync(configuration).Result;
 
             var formatter = new CsvEventTextFormatter();
             var filename = string.Format(
@@ -30,6 +30,12 @@ namespace Microsoft.Practices.IoTJourney.Monitoring.EventProcessor.ConsoleHost
             {
                 sink.OnNext(@event);
 
+                var originalColor = Console.ForegroundColor;
+                if (@event.IsStale)
+                {
+                    Console.ForegroundColor = ConsoleColor.DarkCyan;
+                }
+
                 Console.WriteLine("Partition {0}", @event.PartitionId);
                 Console.WriteLine("----------");
                 Console.WriteLine("- LastCheckpointTimeUtc: {0}", @event.LastCheckpointTimeUtc);
@@ -40,6 +46,9 @@ namespace Microsoft.Practices.IoTJourney.Monitoring.EventProcessor.ConsoleHost
                 Console.WriteLine("- OutgoingBytesPerSecond: {0}", @event.OutgoingBytesPerSecond);
                 Console.WriteLine("- UnprocessedEvents: {0}", @event.UnprocessedEvents);
                 Console.WriteLine("");
+
+                Console.ForegroundColor = originalColor;
+
             });
 
             Console.ReadKey();

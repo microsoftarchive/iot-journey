@@ -38,5 +38,7 @@ namespace Microsoft.Practices.IoTJourney.Monitoring.EventProcessor
         public double IncomingEventsPerSecond { get; set; }
 
         public double OutgoingEventsPerSecond { get; set; }
+
+        public bool IsStale { get; set; }
     }
 }

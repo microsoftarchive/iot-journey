@@ -20,7 +20,7 @@ namespace Microsoft.Practices.IoTJourney.Monitoring.EventProcessor
 
         public PartitionMonitor(
                 string[] partitionIds,
-                Func<string,Task<PartitionCheckpoint>> getLastCheckpointAsync,
+                Func<string, Task<PartitionCheckpoint>> getLastCheckpointAsync,
                 Func<string, Task<PartitionDescription>> getEventHubPartitionAsync,
                 TimeSpan betweenEachPartition,
                 TimeSpan afterAllPartitions,
@@ -41,15 +41,24 @@ namespace Microsoft.Practices.IoTJourney.Monitoring.EventProcessor
             IDictionary<string, EventEntry> previousSnapshots,
             IDictionary<string, PartitionCheckpoint> previousCheckpoints)
         {
-            var partition = await _getEventHubPartitionAsync(partitionId)
-                .ConfigureAwait(false);
-
-            var checkpoint = await _getLastCheckpointAsync(partitionId)
-                .ConfigureAwait(false);
-
+            var past = previousSnapshots[partitionId];
             var pastCheckpoint = previousCheckpoints[partitionId];
 
-            var past = previousSnapshots[partitionId];
+            PartitionDescription partition;
+            PartitionCheckpoint checkpoint;
+
+            try
+            {
+                partition = await _getEventHubPartitionAsync(partitionId).ConfigureAwait(false);
+
+                checkpoint = await _getLastCheckpointAsync(partitionId).ConfigureAwait(false);
+            }
+            catch (TimeoutException)
+            {
+                past.IsStale = true;
+                return past;
+            }
+
             var current = new EventEntry
             {
                 PartitionId = partitionId,
@@ -62,7 +71,15 @@ namespace Microsoft.Practices.IoTJourney.Monitoring.EventProcessor
             };
 
             var deltaIngressTime = partition.LastEnqueuedTimeUtc - past.LastEnqueuedTimeUtc;
-            current.IncomingEventsPerSecond = (partition.EndSequenceNumber - past.EndSequenceNumber) / deltaIngressTime.TotalSeconds;
+            if (deltaIngressTime.TotalSeconds > 0)
+            {
+                current.IncomingEventsPerSecond = (partition.EndSequenceNumber - past.EndSequenceNumber) /
+                                                  deltaIngressTime.TotalSeconds;
+            }
+            else
+            {
+                current.IncomingEventsPerSecond = past.IncomingEventsPerSecond;
+            }
 
             // if we don't have a new checkpoint, then we don't have
             // the data that we need to calculate the egress rate.

@@ -11,8 +11,8 @@ namespace Microsoft.Practices.IoTJourney.Monitoring.EventProcessor
         public static Task<PartitionMonitor> CreateAsync(Configuration configuration)
         {
             return CreateAsync(configuration,
-                TimeSpan.FromMilliseconds(100),
-                TimeSpan.FromSeconds(10));
+                TimeSpan.FromSeconds(2),
+                TimeSpan.FromSeconds(30));
         }
 
         public static async Task<PartitionMonitor> CreateAsync(
@@ -58,10 +58,8 @@ namespace Microsoft.Practices.IoTJourney.Monitoring.EventProcessor
                 configuration.EventHubSasKeyName,
                 configuration.EventHubSasKey);
 
-            var timeoutbuffer = TimeSpan.FromMilliseconds(100);
-
             var nsm = NamespaceManager.CreateFromConnectionString(connectionString);
-            nsm.Settings.OperationTimeout = timeout.Add(timeoutbuffer);
+            nsm.Settings.OperationTimeout = timeout;
             return nsm;
         }
     }
