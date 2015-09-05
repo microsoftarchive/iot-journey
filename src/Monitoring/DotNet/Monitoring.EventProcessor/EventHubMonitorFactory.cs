@@ -17,15 +17,20 @@ namespace Microsoft.Practices.IoTJourney.Monitoring.EventProcessor
 
             var nsm = CreateNamespaceManager(configuration, samplingRate);
 
+            // create a partially applied function so that 
+            // we'll only need to pass the partition id
             Func<string, Task<PartitionDescription>> getEventHubPartitionAsync =
                 partitionId => nsm.GetEventHubPartitionAsync(configuration.EventHubName, configuration.ConsumerGroupName, partitionId);
 
             var eventhub = await nsm.GetEventHubAsync(configuration.EventHubName).ConfigureAwait(false);
 
+            // construct reference to the blob container
             var storageAccount = CloudStorageAccount.Parse(configuration.CheckpointStorageAccount);
             var blobClient = storageAccount.CreateCloudBlobClient();
             var checkpointContainer = blobClient.GetContainerReference(configuration.EventHubName);
 
+            // this manages the complexity of getting the 
+            // latest checkpoint for each parition
             var checkpoints = new PartitionCheckpointManager(
                 configuration.ConsumerGroupName,
                 eventhub.PartitionIds,

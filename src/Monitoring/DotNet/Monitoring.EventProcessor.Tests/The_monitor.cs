@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Practices.IoTJourney.Monitoring.EventProcessor;
 using Microsoft.Reactive.Testing;
@@ -13,33 +10,36 @@ namespace Monitoring.EventProcessor.Tests
 {
     public class The_monitor
     {
-        [Fact]
-        public void ShouldEmitAnEventForEachPartition()
+        private readonly List<EventEntry> _captured = new List<EventEntry>();
+        private readonly PartitionMonitor _monitor;
+        private readonly string[] _partitionIds = {"0", "1", "2"};
+        private readonly TestScheduler _virtualTime = new TestScheduler();
+
+        public The_monitor()
         {
-            var scheduler = new TestScheduler();
-            var captured = new List<EventEntry>();
-
-            var partitionIds = new[] { "0", "1", "2" };
-
-            var m = new PartitionMonitor(
-                partitionIds,
-                partitionId => Task.FromResult(new PartitionCheckpoint()), 
-                partitionId => Task.FromResult(new PartitionDescription("myhub", partitionId)),
+            _monitor = new PartitionMonitor(
+                _partitionIds,
+                partitionId => Task.FromResult(new PartitionCheckpoint()),
+                partitionId => Task.FromResult(new PartitionDescription("myHub", "0")),
                 TimeSpan.FromSeconds(1),
                 TimeSpan.FromSeconds(1),
-                scheduler);
+                _virtualTime);
+        }
 
-            using (m.Subscribe(captured.Add))
+        [Fact]
+        public void should_emit_an_event_for_each_partition()
+        {
+            using (_monitor.Subscribe(_captured.Add))
             {
-                var enoughForAllPartitions = TimeSpan.FromSeconds(partitionIds.Length);
-                scheduler.AdvanceBy(enoughForAllPartitions.Ticks);
+                var enoughForAllPartitions = TimeSpan.FromSeconds(_partitionIds.Length);
+                _virtualTime.AdvanceBy(enoughForAllPartitions.Ticks);
             }
 
-            Assert.Equal(partitionIds.Length, captured.Count);
+            Assert.Equal(_partitionIds.Length, _captured.Count);
 
-            for (int i = 0; i < captured.Count; i++)
+            for (var i = 0; i < _captured.Count; i++)
             {
-                Assert.Equal(partitionIds[i], captured[i].PartitionId);
+                Assert.Equal(_partitionIds[i], _captured[i].PartitionId);
             }
         }
     }

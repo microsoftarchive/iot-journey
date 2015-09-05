@@ -39,7 +39,7 @@ namespace Microsoft.Practices.IoTJourney.Monitoring.EventProcessor
         public async Task<EventEntry> Calculate(
             string partitionId,
             IDictionary<string, EventEntry> previousSnapshots,
-            Dictionary<string, PartitionCheckpoint> previousCheckpoints)
+            IDictionary<string, PartitionCheckpoint> previousCheckpoints)
         {
             var partition = await _getEventHubPartitionAsync(partitionId)
                 .ConfigureAwait(false);
