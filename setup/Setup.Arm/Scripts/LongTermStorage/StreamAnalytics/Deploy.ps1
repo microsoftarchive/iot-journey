@@ -27,6 +27,7 @@ PROCESS
     #TODO: validate input parameters
 
 	Load-Module -ModuleName Config -ModuleLocation .\..\..\..\..\modules
+	Load-Module -ModuleName Utility -ModuleLocation .\..\..\..\..\modules
     Load-Module -ModuleName AzureARM -ModuleLocation .\..\..\..\..\modules
 	Load-Module -ModuleName AzureServiceBus -ModuleLocation .\..\..\..\..\modules
 
@@ -48,8 +49,6 @@ PROCESS
     })
 
 	Assert-ServiceBusDll
-
-	#New-EventHubSharedAccessAuthorizationRule
 	
 	$sbr = Get-AzureSBAuthorizationRule -Namespace $ServiceBusNamespace
 	$NamespaceManager = [Microsoft.ServiceBus.NamespaceManager]::CreateFromConnectionString($sbr.ConnectionString); 
@@ -57,10 +56,12 @@ PROCESS
 
 	$EventHubDescription = $NamespaceManager.GetEventHub($EventHubName)
 	
-	$Key = [Microsoft.ServiceBus.Messaging.SharedAccessAuthorizationRule]::GenerateRandomKey()
+	#TODO: this is always regenerating the key. A parameter indicating if we want to do this explicitly may be better.
+	$PolicyKey = [Microsoft.ServiceBus.Messaging.SharedAccessAuthorizationRule]::GenerateRandomKey()
 	$Rights = [Microsoft.ServiceBus.Messaging.AccessRights]::Listen, [Microsoft.ServiceBus.Messaging.AccessRights]::Send
 	$RightsColl = New-Object -TypeName System.Collections.Generic.List[Microsoft.ServiceBus.Messaging.AccessRights] (,[Microsoft.ServiceBus.Messaging.AccessRights[]]$Rights)
-	$AccessRule = New-Object -TypeName  Microsoft.ServiceBus.Messaging.SharedAccessAuthorizationRule -ArgumentList "SendReceive", $Key, $RightsColl
+	$PolicyName = "SendReceive"
+	$AccessRule = New-Object -TypeName  Microsoft.ServiceBus.Messaging.SharedAccessAuthorizationRule -ArgumentList $PolicyName, $PolicyKey, $RightsColl
 	$EventHubDescription.Authorization.Add($AccessRule)
 
 	$NamespaceManager.UpdateEventHub($EventHubDescription)
@@ -70,15 +71,28 @@ PROCESS
 
 		New-AzureResourceGroupDeployment -ResourceGroupName $ResourceGroupName `
                                          -TemplateFile .\Templates\StreamAnalytics.json `
-                                         -TemplateParameterObject @{ 
+                                         -TemplateParameterObject @{
 											 jobName = $StreamAnalyticsJobName;
-											 storageAccountName=$StorageAccountName;
-											 consumerGroupName=$ConsumerGroupName;
-											 eventHubName=$EventHubName;
-											 serviceBusNamespace=$ServiceBusNamespace;
-											 sharedAccessPolicyName="SendReceive";
-											 sharedAccessPolicyKey=$Key;
+											 storageAccountName = $StorageAccountName;
+											 consumerGroupName = $ConsumerGroupName;
+											 eventHubName = $EventHubName;
+											 serviceBusNamespace = $ServiceBusNamespace;
+											 sharedAccessPolicyName = $PolicyName;
+											 sharedAccessPolicyKey = $PolicyKey;
 										 }
 			
 	})
+
+	# Update settings
+    $simulatorSettings = @{
+        'Simulator.EventHubNamespace'= $ServiceBusNamespace;
+        'Simulator.EventHubName' = $EventHubName;
+        'Simulator.EventHubSasKeyName' = $PolicyName;
+        'Simulator.EventHubPrimaryKey' = $PolicyKey;
+        'Simulator.EventHubTokenLifetimeDays' = ($EventHubDescription.MessageRetentionInDays -as [string]);
+    }
+
+	Write-SettingsFile -configurationTemplateFile (Join-Path $PSScriptRoot -ChildPath "..\..\..\..\..\src\Simulator\ScenarioSimulator.ConsoleHost.Template.config") `
+                       -configurationFile (Join-Path $PSScriptRoot -ChildPath "..\..\..\..\..\src\Simulator\ScenarioSimulator.ConsoleHost.config") `
+                       -appSettings $simulatorSettings
 }
