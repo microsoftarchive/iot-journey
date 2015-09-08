@@ -20,16 +20,21 @@ Param
 )
 PROCESS
 {
-    .\..\..\..\..\Init.ps1
+	$SetupFolderPath = Join-Path $PSScriptRoot -ChildPath "..\..\..\..\"
+	$ModulesFolderPath = Join-Path $PSScriptRoot -ChildPath "..\..\..\..\modules"
 
-    Load-Module -ModuleName Validation -ModuleLocation .\..\..\..\..\modules
+	Push-Location $SetupFolderPath
+		.\Init.ps1
+	Pop-Location
+
+    Load-Module -ModuleName Validation -ModuleLocation $ModulesFolderPath
 
     #TODO: validate input parameters
 
-	Load-Module -ModuleName Config -ModuleLocation .\..\..\..\..\modules
-	Load-Module -ModuleName Utility -ModuleLocation .\..\..\..\..\modules
-    Load-Module -ModuleName AzureARM -ModuleLocation .\..\..\..\..\modules
-	Load-Module -ModuleName AzureServiceBus -ModuleLocation .\..\..\..\..\modules
+	Load-Module -ModuleName Config -ModuleLocation $ModulesFolderPath
+	Load-Module -ModuleName Utility -ModuleLocation $ModulesFolderPath
+    Load-Module -ModuleName AzureARM -ModuleLocation $ModulesFolderPath
+	Load-Module -ModuleName AzureServiceBus -ModuleLocation $ModulesFolderPath
 
     if($AddAccount)
     {
@@ -43,7 +48,7 @@ PROCESS
         New-AzureResourceGroupIfNotExists -ResourceGroupName $ResourceGroupName -Location $Location
 
         New-AzureResourceGroupDeployment -ResourceGroupName $ResourceGroupName `
-                                         -TemplateFile .\Templates\EventHub.json `
+                                         -TemplateFile (Join-Path $PSScriptRoot -ChildPath ".\Templates\EventHub.json") `
                                          -TemplateParameterObject @{ namespaceName = $ServiceBusNamespace; eventHubName=$EventHubName; consumerGroupName=$ConsumerGroupName }
 
     })
@@ -70,7 +75,7 @@ PROCESS
 	Invoke-InAzureResourceManagerMode ({
 
 		New-AzureResourceGroupDeployment -ResourceGroupName $ResourceGroupName `
-                                         -TemplateFile .\Templates\StreamAnalytics.json `
+                                         -TemplateFile (Join-Path $PSScriptRoot -ChildPath ".\Templates\StreamAnalytics.json") `
                                          -TemplateParameterObject @{
 											 jobName = $StreamAnalyticsJobName;
 											 storageAccountName = $StorageAccountName;

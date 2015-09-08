@@ -30,9 +30,9 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Scripts\LongTermStorage\StreamAnalytics\Deploy.ps1" />
-    <None Include="Scripts\LongTermStorage\StreamAnalytics\Templates\EventHub.json" />
-    <None Include="Scripts\LongTermStorage\StreamAnalytics\Templates\StreamAnalytics.json" />
+    <None Include="Scripts\LongTermStorage\AzureStreamAnalytics\Deploy.ps1" />
+    <None Include="Scripts\LongTermStorage\AzureStreamAnalytics\Templates\EventHub.json" />
+    <None Include="Scripts\LongTermStorage\AzureStreamAnalytics\Templates\StreamAnalytics.json" />
   </ItemGroup>
   <Target Name="GetReferenceAssemblyPaths" />
 </Project>
