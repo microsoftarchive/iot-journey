@@ -75,4 +75,7 @@ function Assert-AzurePowershellVersion
 ##
 ############################
 
+$PSDefaultParameterValues = $PSDefaultParameterValues.clone()
+$PSDefaultParameterValues += @{'New-RegKey:ErrorAction' = 'Stop'}
+
 Assert-AzurePowershellVersion "0.9.7"

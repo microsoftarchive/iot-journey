@@ -50,12 +50,11 @@ Param
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$ConsumerGroupName  = "cg-blobs", 
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$EventHubSharedAccessPolicyName = "ManagePolicy",
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$ContainerName = "blobs-processor",
+    [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][string]$ResourceGroupName = "IoTJourney",
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$Location = "Central US"
 )
 PROCESS
 {
-    $ErrorActionPreference = "Stop"
-
     .\Init.ps1
 
     Load-Module -ModuleName Validation -ModuleLocation .\modules
@@ -81,7 +80,7 @@ PROCESS
 
     Select-AzureSubscription $SubscriptionName
 
-    $StorageAccountInfo = New-ProvisionedStorageAccount -StorageAccountName $StorageAccountName `
+    <#$StorageAccountInfo = New-ProvisionedStorageAccount -StorageAccountName $StorageAccountName `
                                                 -ContainerName $ContainerName `
                                                 -Location $Location
 
@@ -92,9 +91,22 @@ PROCESS
                                     -EventHubSharedAccessPolicyName $EventHubSharedAccessPolicyName `
                                     -Location $Location `
                                     -PartitionCount 16 `
-                                    -MessageRetentionInDays 7 `
+                                    -MessageRetentionInDays 7 `#>
     
     # Update settings
+
+    Invoke-InAzureResourceManagerMode ({
+    
+        New-AzureResourceGroupIfNotExists -ResourceGroupName $ResourceGroupName -Location $Location
+    
+        New-AzureResourceGroupDeployment -ResourceGroupName $ResourceGroupName `
+                                         -TemplateFile (Join-Path $PSScriptRoot -ChildPath ".\Templates\DeploymentTemplate_EventHub.json") `
+                                         -TemplateParameterObject @{ namespaceName = $ServiceBusNamespace; eventHubName=$EventHubName; consumerGroupName=$ConsumerGroupName }
+    
+    })
+
+
+    Break
 
     $simulatorSettings = @{
         'Simulator.EventHubNamespace'= $EventHubInfo.EventHubNamespace;

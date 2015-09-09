@@ -28,11 +28,14 @@
     <None Include="Deployment.targets">
       <Visible>False</Visible>
     </None>
+    <None Include="Modules\ServiceBus.psm1" />
+    <None Include="Scripts\LongTermStorage\DotNetEventProcessor\DeploymentTemplate.json" />
+    <None Include="Scripts\LongTermStorage\DotNetEventProcessor\Deploy.ps1" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Scripts\LongTermStorage\AzureStreamAnalytics\Deploy.ps1" />
-    <None Include="Scripts\LongTermStorage\AzureStreamAnalytics\Templates\EventHub.json" />
-    <None Include="Scripts\LongTermStorage\AzureStreamAnalytics\Templates\StreamAnalytics.json" />
+    <None Include="Scripts\LongTermStorage\AzureStreamAnalytics\Templates\DeploymentTemplate_EventHub.json" />
+    <None Include="Scripts\LongTermStorage\AzureStreamAnalytics\Templates\DeploymentTemplate_StreamAnalytics.json" />
   </ItemGroup>
   <Target Name="GetReferenceAssemblyPaths" />
 </Project>

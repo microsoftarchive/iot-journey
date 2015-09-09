@@ -57,8 +57,8 @@ PROCESS
     
         New-AzureResourceGroupIfNotExists -ResourceGroupName $ResourceGroupName -Location $Location
     
-        New-AzureResourceGroupDeployment -ResourceGroupName $ResourceGroupName `
-                                         -TemplateFile (Join-Path $PSScriptRoot -ChildPath ".\Templates\EventHub.json") `
+        $Output = New-AzureResourceGroupDeployment -ResourceGroupName $ResourceGroupName `
+                                         -TemplateFile (Join-Path $PSScriptRoot -ChildPath ".\Templates\DeploymentTemplate_EventHub.json") `
                                          -TemplateParameterObject @{ namespaceName = $ServiceBusNamespace; eventHubName=$EventHubName; consumerGroupName=$ConsumerGroupName }
     
     })
@@ -88,6 +88,8 @@ PROCESS
         }
     }
 
+    $EventHubDescription = $NamespaceManager.GetEventHub($EventHubName)
+    
     #TODO: this is always regenerating the key. A parameter indicating if we want to do this explicitly may be better.
     $PolicyKey = [Microsoft.ServiceBus.Messaging.SharedAccessAuthorizationRule]::GenerateRandomKey()
     $Rights = [Microsoft.ServiceBus.Messaging.AccessRights]::Listen, [Microsoft.ServiceBus.Messaging.AccessRights]::Send
@@ -102,7 +104,7 @@ PROCESS
     Invoke-InAzureResourceManagerMode ({
     
         New-AzureResourceGroupDeployment -ResourceGroupName $ResourceGroupName `
-                                         -TemplateFile (Join-Path $PSScriptRoot -ChildPath ".\Templates\StreamAnalytics.json") `
+                                         -TemplateFile (Join-Path $PSScriptRoot -ChildPath ".\Templates\DeploymentTemplate_StreamAnalytics.json") `
                                          -TemplateParameterObject @{
                                             jobName = $StreamAnalyticsJobName;
                                             storageAccountNameFix = $StorageAccountName;
