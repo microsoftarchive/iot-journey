@@ -21,6 +21,34 @@ function global:Load-Module
     $Ignore = Import-Module -Name $QualifiedModuleName -PassThru -Verbose:$False -EA Stop
 }
 
+function global:Add-Library
+{
+    [CmdletBinding()]
+    param 
+    (
+        [Parameter(Mandatory=$True)][string]$LibraryName,
+        [Parameter(Mandatory=$True)][string]$Location
+    )
+    PROCESS
+    {
+        try
+        {
+            Write-Output "Adding the [$LibraryName] assembly to the script..." 
+
+            $Assembly = Get-ChildItem $Location -Include $LibraryName -Recurse
+            Add-Type -Path $Assembly.FullName
+
+            Write-Output "The [$LibraryName] assembly has been successfully added to the script." 
+        }
+        catch
+        {
+            Write-Error "Could not add the [$LibraryName] assembly to the script. Make sure you build the solution before running the provisioning script."
+            Break
+        }
+    }
+   
+}
+
 function Assert-AzurePowershellVersion
 {
         Param ([version]$requiredVersion)

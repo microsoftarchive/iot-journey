@@ -67,6 +67,8 @@ Param
 )
 PROCESS
 {
+    $ErrorActionPreference = "Stop"
+
     .\Init.ps1
 
     Load-Module -ModuleName Validation -ModuleLocation .\modules

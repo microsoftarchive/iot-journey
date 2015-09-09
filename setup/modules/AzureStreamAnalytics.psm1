@@ -27,8 +27,6 @@ function Provision-StreamAnalyticsJob
     )
     PROCESS
     {
-        Assert-ServiceBusDll
-
         Invoke-InAzureResourceManagerMode ({
             
             New-AzureResourceGroupIfNotExists -ResourceGroupName $ResourceGroupName -Location $Location
