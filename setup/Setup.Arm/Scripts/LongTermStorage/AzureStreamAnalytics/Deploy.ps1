@@ -78,7 +78,7 @@ PROCESS
                                          -TemplateFile (Join-Path $PSScriptRoot -ChildPath ".\Templates\StreamAnalytics.json") `
                                          -TemplateParameterObject @{
 											 jobName = $StreamAnalyticsJobName;
-											 storageAccountName = $StorageAccountName;
+											 storageAccountNameFix = $StorageAccountName;
 											 consumerGroupName = $ConsumerGroupName;
 											 eventHubName = $EventHubName;
 											 serviceBusNamespace = $ServiceBusNamespace;

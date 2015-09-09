@@ -2,13 +2,14 @@
 	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
 	"contentVersion": "0.1.0.0",
 	"parameters": {
-		"jobName": {
-			"type": "string",
-			"metadata": {
-				"description": "The name of the Stream Analytics Job."
-			}
-		},
-		"storageAccountName": {
+    "jobName": {
+      "type": "string",
+      "metadata": {
+        "description": "The name of the Stream Analytics Job."
+      }
+    },
+    /* we are using storageAccountNameFix because storageAccountName is a reserved word. */
+		"storageAccountNameFix": {
 			"type": "string",
 			"metadata": {
 				"description": "The name of the storage account to use for long-term storage."
@@ -40,7 +41,7 @@
 		/* storage account to use for out of Stream Analytics job */
 		{
 			"type": "Microsoft.Storage/storageAccounts",
-			"name": "[parameters('storageAccountName')]",
+			"name": "[parameters('storageAccountNameFix')]",
 			"apiVersion": "2015-05-01-preview",
 			"location": "[variables('location')]",
 			"properties": {
@@ -51,7 +52,7 @@
 		{
 			"name": "[parameters('jobName')]",
 			"dependsOn": [
-				"[parameters('storageAccountName')]"
+				"[parameters('storageAccountNameFix')]"
 			],
 			"location": "[variables('location')]",
 			"type": "Microsoft.StreamAnalytics/streamingjobs",
@@ -98,8 +99,8 @@
 									"pathPattern": "[variables('path-prefix-pattern')]",
 									"storageAccounts": [
 										{
-											"accountName": "[parameters('storageAccountName')]",
-											"accountKey": "[listKeys(parameters('storageAccountName'), '2015-05-01-preview' ).key1]"
+											"accountName": "[parameters('storageAccountNameFix')]",
+											"accountKey": "[listKeys(parameters('storageAccountNameFix'), '2015-05-01-preview' ).key1]"
 										}
 									]
 								}
