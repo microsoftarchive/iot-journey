@@ -161,6 +161,9 @@
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
   </PropertyGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <Target Name="BeforeBuild">
+    <Error Condition=" '$(CIBuild)' == '' AND !Exists('settings.config')" Text="Before building this project, please run the setup script located at &quot;$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)/../../../../setup/Provision-DeviceProvisioningWebApi.ps1'))&quot;." />
+  </Target>
   <Import Project="$(VSToolsPath)\WebApplications\Microsoft.WebApplication.targets" Condition="'$(VSToolsPath)' != ''" />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" Condition="false" />
   <ProjectExtensions>

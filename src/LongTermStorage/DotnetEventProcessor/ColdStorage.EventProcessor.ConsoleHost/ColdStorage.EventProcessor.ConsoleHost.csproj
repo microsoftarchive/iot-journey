@@ -116,7 +116,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="BeforeBuild">
-    <Error Condition=" '$(CIBuild)' == '' AND !Exists('..\ColdStorage.EventProcessor.ConsoleHost.config')" Text="Before building this project, please copy ColdStorage.EventProcessor.ConsoleHost.Template.config to ColdStorage.EventProcessor.ConsoleHost.config (under the &quot;$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)\..'))&quot; directory) and replace the placeholders in the copy with your configuration information." />
+    <Error Condition=" '$(CIBuild)' == '' AND !Exists('..\ColdStorage.EventProcessor.ConsoleHost.config')" Text="Before building this project, please run the setup script located at &quot;$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)/../../../../setup/Provision-ColdStorageEventProcessor.ps1'))&quot;." />
   </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
