@@ -78,7 +78,7 @@ namespace Microsoft.Practices.IoTJourney.Monitoring.EventProcessor
             }
             else
             {
-                current.IncomingEventsPerSecond = past.IncomingEventsPerSecond;
+                current.IncomingEventsPerSecond = 0;
             }
 
             // if we don't have a new checkpoint, then we don't have
@@ -91,7 +91,7 @@ namespace Microsoft.Practices.IoTJourney.Monitoring.EventProcessor
             }
             else
             {
-                current.OutgoingEventsPerSecond = past.OutgoingEventsPerSecond;
+                current.OutgoingEventsPerSecond = 0;
             }
 
             // store for the next iteration
