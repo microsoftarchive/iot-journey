@@ -66,9 +66,28 @@ PROCESS
     $sbr = Get-AzureSBAuthorizationRule -Namespace $ServiceBusNamespace
     $NamespaceManager = [Microsoft.ServiceBus.NamespaceManager]::CreateFromConnectionString($sbr.ConnectionString); 
     
-    
-    $EventHubDescription = $NamespaceManager.GetEventHub($EventHubName)
-    
+    $EventHubDescription = $null
+    $RetryCountMax = 5
+    $RetryDelaySeconds = 5
+    $RetryCount = 0
+    $Success = $false
+    while (-not $Success) {
+        try {
+            $EventHubDescription = $NamespaceManager.GetEventHub($EventHubName)
+            $Success = $true
+        }
+        catch {
+            if ($RetryCount -ge $RetryCountMax) {
+                Write-Verbose("GetEventHub failed the maximum number of {0} times." -f $RetryCountMax)
+                throw
+            } else {
+                Write-Verbose("GetEventHub failed. Retrying in {0} seconds." -f $RetryDelaySeconds)
+                Start-Sleep $RetryDelaySeconds
+                $RetryCount++
+            }
+        }
+    }
+
     #TODO: this is always regenerating the key. A parameter indicating if we want to do this explicitly may be better.
     $PolicyKey = [Microsoft.ServiceBus.Messaging.SharedAccessAuthorizationRule]::GenerateRandomKey()
     $Rights = [Microsoft.ServiceBus.Messaging.AccessRights]::Listen, [Microsoft.ServiceBus.Messaging.AccessRights]::Send
