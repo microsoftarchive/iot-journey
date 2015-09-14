@@ -24,6 +24,7 @@ PROCESS
 
     $SetupFolderPath = Join-Path $PSScriptRoot -ChildPath "..\..\..\..\"
     $ModulesFolderPath = Join-Path $PSScriptRoot -ChildPath "..\..\..\..\modules"
+    $LocalModulesFolderPath = Join-Path $PSScriptRoot -ChildPath "..\..\..\Modules"
     
     Push-Location $SetupFolderPath
         .\Init.ps1
@@ -45,6 +46,8 @@ PROCESS
     Load-Module -ModuleName Utility -ModuleLocation $ModulesFolderPath
     Load-Module -ModuleName AzureARM -ModuleLocation $ModulesFolderPath
     Load-Module -ModuleName AzureServiceBus -ModuleLocation $ModulesFolderPath
+    Load-Module -ModuleName RetryPolicy -ModuleLocation $LocalModulesFolderPath
+    Load-Module -ModuleName ServiceBus -ModuleLocation $LocalModulesFolderPath
     
     if($AddAccount)
     {
@@ -52,57 +55,42 @@ PROCESS
     }
     
     Select-AzureSubscription $SubscriptionName
-    
+   
+    #region Create EventHub
+
     Invoke-InAzureResourceManagerMode ({
     
         New-AzureResourceGroupIfNotExists -ResourceGroupName $ResourceGroupName -Location $Location
-    
-        $Output = New-AzureResourceGroupDeployment -ResourceGroupName $ResourceGroupName `
+        
+        New-AzureResourceGroupDeployment -ResourceGroupName $ResourceGroupName `
                                          -TemplateFile (Join-Path $PSScriptRoot -ChildPath ".\Templates\DeploymentTemplate_EventHub.json") `
                                          -TemplateParameterObject @{ namespaceName = $ServiceBusNamespace; eventHubName=$EventHubName; consumerGroupName=$ConsumerGroupName }
     
     })
-    
-    $sbr = Get-AzureSBAuthorizationRule -Namespace $ServiceBusNamespace
-    $NamespaceManager = [Microsoft.ServiceBus.NamespaceManager]::CreateFromConnectionString($sbr.ConnectionString); 
-    
-    $EventHubDescription = $null
-    $RetryCountMax = 5
-    $RetryDelaySeconds = 5
-    $RetryCount = 0
-    $Success = $false
-    while (-not $Success) {
-        try {
-            $EventHubDescription = $NamespaceManager.GetEventHub($EventHubName)
-            $Success = $true
-        }
-        catch {
-            if ($RetryCount -ge $RetryCountMax) {
-                Write-Verbose("GetEventHub failed the maximum number of {0} times." -f $RetryCountMax)
-                throw
-            } else {
-                Write-Verbose("GetEventHub failed. Retrying in {0} seconds." -f $RetryDelaySeconds)
-                Start-Sleep $RetryDelaySeconds
-                $RetryCount++
-            }
-        }
-    }
 
-    $EventHubDescription = $NamespaceManager.GetEventHub($EventHubName)
+    #endregion
     
-    #TODO: this is always regenerating the key. A parameter indicating if we want to do this explicitly may be better.
-    $PolicyKey = [Microsoft.ServiceBus.Messaging.SharedAccessAuthorizationRule]::GenerateRandomKey()
-    $Rights = [Microsoft.ServiceBus.Messaging.AccessRights]::Listen, [Microsoft.ServiceBus.Messaging.AccessRights]::Send
-    $RightsColl = New-Object -TypeName System.Collections.Generic.List[Microsoft.ServiceBus.Messaging.AccessRights] (,[Microsoft.ServiceBus.Messaging.AccessRights[]]$Rights)
-    $PolicyName = "SendReceive"
-    $AccessRule = New-Object -TypeName  Microsoft.ServiceBus.Messaging.SharedAccessAuthorizationRule -ArgumentList $PolicyName, $PolicyKey, $RightsColl
-    $EventHubDescription.Authorization.Add($AccessRule)
+    #region Create EventHub's Authorization Rule
+
+    $namespaceAuthRule = Get-AzureSBAuthorizationRule -Namespace $serviceBusNamespace
+    $namespaceManager = [Microsoft.ServiceBus.NamespaceManager]::CreateFromConnectionString($namespaceAuthRule.ConnectionString); 
+    $eventHubDescription = Invoke-WithRetries ({ $namespaceManager.GetEventHub($EventHubName) })
     
-    $NamespaceManager.UpdateEventHub($EventHubDescription)
+    $rights = [Microsoft.ServiceBus.Messaging.AccessRights]::Listen,`
+              [Microsoft.ServiceBus.Messaging.AccessRights]::Send
+
+    $accessRule = New-SharedAccessAuthorizationRule -Name "SendReceive" -Rights $rights
+    $eventHubDescription.Authorization.Add($accessRule.Rule)
+    $namespaceManager.UpdateEventHub($eventHubDescription)
     
+    #endregion
+
+    #region Create ASA Job
+
     $StreamAnalyticsJobName = $ApplicationName+"ToBlob"
     Invoke-InAzureResourceManagerMode ({
-    
+        
+        #create an ASA job instance.
         New-AzureResourceGroupDeployment -ResourceGroupName $ResourceGroupName `
                                          -TemplateFile (Join-Path $PSScriptRoot -ChildPath ".\Templates\DeploymentTemplate_StreamAnalytics.json") `
                                          -TemplateParameterObject @{
@@ -111,22 +99,27 @@ PROCESS
                                             consumerGroupName = $ConsumerGroupName;
                                             eventHubName = $EventHubName;
                                             serviceBusNamespace = $ServiceBusNamespace;
-                                            sharedAccessPolicyName = $PolicyName;
-                                            sharedAccessPolicyKey = $PolicyKey;
+                                            sharedAccessPolicyName = $accessRule.PolicyName;
+                                            sharedAccessPolicyKey = $accessRule.PolicyKey;
                                          }
     
     })
+
+    #endregion
     
-    # Update settings
+    #region Update Settings
+
     $simulatorSettings = @{
         'Simulator.EventHubNamespace'= $ServiceBusNamespace;
         'Simulator.EventHubName' = $EventHubName;
-        'Simulator.EventHubSasKeyName' = $PolicyName;
-        'Simulator.EventHubPrimaryKey' = $PolicyKey;
+        'Simulator.EventHubSasKeyName' = $accessRule.PolicyName;
+        'Simulator.EventHubPrimaryKey' = $accessRule.PolicyKey;
         'Simulator.EventHubTokenLifetimeDays' = ($EventHubDescription.MessageRetentionInDays -as [string]);
     }
     
     Write-SettingsFile -configurationTemplateFile (Join-Path $PSScriptRoot -ChildPath "..\..\..\..\..\src\Simulator\ScenarioSimulator.ConsoleHost.Template.config") `
                        -configurationFile (Join-Path $PSScriptRoot -ChildPath "..\..\..\..\..\src\Simulator\ScenarioSimulator.ConsoleHost.config") `
                        -appSettings $simulatorSettings
+
+    #endregion
 }

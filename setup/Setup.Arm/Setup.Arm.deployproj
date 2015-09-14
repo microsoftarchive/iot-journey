@@ -28,6 +28,7 @@
     <None Include="Deployment.targets">
       <Visible>False</Visible>
     </None>
+    <None Include="Modules\RetryPolicy.psm1" />
     <None Include="Modules\ServiceBus.psm1" />
     <None Include="Scripts\LongTermStorage\DotNetEventProcessor\DeploymentTemplate.json" />
     <None Include="Scripts\LongTermStorage\DotNetEventProcessor\Deploy.ps1" />

@@ -10,13 +10,31 @@
     },
     "consumerGroupName": {
       "type": "string"
+    },
+    /* we are using storageAccountNameFix because storageAccountName is a reserved word. */
+    "storageAccountNameFix": {
+      "type": "string",
+      "metadata": {
+        "description": "The name of the storage account to use for long-term storage."
+      }
     }
   },
   "variables": {
     "location": "[resourceGroup().location]",
-    "partitionCount": 16
+    "partitionCount": 16,
+    "messageRetentionInDays": 7
   },
   "resources": [
+    /* storage account to use for out of DotNetEventProcessor */
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "name": "[parameters('storageAccountNameFix')]",
+      "apiVersion": "2015-05-01-preview",
+      "location": "[variables('location')]",
+      "properties": {
+        "accountType": "Standard_LRS"
+      }
+    },
     {
       "apiVersion": "2014-09-01",
       "name": "[parameters('namespaceName')]",
@@ -35,7 +53,8 @@
           ],
           "properties": {
             "path": "[parameters('eventHubName')]",
-            "partitionCount": "[variables('partitionCount')]"
+            "partitionCount": "[variables('partitionCount')]",
+            "messageRetentionInDays": "[variables('messageRetentionInDays')]"
           },
           "resources": [
             {
