@@ -49,6 +49,14 @@ namespace Microsoft.Practices.IoTJourney.Monitoring.EventProcessor.ConsoleHost
 
                 Console.ForegroundColor = originalColor;
 
+            },
+            e =>
+            {
+                Console.Error.WriteLine(e);
+            },
+            () =>
+            {
+                Console.WriteLine("Done");
             });
 
             Console.ReadKey();
