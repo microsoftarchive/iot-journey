@@ -1,3 +1,5 @@
+#region Header
+
 # Copyright (c) Microsoft. All rights reserved.
 # Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
@@ -38,6 +40,8 @@
 .EXAMPLE
   .\Provision-ColdStorageEventProcessor.ps1 -SubscriptionName [YourAzureSubscriptionName] -ApplicationName [YourApplicationName]
 #>
+
+#endregion
 [CmdletBinding()]
 Param
 (
@@ -101,6 +105,7 @@ PROCESS
         New-AzureResourceGroupIfNotExists -ResourceGroupName $ResourceGroupName -Location $Location
     
         $resourcesInfo = New-AzureResourceGroupDeployment -ResourceGroupName $ResourceGroupName `
+                                         -Name "IoTJourneyDeployment" `
                                          -TemplateFile (Join-Path $PSScriptRoot -ChildPath ".\DeploymentTemplate.json") `
                                          -TemplateParameterObject @{ namespaceName = $ServiceBusNamespace; `
                                                                      eventHubName=$EventHubName; `

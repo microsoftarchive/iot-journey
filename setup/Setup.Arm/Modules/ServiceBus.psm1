@@ -16,4 +16,9 @@ function New-SharedAccessAuthorizationRule
     }
 }
 
+$Configuration = Get-Configuration
+
+#It is important that we load this library first. If we don't and Azure Powershell loads it's own first, it will load and older version.
+Add-Library -LibraryName "Microsoft.ServiceBus.dll" -Location $Configuration.PackagesFolderPath
+
 Export-ModuleMember New-SharedAccessAuthorizationRule

@@ -28,15 +28,25 @@
     <None Include="Deployment.targets">
       <Visible>False</Visible>
     </None>
+    <None Include="Modules\ResourceManager.psm1" />
     <None Include="Modules\RetryPolicy.psm1" />
     <None Include="Modules\ServiceBus.psm1" />
-    <None Include="Scripts\LongTermStorage\DotNetEventProcessor\DeploymentTemplate.json" />
-    <None Include="Scripts\LongTermStorage\DotNetEventProcessor\Deploy.ps1" />
+    <None Include="Modules\Config.psm1" />
+    <None Include="Modules\SettingsWriter.psm1" />
+    <None Include="Modules\Validation.psm1" />
+    <None Include="Scripts\Init.ps1" />
+    <None Include="Scripts\LongTermStorage-AzureStreamAnalytics\Deploy-AzureStreamAnalytics.ps1" />
+    <None Include="Scripts\LongTermStorage-AzureStreamAnalytics\azuredeploy.eventhub.json" />
+    <None Include="Scripts\LongTermStorage-AzureStreamAnalytics\azuredeploy.streamanalytics.json" />
+    <None Include="Scripts\LongTermStorage-DotNetEventProcessor\Deploy-DotNetEventProcessor.ps1" />
+    <None Include="Scripts\LongTermStorage-DotNetEventProcessor\azuredeploy.json" />
+    <None Include="Scripts\LongTermStorage-HDInsight\Deploy-LongTermStorageHDInsight.ps1" />
+    <None Include="Scripts\LongTermStorage-HDInsight\azuredeploy.json" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Scripts\LongTermStorage\AzureStreamAnalytics\Deploy.ps1" />
-    <None Include="Scripts\LongTermStorage\AzureStreamAnalytics\Templates\DeploymentTemplate_EventHub.json" />
-    <None Include="Scripts\LongTermStorage\AzureStreamAnalytics\Templates\DeploymentTemplate_StreamAnalytics.json" />
+    <Folder Include="Scripts\DeviceProvisioningWebApi\" />
+    <Folder Include="Scripts\WarmStorage-EventProcessor\" />
+    <Folder Include="Scripts\WarmStorage-AzureStreamAnalyticsAndSql\" />
   </ItemGroup>
   <Target Name="GetReferenceAssemblyPaths" />
 </Project>
