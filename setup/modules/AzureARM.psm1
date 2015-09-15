@@ -12,13 +12,13 @@ function Invoke-InAzureResourceManagerMode
     {
         try
         {
-            Switch-AzureMode -Name AzureResourceManager
+            Switch-AzureMode -Name AzureResourceManager -WarningAction SilentlyContinue
 
             . $ScriptBlock
         }
         finally
         {
-            Switch-AzureMode -Name AzureServiceManagement
+            Switch-AzureMode -Name AzureServiceManagement -WarningAction SilentlyContinue
         }
     }
 }

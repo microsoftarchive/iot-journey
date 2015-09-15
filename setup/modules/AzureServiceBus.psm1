@@ -29,8 +29,6 @@ function New-ProvisionedEventHub
         
         Select-AzureSubscription -SubscriptionName $SubscriptionName
 
-        Assert-ServiceBusDll
-
         New-ServicBusNamespaceIfNotExists -ServiceBusNamespace $ServiceBusNamespace `
                                           -Location $Location
         
@@ -55,28 +53,6 @@ function New-ProvisionedEventHub
 
 
         return $EventHubInfo
-    }
-}
-
-function Assert-ServiceBusDll
-{
-    $ServiceBusDllName = "Microsoft.ServiceBus.dll"
-
-    try
-    {
-        $Configuration = Get-Configuration
-
-        Write-Output "Adding the [$ServiceBusDllName] assembly to the script..." 
-        
-        $packagesFolder = $Configuration.PackagesFolderPath
-        $assembly = Get-ChildItem $packagesFolder -Include "$ServiceBusDllName" -Recurse
-        Add-Type -Path $assembly.FullName
-
-        Write-Output "The [$ServiceBusDllName] assembly has been successfully added to the script." 
-    }
-    catch
-    {
-        Write-Error("Could not add the $ServiceBusDllName assembly to the script. Make sure you build the solution before running the provisioning script.")
     }
 }
 
@@ -247,6 +223,10 @@ function New-ConsumerGroupIfNotExists
     }
 }
 
+$Configuration = Get-Configuration
+
+#It is important that we load this library first. If we don't and Azure Powershell loads it's own first, it will load and older version.
+Add-Library -LibraryName "Microsoft.ServiceBus.dll" -Location $Configuration.PackagesFolderPath
+
 Export-ModuleMember New-ProvisionedEventHub
-Export-ModuleMember Assert-ServiceBusDll
 Export-ModuleMember Get-EventHubSharedAccessPolicyKey
