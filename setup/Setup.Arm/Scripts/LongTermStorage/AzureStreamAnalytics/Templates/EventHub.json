@@ -46,7 +46,7 @@
                 "[parameters('eventHubName')]"
               ],
               "properties": {
-                "enableCheckpoint": "true"
+                "enableCheckpoint": "false"
               }
             }
           ]
