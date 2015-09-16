@@ -26,10 +26,9 @@ namespace Microsoft.Practices.IoTJourney.Monitoring.EventProcessor.ConsoleHost
                 Directory.CreateDirectory(outputDir);
             }
 
+            monitor.Subscribe(sink);
             monitor.Subscribe(@event =>
             {
-                sink.OnNext(@event);
-
                 var originalColor = Console.ForegroundColor;
                 if (@event.IsStale)
                 {
