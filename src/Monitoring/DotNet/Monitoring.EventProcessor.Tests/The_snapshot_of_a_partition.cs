@@ -48,7 +48,7 @@ namespace Monitoring.EventProcessor.Tests
                 TimeSpan.FromSeconds(1));
 
             _snapshot = monitor
-                .Calculate(PartitionId)
+                .CaptureSnapshot(PartitionId)
                 .Result;
         }
 

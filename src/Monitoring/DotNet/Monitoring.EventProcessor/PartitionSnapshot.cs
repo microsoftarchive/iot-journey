@@ -20,20 +20,19 @@ namespace Microsoft.Practices.IoTJourney.Monitoring.EventProcessor
         public DateTimeOffset LastEnqueuedTimeUtc { get; set; }
 
         /// <summary>
-        ///     Offset in bytes.
-        /// </summary>
-        public long Offset { get; set; }
-
-        /// <summary>
         ///     The numbers of events that remain unprocessed for a given consumer group.
         /// </summary>
         public long UnprocessedEvents { get; set; }
 
+        /// <summary>
+        ///     The last seen sequence number on the partition. 
+        ///     This reflects the identity of the most recent event data.
+        /// </summary>
         public long EndSequenceNumber { get; set; }
 
-        public bool IsStale { get; set; }
-
-
-        public DateTimeOffset RecordedAtTimeUtc { get; set; }
+        /// <summary>
+        ///     Timestamp of when this snapshot was captured.
+        /// </summary>
+        public DateTimeOffset CapturedAtTimeUtc { get; set; }
     }
 }

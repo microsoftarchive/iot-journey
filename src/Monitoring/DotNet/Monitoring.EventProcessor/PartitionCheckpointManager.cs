@@ -55,8 +55,8 @@ namespace Microsoft.Practices.IoTJourney.Monitoring.EventProcessor
             var latestTimestamp = await _getLastModified(blob);
 
 
-            // if there's no change in the timestamp, 
-            // return what we have in the cache
+            // If there's no change in the timestamp, 
+            // return what we have in the cache.
             DateTimeOffset previousTimestamp;
             if (_timestamps.TryGetValue(partitionId, out previousTimestamp))
             {
@@ -74,6 +74,11 @@ namespace Microsoft.Practices.IoTJourney.Monitoring.EventProcessor
 
         private void RegisterPartitions(IEnumerable<string> partitionIds)
         {
+            // We construct a set of `CloudBlockBlob` instances;
+            // one for each partition. The blob name reflects the 
+            // convention used by the `EventProcessorHost`.
+            // https://msdn.microsoft.com/en-us/library/microsoft.servicebus.messaging.eventprocessorhost(v=azure.95).aspx
+
             _blobs = partitionIds.ToDictionary(
                 id => id,
                 id =>

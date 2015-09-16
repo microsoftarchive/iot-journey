@@ -25,12 +25,20 @@ namespace Microsoft.Practices.IoTJourney.Monitoring.EventProcessor
             _getLastCheckpointAsync = getLastCheckpointAsync;
             _getEventHubPartitionAsync = getEventHubPartitionAsync;
 
+            // The stream will begin producing values
+            // as soon as we subcribe.
             var stream = GenerateStream(
                 partitionIds, 
                 betweenEachPartition, 
                 afterAllPartitions,
                 scheduler ?? DefaultScheduler.Instance);
 
+            // Since we are subscribing inside the constructor
+            // this means that even if no external consumers 
+            // subscribe, we will still be querying the event
+            // hub. Since we are using a `ReplaySubject` subject
+            // all of the values are stored and replayed for 
+            // any subscribers of `_replay`.
             stream.Subscribe(_replay);
         }
 
@@ -64,10 +72,10 @@ namespace Microsoft.Practices.IoTJourney.Monitoring.EventProcessor
                 timeSelector: timeSelector,
                 scheduler: scheduler
                 )
-                .SelectMany(partitionId => Calculate(partitionId).ToObservable());
+                .SelectMany(partitionId => CaptureSnapshot(partitionId).ToObservable());
         }
 
-        public async Task<PartitionSnapshot> Calculate(string partitionId)
+        public async Task<PartitionSnapshot> CaptureSnapshot(string partitionId)
         {
             var partition = await _getEventHubPartitionAsync(partitionId).ConfigureAwait(false);
             var checkpoint = await _getLastCheckpointAsync(partitionId).ConfigureAwait(false);
@@ -79,7 +87,7 @@ namespace Microsoft.Practices.IoTJourney.Monitoring.EventProcessor
                 EndSequenceNumber = partition.EndSequenceNumber,
                 LastEnqueuedTimeUtc = partition.LastEnqueuedTimeUtc,
                 LastCheckpointTimeUtc = checkpoint.LastCheckpointTimeUtc,
-                RecordedAtTimeUtc = DateTimeOffset.UtcNow
+                CapturedAtTimeUtc = DateTimeOffset.UtcNow
             };
 
         }

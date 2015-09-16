@@ -28,22 +28,13 @@ namespace Microsoft.Practices.IoTJourney.Monitoring.EventProcessor.ConsoleHost
             monitor.Subscribe(sink);
             monitor.Subscribe(snapshot =>
             {
-                var originalColor = Console.ForegroundColor;
-                if (snapshot.IsStale)
-                {
-                    Console.ForegroundColor = ConsoleColor.DarkCyan;
-                }
-
                 Console.WriteLine("Partition {0}", snapshot.PartitionId);
                 Console.WriteLine("----------");
-                Console.WriteLine("- RecordedAtTimeUtc: {0}", snapshot.RecordedAtTimeUtc);
+                Console.WriteLine("- CapturedAtTimeUtc: {0}", snapshot.CapturedAtTimeUtc);
                 Console.WriteLine("- LastCheckpointTimeUtc: {0}", snapshot.LastCheckpointTimeUtc);
                 Console.WriteLine("- LastEnqueuedTimeUtc: {0:}", snapshot.LastEnqueuedTimeUtc);
                 Console.WriteLine("- UnprocessedEvents: {0}", snapshot.UnprocessedEvents);
                 Console.WriteLine("");
-
-                Console.ForegroundColor = originalColor;
-
             },
             e =>
             {
