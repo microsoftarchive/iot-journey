@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
@@ -12,12 +10,8 @@ namespace Microsoft.Practices.IoTJourney.Monitoring.EventProcessor
 {
     public class EventHubMonitor : IObservable<PartitionSnapshot>
     {
-        private readonly string[] _partitionIds;
         private readonly Func<string, Task<PartitionCheckpoint>> _getLastCheckpointAsync;
         private readonly Func<string, Task<PartitionDescription>> _getEventHubPartitionAsync;
-        private readonly IScheduler _scheduler;
-        private readonly TimeSpan _betweenEachPartition;
-        private readonly TimeSpan _afterAllPartitions;
         private readonly ISubject<PartitionSnapshot> _replay = new ReplaySubject<PartitionSnapshot>();
 
         public EventHubMonitor(
@@ -28,24 +22,25 @@ namespace Microsoft.Practices.IoTJourney.Monitoring.EventProcessor
                 TimeSpan afterAllPartitions,
                 IScheduler scheduler = null)
         {
-            _partitionIds = partitionIds;
             _getLastCheckpointAsync = getLastCheckpointAsync;
             _getEventHubPartitionAsync = getEventHubPartitionAsync;
-            _betweenEachPartition = betweenEachPartition;
-            _afterAllPartitions = afterAllPartitions;
 
-            // We allow a scheduler to be passed in for testing purposes
-            _scheduler = scheduler ?? DefaultScheduler.Instance;
+            var stream = GenerateStream(
+                partitionIds, 
+                betweenEachPartition, 
+                afterAllPartitions,
+                scheduler ?? DefaultScheduler.Instance);
 
-            GenerateStream().Subscribe(_replay);
+            stream.Subscribe(_replay);
         }
 
-        private IObservable<PartitionSnapshot> GenerateStream()
+        private IObservable<PartitionSnapshot> GenerateStream(
+            string[] partitionIds,
+            TimeSpan delayBetweenEachPartition,
+            TimeSpan delayBetweenPartitionSet,
+            IScheduler scheduler)
         {
-            var delayBetweenEachPartition = _betweenEachPartition;
-            var delayBetweenPartitionSet = _afterAllPartitions;
-
-            var lastIndex = _partitionIds.Length - 1;
+            var lastIndex = partitionIds.Length - 1;
 
             var firstTime = true;
             Func<int, TimeSpan> timeSelector = index =>
@@ -65,9 +60,9 @@ namespace Microsoft.Practices.IoTJourney.Monitoring.EventProcessor
                 initialState: 0,
                 condition: _ => true, // never terminate
                 iterate: index => index < lastIndex ? index + 1 : 0,
-                resultSelector: index => _partitionIds[index],
+                resultSelector: index => partitionIds[index],
                 timeSelector: timeSelector,
-                scheduler: _scheduler
+                scheduler: scheduler
                 )
                 .SelectMany(partitionId => Calculate(partitionId).ToObservable());
         }
@@ -75,7 +70,6 @@ namespace Microsoft.Practices.IoTJourney.Monitoring.EventProcessor
         public async Task<PartitionSnapshot> Calculate(string partitionId)
         {
             var partition = await _getEventHubPartitionAsync(partitionId).ConfigureAwait(false);
-
             var checkpoint = await _getLastCheckpointAsync(partitionId).ConfigureAwait(false);
 
             return new PartitionSnapshot
