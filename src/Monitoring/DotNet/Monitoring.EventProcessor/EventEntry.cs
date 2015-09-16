@@ -32,5 +32,8 @@ namespace Microsoft.Practices.IoTJourney.Monitoring.EventProcessor
         public long EndSequenceNumber { get; set; }
 
         public bool IsStale { get; set; }
+
+
+        public DateTimeOffset RecordedAtTimeUtc { get; set; }
     }
 }

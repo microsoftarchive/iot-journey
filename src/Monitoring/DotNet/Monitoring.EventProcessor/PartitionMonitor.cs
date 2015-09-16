@@ -63,7 +63,8 @@ namespace Microsoft.Practices.IoTJourney.Monitoring.EventProcessor
                 UnprocessedEvents = partition.EndSequenceNumber - checkpoint.SequenceNumber,
                 EndSequenceNumber = partition.EndSequenceNumber,
                 LastEnqueuedTimeUtc = partition.LastEnqueuedTimeUtc,
-                LastCheckpointTimeUtc = checkpoint.LastCheckpointTimeUtc
+                LastCheckpointTimeUtc = checkpoint.LastCheckpointTimeUtc,
+                RecordedAtTimeUtc = DateTimeOffset.UtcNow
             };
 
             // store for the next iteration
