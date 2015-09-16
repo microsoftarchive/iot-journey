@@ -38,11 +38,9 @@ namespace Microsoft.Practices.IoTJourney.Monitoring.EventProcessor
 
         public async Task<EventEntry> Calculate(
             string partitionId,
-            IDictionary<string, EventEntry> previousSnapshots,
-            IDictionary<string, PartitionCheckpoint> previousCheckpoints)
+            IDictionary<string, EventEntry> previousSnapshots)
         {
             var past = previousSnapshots[partitionId];
-            var pastCheckpoint = previousCheckpoints[partitionId];
 
             PartitionDescription partition;
             PartitionCheckpoint checkpoint;
@@ -64,39 +62,12 @@ namespace Microsoft.Practices.IoTJourney.Monitoring.EventProcessor
                 PartitionId = partitionId,
                 UnprocessedEvents = partition.EndSequenceNumber - checkpoint.SequenceNumber,
                 EndSequenceNumber = partition.EndSequenceNumber,
-                IncomingBytesPerSecond = partition.IncomingBytesPerSecond,
-                OutgoingBytesPerSecond = partition.OutgoingBytesPerSecond,
                 LastEnqueuedTimeUtc = partition.LastEnqueuedTimeUtc,
                 LastCheckpointTimeUtc = checkpoint.LastCheckpointTimeUtc
             };
 
-            var deltaIngressTime = partition.LastEnqueuedTimeUtc - past.LastEnqueuedTimeUtc;
-            if (deltaIngressTime.TotalSeconds > 0)
-            {
-                current.IncomingEventsPerSecond = (partition.EndSequenceNumber - past.EndSequenceNumber) /
-                                                  deltaIngressTime.TotalSeconds;
-            }
-            else
-            {
-                current.IncomingEventsPerSecond = 0;
-            }
-
-            // if we don't have a new checkpoint, then we don't have
-            // the data that we need to calculate the egress rate.
-            if (checkpoint != pastCheckpoint)
-            {
-                var deltaEgressTime = checkpoint.LastCheckpointTimeUtc - pastCheckpoint.LastCheckpointTimeUtc;
-                var deltaEgressCount = checkpoint.SequenceNumber - pastCheckpoint.SequenceNumber;
-                current.OutgoingEventsPerSecond = deltaEgressCount / deltaEgressTime.TotalSeconds;
-            }
-            else
-            {
-                current.OutgoingEventsPerSecond = 0;
-            }
-
             // store for the next iteration
             previousSnapshots[partitionId] = current;
-            previousCheckpoints[partitionId] = checkpoint;
 
             return current;
         }
@@ -108,9 +79,6 @@ namespace Microsoft.Practices.IoTJourney.Monitoring.EventProcessor
 
             var previousSnapshots = _partitionIds
                 .ToDictionary(partitionId => partitionId, partitionId => new EventEntry());
-
-            var previousCheckpoints = _partitionIds
-                .ToDictionary(partitionId => partitionId, partitionId => new PartitionCheckpoint());
 
             var lastIndex = _partitionIds.Length - 1;
 
@@ -136,7 +104,7 @@ namespace Microsoft.Practices.IoTJourney.Monitoring.EventProcessor
                 timeSelector: timeSelector,
                 scheduler: _scheduler
                 )
-                .SelectMany(partitionId => Calculate(partitionId, previousSnapshots, previousCheckpoints).ToObservable())
+                .SelectMany(partitionId => Calculate(partitionId, previousSnapshots).ToObservable())
                 .Subscribe(observer);
         }
     }

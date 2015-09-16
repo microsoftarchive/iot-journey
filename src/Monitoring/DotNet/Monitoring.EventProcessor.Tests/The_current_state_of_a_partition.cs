@@ -40,17 +40,6 @@ namespace Monitoring.EventProcessor.Tests
                 LastCheckpointTimeUtc = _lastCheckpointTimeUtc
             };
 
-            var previousCheckpoints = new Dictionary<string, PartitionCheckpoint>
-            {
-                {
-                    PartitionId, new PartitionCheckpoint
-                    {
-                        SequenceNumber = _sequenceNumberOfMostRecentEvent - _howFarBehindForCheckpoint*2,
-                        LastCheckpointTimeUtc = _lastCheckpointTimeUtc.Subtract(_timeBetweenCheckpoints)
-                    }
-                }
-            };
-
             var previousSnapshots = new Dictionary<string, EventEntry>
             {
                 {
@@ -71,7 +60,7 @@ namespace Monitoring.EventProcessor.Tests
                 TimeSpan.FromSeconds(1));
 
             _event = monitor
-                .Calculate(PartitionId, previousSnapshots, previousCheckpoints)
+                .Calculate(PartitionId, previousSnapshots)
                 .Result;
         }
 
@@ -118,23 +107,9 @@ namespace Monitoring.EventProcessor.Tests
         }
 
         [Fact]
-        public void should_calculate_the_rate_of_incoming_events()
-        {
-            var expectedRate = _howFarBehindForPreviousEnqueue/_timeBetweenLastEnqueueAndPreviousEnqueue.TotalSeconds;
-            Assert.Equal(expectedRate, _event.IncomingEventsPerSecond);
-        }
-
-        [Fact]
         public void should_calculate_the_current_number_of_unprocessed_events()
         {
             Assert.Equal(_howFarBehindForCheckpoint, _event.UnprocessedEvents);
-        }
-
-        [Fact]
-        public void should_calculate_the_rate_of_outgoing_events()
-        {
-            var expected = _howFarBehindForCheckpoint/_timeBetweenCheckpoints.TotalSeconds;
-            Assert.Equal(expected, _event.OutgoingEventsPerSecond);
         }
 
         [Fact]

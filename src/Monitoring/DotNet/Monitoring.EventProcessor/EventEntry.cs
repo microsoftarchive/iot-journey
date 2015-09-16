@@ -31,14 +31,6 @@ namespace Microsoft.Practices.IoTJourney.Monitoring.EventProcessor
 
         public long EndSequenceNumber { get; set; }
 
-        public long IncomingBytesPerSecond { get; set; }
-
-        public long OutgoingBytesPerSecond { get; set; }
-
-        public double IncomingEventsPerSecond { get; set; }
-
-        public double OutgoingEventsPerSecond { get; set; }
-
         public bool IsStale { get; set; }
     }
 }

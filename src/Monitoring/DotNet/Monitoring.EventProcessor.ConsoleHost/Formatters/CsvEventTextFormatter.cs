@@ -14,14 +14,10 @@ namespace Microsoft.Practices.IoTJourney.Monitoring.EventProcessor.ConsoleHost.F
             Guard.ArgumentNotNull(eventEntry, "eventEntry");
             Guard.ArgumentNotNull(writer, "writer");
 
-            writer.WriteLine("{0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}",
+            writer.WriteLine("{0},{1},{2},{3}",
                             eventEntry.PartitionId,
                             eventEntry.LastCheckpointTimeUtc,
                             eventEntry.LastEnqueuedTimeUtc,
-                            eventEntry.IncomingEventsPerSecond,
-                            eventEntry.IncomingBytesPerSecond,
-                            eventEntry.OutgoingEventsPerSecond,
-                            eventEntry.OutgoingBytesPerSecond,
                             eventEntry.UnprocessedEvents);
         }
     }

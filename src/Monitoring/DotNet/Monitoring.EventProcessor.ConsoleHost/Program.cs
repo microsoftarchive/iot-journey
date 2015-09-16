@@ -40,10 +40,6 @@ namespace Microsoft.Practices.IoTJourney.Monitoring.EventProcessor.ConsoleHost
                 Console.WriteLine("----------");
                 Console.WriteLine("- LastCheckpointTimeUtc: {0}", @event.LastCheckpointTimeUtc);
                 Console.WriteLine("- LastEnqueuedTimeUtc: {0:}", @event.LastEnqueuedTimeUtc);
-                Console.WriteLine("- IncomingEventsPerSecond: {0:0.#}", @event.IncomingEventsPerSecond);
-                Console.WriteLine("- IncomingBytesPerSecond: {0}", @event.IncomingBytesPerSecond);
-                Console.WriteLine("- OutgoingEventsPerSecond: {0:0.#}", @event.OutgoingEventsPerSecond);
-                Console.WriteLine("- OutgoingBytesPerSecond: {0}", @event.OutgoingBytesPerSecond);
                 Console.WriteLine("- UnprocessedEvents: {0}", @event.UnprocessedEvents);
                 Console.WriteLine("");
 
