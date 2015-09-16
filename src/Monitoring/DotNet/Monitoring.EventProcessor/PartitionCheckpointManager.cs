@@ -53,8 +53,15 @@ namespace Microsoft.Practices.IoTJourney.Monitoring.EventProcessor
             var blob = _blobs[partitionId];
 
             var latestTimestamp = await _getLastModified(blob);
-            if (_timestamps.ContainsKey(partitionId) 
-                && _timestamps[partitionId] == latestTimestamp) return _checkpoints[partitionId];
+
+
+            // if there's no change in the timestamp, 
+            // return what we have in the cache
+            DateTimeOffset previousTimestamp;
+            if (_timestamps.TryGetValue(partitionId, out previousTimestamp))
+            {
+                if(previousTimestamp == latestTimestamp) return _checkpoints[partitionId];
+            }
 
             _timestamps[partitionId] = latestTimestamp;
             var checkpoint = await _getCheckpoint(blob);
@@ -62,7 +69,7 @@ namespace Microsoft.Practices.IoTJourney.Monitoring.EventProcessor
 
             _checkpoints[partitionId] = checkpoint;
 
-            return checkpoint;
+            return _checkpoints[partitionId];
         }
 
         private void RegisterPartitions(IEnumerable<string> partitionIds)
