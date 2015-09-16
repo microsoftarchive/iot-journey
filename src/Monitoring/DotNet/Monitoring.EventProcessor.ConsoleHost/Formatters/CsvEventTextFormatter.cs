@@ -1,4 +1,7 @@
-﻿using System.IO;
+﻿// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
+using System.IO;
 
 namespace Microsoft.Practices.IoTJourney.Monitoring.EventProcessor.ConsoleHost.Formatters
 {
@@ -9,10 +12,9 @@ namespace Microsoft.Practices.IoTJourney.Monitoring.EventProcessor.ConsoleHost.F
             Guard.ArgumentNotNull(snapshot, "PartitionSnapshot");
             Guard.ArgumentNotNull(writer, "writer");
 
-            writer.WriteLine("{0},{1},{2},{3}",
+            writer.WriteLine("{0},{1},{2}",
                 snapshot.PartitionId,
-                snapshot.LastCheckpointTimeUtc,
-                snapshot.LastEnqueuedTimeUtc,
+                snapshot.CapturedAtTimeUtc,
                 snapshot.UnprocessedEvents);
         }
     }
