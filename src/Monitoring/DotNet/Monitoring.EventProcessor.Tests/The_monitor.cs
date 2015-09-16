@@ -15,7 +15,7 @@ namespace Monitoring.EventProcessor.Tests
     {
         private readonly List<PartitionSnapshot> _captured = new List<PartitionSnapshot>();
         private readonly EventHubMonitor _monitor;
-        private readonly string[] _partitionIds = {"0", "1", "2"};
+        private readonly string[] _partitionIds = { "0", "1", "2" };
         private readonly TestScheduler _virtualTime = new TestScheduler();
 
         public The_monitor()
@@ -43,6 +43,37 @@ namespace Monitoring.EventProcessor.Tests
             for (var i = 0; i < _captured.Count; i++)
             {
                 Assert.Equal(_partitionIds[i], _captured[i].PartitionId);
+            }
+        }
+
+        public class when_a_timeout_exception_is_thrown
+        {
+            private readonly EventHubMonitor _monitor;
+            private readonly TestScheduler _virtualTime = new TestScheduler();
+
+            public when_a_timeout_exception_is_thrown()
+            {
+                _monitor = new EventHubMonitor(
+                    new[] { "0" },
+                    partitionId => { throw new TimeoutException(""); },
+                    partitionId => Task.FromResult(new PartitionDescription("myHub", "0")),
+                    TimeSpan.FromSeconds(1),
+                    TimeSpan.FromSeconds(1),
+                    _virtualTime);
+            }
+
+            [Fact]
+            public void should_not_stop_the_stream()
+            {
+                var wasErrorThrown = false;
+
+                _monitor.Subscribe(
+                    onNext: _ => { },
+                    onError: e => { wasErrorThrown = true; });
+
+                _virtualTime.AdvanceBy(TimeSpan.FromSeconds(2).Ticks);
+
+                Assert.False(wasErrorThrown);
             }
         }
     }

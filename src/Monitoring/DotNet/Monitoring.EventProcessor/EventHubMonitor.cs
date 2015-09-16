@@ -5,7 +5,6 @@ using System;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
-using System.Reactive.Threading.Tasks;
 using System.Threading.Tasks;
 using Microsoft.ServiceBus.Messaging;
 
@@ -75,7 +74,7 @@ namespace Microsoft.Practices.IoTJourney.Monitoring.EventProcessor
                 timeSelector: timeSelector,
                 scheduler: scheduler
                 )
-                .SelectMany(partitionId => CaptureSnapshot(partitionId).ToObservable());
+                .SelectMany(partitionId => CaptureSnapshot(partitionId).IgnoreTimeouts());
         }
 
         public async Task<PartitionSnapshot> CaptureSnapshot(string partitionId)
