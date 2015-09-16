@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Threading;
 using Microsoft.Practices.IoTJourney.Monitoring.EventProcessor.ConsoleHost.Formatters;
 using Microsoft.Practices.IoTJourney.Monitoring.EventProcessor.ConsoleHost.Sinks;
 

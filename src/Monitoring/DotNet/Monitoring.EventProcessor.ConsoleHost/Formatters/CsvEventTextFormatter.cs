@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.IO;
 
 namespace Microsoft.Practices.IoTJourney.Monitoring.EventProcessor.ConsoleHost.Formatters
 {
@@ -15,10 +10,10 @@ namespace Microsoft.Practices.IoTJourney.Monitoring.EventProcessor.ConsoleHost.F
             Guard.ArgumentNotNull(writer, "writer");
 
             writer.WriteLine("{0},{1},{2},{3}",
-                            snapshot.PartitionId,
-                            snapshot.LastCheckpointTimeUtc,
-                            snapshot.LastEnqueuedTimeUtc,
-                            snapshot.UnprocessedEvents);
+                snapshot.PartitionId,
+                snapshot.LastCheckpointTimeUtc,
+                snapshot.LastEnqueuedTimeUtc,
+                snapshot.UnprocessedEvents);
         }
     }
 }

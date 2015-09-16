@@ -1,18 +1,16 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Security;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
+using Microsoft.Practices.IoTJourney.Monitoring.EventProcessor.ConsoleHost.Properties;
 
 namespace Microsoft.Practices.IoTJourney.Monitoring.EventProcessor.ConsoleHost.Utility
 {
     internal class FileUtil
     {
         /// <summary>
-        /// This method will replace environment variables and root the filename to the base directory while ensuring the path exists.
+        ///     This method will replace environment variables and root the filename to the base directory while ensuring the path
+        ///     exists.
         /// </summary>
         /// <param name="fileName">The name of the file.</param>
         /// <returns>A FileInfo instance.</returns>
@@ -31,11 +29,14 @@ namespace Microsoft.Practices.IoTJourney.Monitoring.EventProcessor.ConsoleHost.U
         }
 
         /// <summary>
-        /// Validate the file name or throws an exception.
+        ///     Validate the file name or throws an exception.
         /// </summary>
         /// <param name="fileName">Name of the file.</param>
         /// <param name="argumentName">Name of argument being checked.</param>
-        /// <param name="replaced"><see langword="true"/> if the file name is the result of replacing environment variables; otherwise, <see langword="false"/>.</param>
+        /// <param name="replaced">
+        ///     <see langword="true" /> if the file name is the result of replacing environment variables;
+        ///     otherwise, <see langword="false" />.
+        /// </param>
         /// <exception cref="System.ArgumentException">The file name is invalid.</exception>
         public static void ValidFile(string fileName, string argumentName = "fileName", bool replaced = false)
         {
@@ -52,12 +53,9 @@ namespace Microsoft.Practices.IoTJourney.Monitoring.EventProcessor.ConsoleHost.U
             {
                 if (!replaced)
                 {
-                    throw new ArgumentException(Properties.Resources.InvalidNavigationPathInFileNameError);
+                    throw new ArgumentException(Resources.InvalidNavigationPathInFileNameError);
                 }
-                else
-                {
-                    throw new ArgumentException(Properties.Resources.InvalidNavigationPathInReplacedFileNameError);
-                }
+                throw new ArgumentException(Resources.InvalidNavigationPathInReplacedFileNameError);
             }
         }
 
@@ -68,7 +66,7 @@ namespace Microsoft.Practices.IoTJourney.Monitoring.EventProcessor.ConsoleHost.U
 
         private static string RootFileNameAndEnsureTargetFolderExists(string fileName)
         {
-            string rootedFileName = fileName;
+            var rootedFileName = fileName;
             if (!Path.IsPathRooted(rootedFileName))
             {
                 // GetFullPath will resolve any relative path in rootedFileName
@@ -76,7 +74,7 @@ namespace Microsoft.Practices.IoTJourney.Monitoring.EventProcessor.ConsoleHost.U
                 rootedFileName = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, rootedFileName));
             }
 
-            string directory = Path.GetDirectoryName(rootedFileName);
+            var directory = Path.GetDirectoryName(rootedFileName);
             if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
             {
                 Directory.CreateDirectory(directory);
@@ -90,12 +88,12 @@ namespace Microsoft.Practices.IoTJourney.Monitoring.EventProcessor.ConsoleHost.U
             // Check EnvironmentPermission for the ability to access the environment variables.
             try
             {
-                string variables = Environment.ExpandEnvironmentVariables(fileName);
+                var variables = Environment.ExpandEnvironmentVariables(fileName);
 
                 // If an Environment Variable is not found then remove any invalid tokens
-                Regex filter = new Regex("%(.*?)%", RegexOptions.IgnoreCase | RegexOptions.IgnorePatternWhitespace);
+                var filter = new Regex("%(.*?)%", RegexOptions.IgnoreCase | RegexOptions.IgnorePatternWhitespace);
 
-                string filePath = filter.Replace(variables, string.Empty);
+                var filePath = filter.Replace(variables, string.Empty);
 
                 if (Path.GetDirectoryName(filePath) == null)
                 {
@@ -106,7 +104,7 @@ namespace Microsoft.Practices.IoTJourney.Monitoring.EventProcessor.ConsoleHost.U
             }
             catch (SecurityException)
             {
-                throw new InvalidOperationException(Properties.Resources.ExceptionReadEnvironmentVariablesDenied);
+                throw new InvalidOperationException(Resources.ExceptionReadEnvironmentVariablesDenied);
             }
         }
     }
