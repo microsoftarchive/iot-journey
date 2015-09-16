@@ -29,15 +29,13 @@
       <Visible>False</Visible>
     </None>
     <None Include="Modules\ResourceManager.psm1" />
-    <None Include="Modules\RetryPolicy.psm1" />
-    <None Include="Modules\ServiceBus.psm1" />
     <None Include="Modules\Config.psm1" />
     <None Include="Modules\SettingsWriter.psm1" />
     <None Include="Modules\Validation.psm1" />
     <None Include="Scripts\Init.ps1" />
+    <None Include="Scripts\LongTermStorage-AzureStreamAnalytics\azuredeploy.json" />
     <None Include="Scripts\LongTermStorage-AzureStreamAnalytics\Deploy-AzureStreamAnalytics.ps1" />
-    <None Include="Scripts\LongTermStorage-AzureStreamAnalytics\azuredeploy.eventhub.json" />
-    <None Include="Scripts\LongTermStorage-AzureStreamAnalytics\azuredeploy.streamanalytics.json" />
+    <None Include="Scripts\LongTermStorage-AzureStreamAnalytics\metadata.json" />
     <None Include="Scripts\LongTermStorage-DotNetEventProcessor\Deploy-DotNetEventProcessor.ps1" />
     <None Include="Scripts\LongTermStorage-DotNetEventProcessor\azuredeploy.json" />
     <None Include="Scripts\LongTermStorage-HDInsight\Deploy-LongTermStorageHDInsight.ps1" />

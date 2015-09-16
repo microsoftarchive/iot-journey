@@ -48,27 +48,26 @@ Param
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $True)][string]$SubscriptionName,
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $True)][String]$ApplicationName,
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][bool]$AddAccount =$True,
-    [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$StorageAccountName =$ApplicationName,
-    [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$ServiceBusNamespace = $ApplicationName,
-    [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$EventHubName = "eventhub-iot",
-    [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$ConsumerGroupName  = "cg-blobs", 
-    [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$EventHubSharedAccessPolicyName = "ManagePolicy",
+    [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$StorageAccountName =$ApplicationName + "sa",
+    [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$ServiceBusNamespace = $ApplicationName + "sb",
+    [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$EventHubName = "eh01",
+    [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$ConsumerGroupName  = "blobs",
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$ContainerName = "blobs-processor",
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][string]$ResourceGroupName = "IoTJourney",
+    [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][string]$DeploymentName = $ResourceGroupName + "Deployment",
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$Location = "Central US"
 )
 PROCESS
 {
     $ErrorActionPreference = "Stop"
 
-    $SetupFolderPath = Join-Path $PSScriptRoot -ChildPath "..\..\..\..\"
-    $ModulesFolderPath = Join-Path $PSScriptRoot -ChildPath "..\..\..\..\modules"
-    $LocalModulesFolderPath = Join-Path $PSScriptRoot -ChildPath "..\..\..\Modules"
+    $ScriptsRootFolderPath = Join-Path $PSScriptRoot -ChildPath "..\"
+    $ModulesFolderPath = Join-Path $PSScriptRoot -ChildPath "..\..\Modules"
     
-    Push-Location $SetupFolderPath
+    Push-Location $ScriptsRootFolderPath
         .\Init.ps1
     Pop-Location
-
+    
     Load-Module -ModuleName Validation -ModuleLocation $ModulesFolderPath
 
     #Sanitize input
@@ -84,12 +83,8 @@ PROCESS
 
     # Load modules.
     Load-Module -ModuleName Config -ModuleLocation $ModulesFolderPath
-    Load-Module -ModuleName Utility -ModuleLocation $ModulesFolderPath
-    Load-Module -ModuleName AzureARM -ModuleLocation $ModulesFolderPath
-    Load-Module -ModuleName AzureStorage -ModuleLocation $ModulesFolderPath
-    Load-Module -ModuleName AzureServiceBus -ModuleLocation $ModulesFolderPath
-    Load-Module -ModuleName RetryPolicy -ModuleLocation $LocalModulesFolderPath
-    Load-Module -ModuleName ServiceBus -ModuleLocation $LocalModulesFolderPath
+    Load-Module -ModuleName SettingsWriter -ModuleLocation $ModulesFolderPath
+    Load-Module -ModuleName ResourceManager -ModuleLocation $ModulesFolderPath
 
     if($AddAccount)
     {

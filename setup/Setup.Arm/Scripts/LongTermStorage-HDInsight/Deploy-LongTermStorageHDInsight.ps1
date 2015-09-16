@@ -17,6 +17,7 @@ Param
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $True)][securestring]$SshPassword,
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][int]$ClusterWorkerNodeCount = 2,
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][string]$ResourceGroupName = "IoTJourney",
+    [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][string]$DeploymentName = $ResourceGroupName + "Deployment",
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$Location = "Central US"
 )
 PROCESS
@@ -55,7 +56,7 @@ PROCESS
         New-AzureResourceGroupIfNotExists -ResourceGroupName $ResourceGroupName -Location $Location
     
         $info = New-AzureResourceGroupDeployment -ResourceGroupName $ResourceGroupName `
-                                                 -Name "IoTJourneyDeployment" `
+                                                 -Name $DeploymentName `
                                                  -TemplateFile $templatePath `
                                                  -location $Location `
                                                  -clusterName $ClusterName `
@@ -65,7 +66,6 @@ PROCESS
                                                  -sshPassword $SshPassword `
                                                  -clusterStorageAccountName $ClusterStorageAccountName `
                                                  -clusterStorageType $ClusterStorageType `
-                                                 -clusterWorkerNodeCount $ClusterWorkerNodeCount `
-                                                 -Verbose
+                                                 -clusterWorkerNodeCount $ClusterWorkerNodeCount
     })
 }
