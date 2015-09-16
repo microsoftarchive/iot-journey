@@ -45,9 +45,6 @@ namespace Microsoft.Practices.IoTJourney.Monitoring.EventProcessor
             var delayBetweenEachPartition = _betweenEachPartition;
             var delayBetweenPartitionSet = _afterAllPartitions;
 
-            var previousSnapshots = _partitionIds
-                .ToDictionary(partitionId => partitionId, partitionId => new PartitionSnapshot());
-
             var lastIndex = _partitionIds.Length - 1;
 
             var firstTime = true;
@@ -72,31 +69,16 @@ namespace Microsoft.Practices.IoTJourney.Monitoring.EventProcessor
                 timeSelector: timeSelector,
                 scheduler: _scheduler
                 )
-                .SelectMany(partitionId => Calculate(partitionId, previousSnapshots).ToObservable());
+                .SelectMany(partitionId => Calculate(partitionId).ToObservable());
         }
 
-        public async Task<PartitionSnapshot> Calculate(
-            string partitionId,
-            IDictionary<string, PartitionSnapshot> previousSnapshots)
+        public async Task<PartitionSnapshot> Calculate(string partitionId)
         {
-            var past = previousSnapshots[partitionId];
+            var partition = await _getEventHubPartitionAsync(partitionId).ConfigureAwait(false);
 
-            PartitionDescription partition;
-            PartitionCheckpoint checkpoint;
+            var checkpoint = await _getLastCheckpointAsync(partitionId).ConfigureAwait(false);
 
-            try
-            {
-                partition = await _getEventHubPartitionAsync(partitionId).ConfigureAwait(false);
-
-                checkpoint = await _getLastCheckpointAsync(partitionId).ConfigureAwait(false);
-            }
-            catch (TimeoutException)
-            {
-                past.IsStale = true;
-                return past;
-            }
-
-            var current = new PartitionSnapshot
+            return new PartitionSnapshot
             {
                 PartitionId = partitionId,
                 UnprocessedEvents = partition.EndSequenceNumber - checkpoint.SequenceNumber,
@@ -106,9 +88,6 @@ namespace Microsoft.Practices.IoTJourney.Monitoring.EventProcessor
                 RecordedAtTimeUtc = DateTimeOffset.UtcNow
             };
 
-            // store for the next iteration
-            previousSnapshots[partitionId] = current;
-            return current;
         }
 
         public IDisposable Subscribe(IObserver<PartitionSnapshot> observer)

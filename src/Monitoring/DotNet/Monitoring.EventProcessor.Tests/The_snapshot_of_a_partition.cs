@@ -40,18 +40,6 @@ namespace Monitoring.EventProcessor.Tests
                 LastCheckpointTimeUtc = _lastCheckpointTimeUtc
             };
 
-            var previousSnapshots = new Dictionary<string, PartitionSnapshot>
-            {
-                {
-                    PartitionId, new PartitionSnapshot
-                    {
-                        EndSequenceNumber = _sequenceNumberOfMostRecentEvent - _howFarBehindForPreviousEnqueue,
-                        LastEnqueuedTimeUtc = _lastEnqueuedTimeUtc.Subtract(_timeBetweenLastEnqueueAndPreviousEnqueue)
-                    }
-                }
-            };
-
-
             var monitor = new EventHubMonitor(
                 new[] {PartitionId},
                 partitionId => Task.FromResult(mostRecentCheckpoint),
@@ -60,7 +48,7 @@ namespace Monitoring.EventProcessor.Tests
                 TimeSpan.FromSeconds(1));
 
             _snapshot = monitor
-                .Calculate(PartitionId, previousSnapshots)
+                .Calculate(PartitionId)
                 .Result;
         }
 
