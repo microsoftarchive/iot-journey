@@ -2,7 +2,7 @@
 
 namespace Microsoft.Practices.IoTJourney.Monitoring.EventProcessor
 {
-    public class EventEntry
+    public class PartitionSnapshot
     {
         /// <summary>
         ///     Id of the partition.

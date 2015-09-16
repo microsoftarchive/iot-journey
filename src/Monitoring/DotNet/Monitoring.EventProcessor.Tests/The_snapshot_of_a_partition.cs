@@ -8,10 +8,10 @@ using Xunit;
 
 namespace Monitoring.EventProcessor.Tests
 {
-    public class The_current_state_of_a_partition
+    public class The_snapshot_of_a_partition
     {
         private const string PartitionId = "0";
-        private readonly EventEntry _event;
+        private readonly PartitionSnapshot _snapshot;
         private readonly int _howFarBehindForCheckpoint;
         private readonly int _howFarBehindForPreviousEnqueue;
         private readonly DateTime _lastCheckpointTimeUtc;
@@ -22,7 +22,7 @@ namespace Monitoring.EventProcessor.Tests
 
         private readonly TimeSpan _timeBetweenLastEnqueueAndPreviousEnqueue;
 
-        public The_current_state_of_a_partition()
+        public The_snapshot_of_a_partition()
         {
             var timeBetweenLastEnqueueAndLastCheckpoint = TimeSpan.FromMinutes(1);
             _timeBetweenLastEnqueueAndPreviousEnqueue = TimeSpan.FromMinutes(10);
@@ -40,10 +40,10 @@ namespace Monitoring.EventProcessor.Tests
                 LastCheckpointTimeUtc = _lastCheckpointTimeUtc
             };
 
-            var previousSnapshots = new Dictionary<string, EventEntry>
+            var previousSnapshots = new Dictionary<string, PartitionSnapshot>
             {
                 {
-                    PartitionId, new EventEntry
+                    PartitionId, new PartitionSnapshot
                     {
                         EndSequenceNumber = _sequenceNumberOfMostRecentEvent - _howFarBehindForPreviousEnqueue,
                         LastEnqueuedTimeUtc = _lastEnqueuedTimeUtc.Subtract(_timeBetweenLastEnqueueAndPreviousEnqueue)
@@ -52,14 +52,14 @@ namespace Monitoring.EventProcessor.Tests
             };
 
 
-            var monitor = new PartitionMonitor(
+            var monitor = new EventHubMonitor(
                 new[] {PartitionId},
                 partitionId => Task.FromResult(mostRecentCheckpoint),
                 partitionId => Task.FromResult(CreatePartitionDescription(partitionId)),
                 TimeSpan.FromSeconds(1),
                 TimeSpan.FromSeconds(1));
 
-            _event = monitor
+            _snapshot = monitor
                 .Calculate(PartitionId, previousSnapshots)
                 .Result;
         }
@@ -91,31 +91,31 @@ namespace Monitoring.EventProcessor.Tests
         [Fact]
         public void should_include_the_parition_id()
         {
-            Assert.Equal(PartitionId, _event.PartitionId);
+            Assert.Equal(PartitionId, _snapshot.PartitionId);
         }
 
         [Fact]
         public void should_include_the_latest_sequence_number()
         {
-            Assert.Equal(_sequenceNumberOfMostRecentEvent, _event.EndSequenceNumber);
+            Assert.Equal(_sequenceNumberOfMostRecentEvent, _snapshot.EndSequenceNumber);
         }
 
         [Fact]
         public void should_include_the_latest_enqueued_time()
         {
-            Assert.Equal(_lastEnqueuedTimeUtc, _event.LastEnqueuedTimeUtc);
+            Assert.Equal(_lastEnqueuedTimeUtc, _snapshot.LastEnqueuedTimeUtc);
         }
 
         [Fact]
         public void should_calculate_the_current_number_of_unprocessed_events()
         {
-            Assert.Equal(_howFarBehindForCheckpoint, _event.UnprocessedEvents);
+            Assert.Equal(_howFarBehindForCheckpoint, _snapshot.UnprocessedEvents);
         }
 
         [Fact]
         public void should_include_the_time_of_the_last_checkpoint()
         {
-            Assert.Equal(_lastCheckpointTimeUtc, _event.LastCheckpointTimeUtc);
+            Assert.Equal(_lastCheckpointTimeUtc, _snapshot.LastCheckpointTimeUtc);
         }
     }
 }

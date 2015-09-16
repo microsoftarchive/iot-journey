@@ -119,7 +119,7 @@
   <ItemGroup>
     <Compile Include="The_checkpoint_manager.cs" />
     <Compile Include="The_monitor.cs" />
-    <Compile Include="The_current_state_of_a_partition.cs" />
+    <Compile Include="The_snapshot_of_a_partition.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

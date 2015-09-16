@@ -12,8 +12,8 @@ namespace Microsoft.Practices.IoTJourney.Monitoring.EventProcessor.ConsoleHost.F
         /// <summary>
         /// Writes the event.
         /// </summary>
-        /// <param name="eventEntry">The event entry.</param>
+        /// <param name="snapshot">The event entry.</param>
         /// <param name="writer">The writer.</param>
-        void WriteEvent(EventEntry eventEntry, TextWriter writer);
+        void WriteEvent(PartitionSnapshot snapshot, TextWriter writer);
     }
 }

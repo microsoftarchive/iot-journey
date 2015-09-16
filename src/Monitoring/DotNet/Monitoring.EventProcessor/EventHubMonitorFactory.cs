@@ -8,14 +8,14 @@ namespace Microsoft.Practices.IoTJourney.Monitoring.EventProcessor
 {
     public static class EventHubMonitorFactory
     {
-        public static Task<PartitionMonitor> CreateAsync(Configuration configuration)
+        public static Task<EventHubMonitor> CreateAsync(Configuration configuration)
         {
             return CreateAsync(configuration,
                 TimeSpan.FromSeconds(2),
                 TimeSpan.FromSeconds(30));
         }
 
-        public static async Task<PartitionMonitor> CreateAsync(
+        public static async Task<EventHubMonitor> CreateAsync(
             Configuration configuration,
             TimeSpan pauseBetweenParitions,
             TimeSpan pauseAfterAllPartitions
@@ -43,7 +43,7 @@ namespace Microsoft.Practices.IoTJourney.Monitoring.EventProcessor
                 checkpointContainer
                 );
 
-            return new PartitionMonitor(
+            return new EventHubMonitor(
                 eventhub.PartitionIds,
                 checkpoints.GetLastCheckpointAsync,
                 getEventHubPartitionAsync,

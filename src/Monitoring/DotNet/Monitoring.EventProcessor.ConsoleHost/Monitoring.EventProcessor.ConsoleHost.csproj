@@ -104,7 +104,7 @@
   <ItemGroup>
     <Compile Include="Formatters\CsvEventTextFormatter.cs" />
     <Compile Include="Formatters\IEventTextFormatter.cs" />
-    <Compile Include="EventEntryExtensions.cs" />
+    <Compile Include="PartitionSnapshotExtensions.cs" />
     <Compile Include="EventTextFormatterExtensions.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

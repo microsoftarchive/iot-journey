@@ -7,15 +7,15 @@ using System.Threading.Tasks;
 
 namespace Microsoft.Practices.IoTJourney.Monitoring.EventProcessor.ConsoleHost
 {
-    public static class EventEntryExtensions
+    public static class PartitionSnapshotExtensions
     {
         /// <summary>
-        /// Formats an <see cref="EventEntry"/> as a string using an <see cref="IEventTextFormatter"/>.
+        /// Formats an <see cref="PartitionSnapshot"/> as a string using an <see cref="IEventTextFormatter"/>.
         /// </summary>
         /// <param name="entry">The entry to format.</param>
         /// <param name="formatter">The formatter to use.</param>
         /// <returns>A formatted entry, or <see langword="null"/> if an exception is thrown by the <paramref name="formatter"/>.</returns>
-        public static string TryFormatAsString(this EventEntry entry, IEventTextFormatter formatter)
+        public static string TryFormatAsString(this PartitionSnapshot entry, IEventTextFormatter formatter)
         {
             try
             {

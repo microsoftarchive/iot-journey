@@ -10,14 +10,14 @@ namespace Monitoring.EventProcessor.Tests
 {
     public class The_monitor
     {
-        private readonly List<EventEntry> _captured = new List<EventEntry>();
-        private readonly PartitionMonitor _monitor;
+        private readonly List<PartitionSnapshot> _captured = new List<PartitionSnapshot>();
+        private readonly EventHubMonitor _monitor;
         private readonly string[] _partitionIds = {"0", "1", "2"};
         private readonly TestScheduler _virtualTime = new TestScheduler();
 
         public The_monitor()
         {
-            _monitor = new PartitionMonitor(
+            _monitor = new EventHubMonitor(
                 _partitionIds,
                 partitionId => Task.FromResult(new PartitionCheckpoint()),
                 partitionId => Task.FromResult(new PartitionDescription("myHub", "0")),

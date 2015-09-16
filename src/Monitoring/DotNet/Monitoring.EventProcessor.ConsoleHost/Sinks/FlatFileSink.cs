@@ -15,7 +15,7 @@ namespace Microsoft.Practices.IoTJourney.Monitoring.EventProcessor.ConsoleHost.S
     /// A sink that writes to a flat file.
     /// </summary>    
     /// <remarks>This class is thread-safe.</remarks>
-    public class FlatFileSink : IObserver<EventEntry>, IDisposable
+    public class FlatFileSink : IObserver<PartitionSnapshot>, IDisposable
     {
         private readonly IEventTextFormatter formatter;
         private readonly bool isAsync;
@@ -23,7 +23,7 @@ namespace Microsoft.Practices.IoTJourney.Monitoring.EventProcessor.ConsoleHost.S
         private readonly object flushLockObject = new object();
         private StreamWriter writer;
         private bool disposed;
-        private BlockingCollection<EventEntry> pendingEntries;
+        private BlockingCollection<PartitionSnapshot> pendingEntries;
         private volatile TaskCompletionSource<bool> flushSource = new TaskCompletionSource<bool>();
         private CancellationTokenSource cancellationTokenSource;
         private Task asyncProcessorTask;
@@ -48,7 +48,7 @@ namespace Microsoft.Practices.IoTJourney.Monitoring.EventProcessor.ConsoleHost.S
             if (isAsync)
             {
                 this.cancellationTokenSource = new CancellationTokenSource();
-                this.pendingEntries = new BlockingCollection<EventEntry>();
+                this.pendingEntries = new BlockingCollection<PartitionSnapshot>();
                 this.asyncProcessorTask = Task.Factory.StartNew((Action)this.WriteEntries, TaskCreationOptions.LongRunning);
             }
         }
@@ -104,7 +104,7 @@ namespace Microsoft.Practices.IoTJourney.Monitoring.EventProcessor.ConsoleHost.S
             }
         }
 
-        private void OnSingleEventWritten(EventEntry entry)
+        private void OnSingleEventWritten(PartitionSnapshot entry)
         {
             var formattedEntry = entry.TryFormatAsString(this.formatter);
 
@@ -127,7 +127,7 @@ namespace Microsoft.Practices.IoTJourney.Monitoring.EventProcessor.ConsoleHost.S
 
         private void WriteEntries()
         {
-            EventEntry entry;
+            PartitionSnapshot entry;
             var token = this.cancellationTokenSource.Token;
 
             while (!token.IsCancellationRequested)
@@ -209,7 +209,7 @@ namespace Microsoft.Practices.IoTJourney.Monitoring.EventProcessor.ConsoleHost.S
         /// Provides the sink with new data to write.
         /// </summary>
         /// <param name="value">The current entry to write to the file.</param>
-        public void OnNext(EventEntry value)
+        public void OnNext(PartitionSnapshot value)
         {
             if (this.isAsync)
             {

@@ -27,19 +27,20 @@ namespace Microsoft.Practices.IoTJourney.Monitoring.EventProcessor.ConsoleHost
             }
 
             monitor.Subscribe(sink);
-            monitor.Subscribe(@event =>
+            monitor.Subscribe(snapshot =>
             {
                 var originalColor = Console.ForegroundColor;
-                if (@event.IsStale)
+                if (snapshot.IsStale)
                 {
                     Console.ForegroundColor = ConsoleColor.DarkCyan;
                 }
 
-                Console.WriteLine("Partition {0}", @event.PartitionId);
+                Console.WriteLine("Partition {0}", snapshot.PartitionId);
                 Console.WriteLine("----------");
-                Console.WriteLine("- LastCheckpointTimeUtc: {0}", @event.LastCheckpointTimeUtc);
-                Console.WriteLine("- LastEnqueuedTimeUtc: {0:}", @event.LastEnqueuedTimeUtc);
-                Console.WriteLine("- UnprocessedEvents: {0}", @event.UnprocessedEvents);
+                Console.WriteLine("- RecordedAtTimeUtc: {0}", snapshot.RecordedAtTimeUtc);
+                Console.WriteLine("- LastCheckpointTimeUtc: {0}", snapshot.LastCheckpointTimeUtc);
+                Console.WriteLine("- LastEnqueuedTimeUtc: {0:}", snapshot.LastEnqueuedTimeUtc);
+                Console.WriteLine("- UnprocessedEvents: {0}", snapshot.UnprocessedEvents);
                 Console.WriteLine("");
 
                 Console.ForegroundColor = originalColor;

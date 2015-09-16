@@ -96,11 +96,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Configuration.cs" />
-    <Compile Include="EventEntry.cs" />
+    <Compile Include="PartitionSnapshot.cs" />
     <Compile Include="EventHubMonitorFactory.cs" />
     <Compile Include="PartitionCheckpoint.cs" />
     <Compile Include="PartitionCheckpointManager.cs" />
-    <Compile Include="PartitionMonitor.cs" />
+    <Compile Include="EventHubMonitor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

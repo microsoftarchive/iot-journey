@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
@@ -11,7 +10,7 @@ using Microsoft.ServiceBus.Messaging;
 
 namespace Microsoft.Practices.IoTJourney.Monitoring.EventProcessor
 {
-    public class PartitionMonitor : IObservable<EventEntry>
+    public class EventHubMonitor : IObservable<PartitionSnapshot>
     {
         private readonly string[] _partitionIds;
         private readonly Func<string, Task<PartitionCheckpoint>> _getLastCheckpointAsync;
@@ -19,9 +18,9 @@ namespace Microsoft.Practices.IoTJourney.Monitoring.EventProcessor
         private readonly IScheduler _scheduler;
         private readonly TimeSpan _betweenEachPartition;
         private readonly TimeSpan _afterAllPartitions;
-        private readonly ISubject<EventEntry> _replay = new ReplaySubject<EventEntry>();
+        private readonly ISubject<PartitionSnapshot> _replay = new ReplaySubject<PartitionSnapshot>();
 
-        public PartitionMonitor(
+        public EventHubMonitor(
                 string[] partitionIds,
                 Func<string, Task<PartitionCheckpoint>> getLastCheckpointAsync,
                 Func<string, Task<PartitionDescription>> getEventHubPartitionAsync,
@@ -41,13 +40,13 @@ namespace Microsoft.Practices.IoTJourney.Monitoring.EventProcessor
             GenerateStream().Subscribe(_replay);
         }
 
-        private IObservable<EventEntry> GenerateStream()
+        private IObservable<PartitionSnapshot> GenerateStream()
         {
             var delayBetweenEachPartition = _betweenEachPartition;
             var delayBetweenPartitionSet = _afterAllPartitions;
 
             var previousSnapshots = _partitionIds
-                .ToDictionary(partitionId => partitionId, partitionId => new EventEntry());
+                .ToDictionary(partitionId => partitionId, partitionId => new PartitionSnapshot());
 
             var lastIndex = _partitionIds.Length - 1;
 
@@ -76,9 +75,9 @@ namespace Microsoft.Practices.IoTJourney.Monitoring.EventProcessor
                 .SelectMany(partitionId => Calculate(partitionId, previousSnapshots).ToObservable());
         }
 
-        public async Task<EventEntry> Calculate(
+        public async Task<PartitionSnapshot> Calculate(
             string partitionId,
-            IDictionary<string, EventEntry> previousSnapshots)
+            IDictionary<string, PartitionSnapshot> previousSnapshots)
         {
             var past = previousSnapshots[partitionId];
 
@@ -97,7 +96,7 @@ namespace Microsoft.Practices.IoTJourney.Monitoring.EventProcessor
                 return past;
             }
 
-            var current = new EventEntry
+            var current = new PartitionSnapshot
             {
                 PartitionId = partitionId,
                 UnprocessedEvents = partition.EndSequenceNumber - checkpoint.SequenceNumber,
@@ -112,7 +111,7 @@ namespace Microsoft.Practices.IoTJourney.Monitoring.EventProcessor
             return current;
         }
 
-        public IDisposable Subscribe(IObserver<EventEntry> observer)
+        public IDisposable Subscribe(IObserver<PartitionSnapshot> observer)
         {
             return _replay.Subscribe(observer);
         }
