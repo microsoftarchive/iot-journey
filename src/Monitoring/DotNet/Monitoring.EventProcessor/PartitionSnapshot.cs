@@ -37,5 +37,22 @@ namespace Microsoft.Practices.IoTJourney.Monitoring.EventProcessor
         ///     Timestamp of when this snapshot was captured.
         /// </summary>
         public DateTimeOffset CapturedAtTimeUtc { get; set; }
+
+        /// <summary>
+        /// The current offset of the partition in bytes
+        /// </summary>
+        public string LastEnqueuedOffset { get; set; }
+
+        /// <summary>
+        /// The rate of ingress for the partition.
+        /// </summary>
+        public long IncomingBytesPerSecond { get; set; }
+
+        /// <summary>
+        /// The rate of egress for the parition.
+        /// This does not necessarily reflect the state of
+        /// the consumer group.
+        /// </summary>
+        public long OutgoingBytesPerSecond { get; set; }
     }
 }

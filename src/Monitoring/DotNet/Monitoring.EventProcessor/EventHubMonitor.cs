@@ -97,7 +97,10 @@ namespace Microsoft.Practices.IoTJourney.Monitoring.EventProcessor
                 EndSequenceNumber = partition.EndSequenceNumber,
                 LastEnqueuedTimeUtc = partition.LastEnqueuedTimeUtc,
                 LastCheckpointTimeUtc = checkpoint.LastCheckpointTimeUtc,
-                CapturedAtTimeUtc = DateTimeOffset.UtcNow
+                CapturedAtTimeUtc = DateTimeOffset.UtcNow,
+                LastEnqueuedOffset = partition.LastEnqueuedOffset,
+                IncomingBytesPerSecond = partition.IncomingBytesPerSecond,
+                OutgoingBytesPerSecond = partition.OutgoingBytesPerSecond
             };
 
         }

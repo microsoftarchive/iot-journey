@@ -19,6 +19,9 @@ namespace Monitoring.EventProcessor.Tests
         private readonly int _howFarBehindForPreviousEnqueue;
         private readonly DateTime _lastCheckpointTimeUtc;
         private readonly DateTime _lastEnqueuedTimeUtc;
+        private readonly string _lastEnqueuedOffset;
+        private readonly long _incomingByteRate;
+        private readonly long _outgoingByteRate;
 
         private readonly long _sequenceNumberOfMostRecentEvent = 10000L;
         private readonly TimeSpan _timeBetweenCheckpoints;
@@ -34,8 +37,11 @@ namespace Monitoring.EventProcessor.Tests
             _howFarBehindForCheckpoint = 1500;
             _howFarBehindForPreviousEnqueue = 6000;
 
+            _lastEnqueuedOffset = "12345";
             _lastEnqueuedTimeUtc = new DateTime(1975, 4, 1);
             _lastCheckpointTimeUtc = _lastEnqueuedTimeUtc.Subtract(timeBetweenLastEnqueueAndLastCheckpoint);
+            _incomingByteRate = 99;
+            _outgoingByteRate = 111;
 
             var mostRecentCheckpoint = new PartitionCheckpoint
             {
@@ -64,7 +70,10 @@ namespace Monitoring.EventProcessor.Tests
             var map = new Dictionary<string, object>
             {
                 {"InternalEndSequenceNumber", _sequenceNumberOfMostRecentEvent},
-                {"InternalLastEnqueuedTimeUtc", _lastEnqueuedTimeUtc}
+                {"InternalLastEnqueuedTimeUtc", _lastEnqueuedTimeUtc},
+                {"InternalLastEnqueuedOffset", _lastEnqueuedOffset },
+                {"InternalIncomingBytesPerSecond", _incomingByteRate },
+                {"InternalOutgoingBytesPerSecond", _outgoingByteRate }
             };
 
             var p = new PartitionDescription("myhub", partitionId);
@@ -95,6 +104,24 @@ namespace Monitoring.EventProcessor.Tests
         public void should_include_the_latest_enqueued_time()
         {
             Assert.Equal(_lastEnqueuedTimeUtc, _snapshot.LastEnqueuedTimeUtc);
+        }
+
+        [Fact]
+        public void should_include_the_latest_enqueued_offset()
+        {
+            Assert.Equal(_lastEnqueuedOffset, _snapshot.LastEnqueuedOffset);
+        }
+
+        [Fact]
+        public void should_include_the_incoming_bytes_per_second()
+        {
+            Assert.Equal(_incomingByteRate, _snapshot.IncomingBytesPerSecond);
+        }
+
+        [Fact]
+        public void should_include_the_outgoing_bytes_per_second()
+        {
+            Assert.Equal(_outgoingByteRate, _snapshot.OutgoingBytesPerSecond);
         }
 
         [Fact]
