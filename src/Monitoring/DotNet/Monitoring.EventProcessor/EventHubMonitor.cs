@@ -93,9 +93,9 @@ namespace Microsoft.Practices.IoTJourney.Monitoring.EventProcessor
             return new PartitionSnapshot
             {
                 PartitionId = partitionId,
-                UnprocessedEvents = partition.EndSequenceNumber - checkpoint.SequenceNumber,
                 EndSequenceNumber = partition.EndSequenceNumber,
                 LastEnqueuedTimeUtc = partition.LastEnqueuedTimeUtc,
+                LastCheckpointSequenceNumber = checkpoint.SequenceNumber,
                 LastCheckpointTimeUtc = checkpoint.LastCheckpointTimeUtc,
                 CapturedAtTimeUtc = DateTimeOffset.UtcNow,
                 LastEnqueuedOffset = partition.LastEnqueuedOffset,
