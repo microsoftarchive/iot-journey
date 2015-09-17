@@ -17,7 +17,10 @@ namespace Microsoft.Practices.IoTJourney.Monitoring.EventProcessor.ConsoleHost
             // use the monitor. It can be hosted in a console app,
             // web app, or whatever works for your situation.
             var configuration = Configuration.GetCurrentConfiguration();
-            var monitor = EventHubMonitorFactory.CreateAsync(configuration).Result;
+            var monitor = EventHubMonitorFactory.CreateAsync(
+                configuration,
+                TimeSpan.FromSeconds(1),
+                TimeSpan.FromSeconds(10)).Result;
 
             // We want to write out the data we collect to a
             // flat file, formatted as CSV. 
@@ -50,7 +53,7 @@ namespace Microsoft.Practices.IoTJourney.Monitoring.EventProcessor.ConsoleHost
                 Console.WriteLine("Done");
             });
 
-            Console.ReadKey();
+            Console.ReadLine();
         }
 
         private static FlatFileSink CreateFlatFileSink(string consumerGroupName)
