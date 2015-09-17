@@ -16,6 +16,14 @@ namespace Microsoft.Practices.IoTJourney.Monitoring.EventProcessor
         private readonly Func<string, Task<PartitionDescription>> _getEventHubPartitionAsync;
         private readonly ISubject<PartitionSnapshot> _replay = new ReplaySubject<PartitionSnapshot>();
 
+        private static readonly Predicate<Exception> ExceptionsToIgnore = e =>
+        {
+            if (e is TimeoutException) return true;
+            if (e is MessagingCommunicationException) return true;
+
+            return false;
+        };
+
         public EventHubMonitor(
                 string[] partitionIds,
                 Func<string, Task<PartitionCheckpoint>> getLastCheckpointAsync,
@@ -68,13 +76,13 @@ namespace Microsoft.Practices.IoTJourney.Monitoring.EventProcessor
 
             return Observable.Generate(
                 initialState: 0,
-                condition: _ => true, // never terminate
+                condition: _ => true,
                 iterate: index => index < lastIndex ? index + 1 : 0,
                 resultSelector: index => partitionIds[index],
                 timeSelector: timeSelector,
                 scheduler: scheduler
                 )
-                .SelectMany(partitionId => CaptureSnapshot(partitionId).IgnoreTimeouts());
+                .SelectMany(partitionId => CaptureSnapshot(partitionId).IgnoreCertainExcetions(ExceptionsToIgnore));
         }
 
         public async Task<PartitionSnapshot> CaptureSnapshot(string partitionId)

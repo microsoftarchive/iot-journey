@@ -46,34 +46,74 @@ namespace Monitoring.EventProcessor.Tests
             }
         }
 
-        public class when_a_timeout_exception_is_thrown
+        public class when_an_exception_is_thrown
         {
-            private readonly EventHubMonitor _monitor;
-            private readonly TestScheduler _virtualTime = new TestScheduler();
-
-            public when_a_timeout_exception_is_thrown()
+            private static EventHubMonitor CreateMonitorThrowing(Exception e, TestScheduler scheduler)
             {
-                _monitor = new EventHubMonitor(
+                return new EventHubMonitor(
                     new[] { "0" },
-                    partitionId => { throw new TimeoutException(""); },
+                    partitionId => { throw e; },
                     partitionId => Task.FromResult(new PartitionDescription("myHub", "0")),
                     TimeSpan.FromSeconds(1),
                     TimeSpan.FromSeconds(1),
-                    _virtualTime);
+                    scheduler);
             }
 
             [Fact]
-            public void should_not_stop_the_stream()
+            public void should_not_stop_the_stream_for_a_timeout_exception()
             {
                 var wasErrorThrown = false;
 
-                _monitor.Subscribe(
+                var virtualTime = new TestScheduler();
+                var monitor = CreateMonitorThrowing(
+                    new TimeoutException(""),
+                    virtualTime);
+
+                monitor.Subscribe(
                     onNext: _ => { },
                     onError: e => { wasErrorThrown = true; });
 
-                _virtualTime.AdvanceBy(TimeSpan.FromSeconds(2).Ticks);
+                virtualTime.AdvanceBy(TimeSpan.FromSeconds(2).Ticks);
 
                 Assert.False(wasErrorThrown);
+            }
+
+            [Fact]
+            public void should_not_stop_the_stream_for_a_messaging_communication_exception()
+            {
+                var wasErrorThrown = false;
+
+                var virtualTime = new TestScheduler();
+                var monitor = CreateMonitorThrowing(
+                    new MessagingCommunicationException(""), 
+                    virtualTime);
+
+                monitor.Subscribe(
+                    onNext: _ => { },
+                    onError: e => { wasErrorThrown = true; });
+
+                virtualTime.AdvanceBy(TimeSpan.FromSeconds(2).Ticks);
+
+                Assert.False(wasErrorThrown);
+            }
+
+            [Fact]
+            public void should_stop_the_stream_for_exceptions_in_general()
+            {
+                var wasErrorThrown = false;
+
+                var virtualTime = new TestScheduler();
+                var monitor = CreateMonitorThrowing(
+                    new Exception(""), 
+                    virtualTime);
+
+                monitor.Subscribe(
+                    onNext: _ => { },
+                    onError: e => { wasErrorThrown = true; });
+
+                virtualTime.AdvanceBy(TimeSpan.FromSeconds(2).Ticks);
+
+                Assert.True(wasErrorThrown);
             }
         }
     }
