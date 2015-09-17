@@ -51,7 +51,7 @@ Param
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$StorageAccountName =$ApplicationName + "sa",
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$ServiceBusNamespace = $ApplicationName + "sb",
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$EventHubName = "eh01",
-    [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$ConsumerGroupName  = "blobs",
+    [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$ConsumerGroupName  = "cg-blobs",
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$ContainerName = "blobs-processor",
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][string]$ResourceGroupName = "IoTJourney",
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][string]$DeploymentName = $ResourceGroupName + "Deployment",
@@ -95,79 +95,72 @@ PROCESS
    
     #region Create Resources
 
+    $Configuration = Get-Configuration
+    Add-Library -LibraryName "Microsoft.ServiceBus.dll" -Location $Configuration.PackagesFolderPath
+
+    $templatePath = (Join-Path $PSScriptRoot -ChildPath ".\azuredeploy.json")
+    $streamAnalyticsJobName = $ApplicationName+"ToBlob"
+    $primaryKey = [Microsoft.ServiceBus.Messaging.SharedAccessAuthorizationRule]::GenerateRandomKey()
+    $secondaryKey = [Microsoft.ServiceBus.Messaging.SharedAccessAuthorizationRule]::GenerateRandomKey()
+
     Invoke-InAzureResourceManagerMode ({
     
         New-AzureResourceGroupIfNotExists -ResourceGroupName $ResourceGroupName -Location $Location
     
-        $resourcesInfo = New-AzureResourceGroupDeployment -ResourceGroupName $ResourceGroupName `
-                                         -Name "IoTJourneyDeployment" `
-                                         -TemplateFile (Join-Path $PSScriptRoot -ChildPath ".\DeploymentTemplate.json") `
-                                         -TemplateParameterObject @{ namespaceName = $ServiceBusNamespace; `
-                                                                     eventHubName=$EventHubName; `
-                                                                     consumerGroupName=$ConsumerGroupName; `
-                                                                     storageAccountNameFix=$StorageAccountName
-                                                                   }
-    
+        $deployInfo = New-AzureResourceGroupDeployment -ResourceGroupName $ResourceGroupName `
+                                         -Name $DeploymentName `
+                                         -TemplateFile $templatePath `
+                                         -serviceBusNamespaceName $ServiceBusNamespace `
+                                         -eventHubName $EventHubName `
+                                         -consumerGroupName $ConsumerGroupName `
+                                         -storageAccountNameFromTemplate $StorageAccountName `
+                                         -sharedAccessPolicyPrimaryKey $primaryKey `
+                                         -sharedAccessPolicySecondaryKey $secondaryKey
+
+        #Create the container.
+        $context = New-AzureStorageContext -StorageAccountName $StorageAccountName -StorageAccountKey $deployInfo.Outputs["storageAccountPrimaryKey"].Value
+        New-StorageContainerIfNotExists -ContainerName $ContainerName -Context $context
     })
-
-    #endregion
-
-    #region Create EventHub's Authorization Rule
-
-    $sbr = Get-AzureSBAuthorizationRule -Namespace $ServiceBusNamespace
-    $namespaceManager = [Microsoft.ServiceBus.NamespaceManager]::CreateFromConnectionString($sbr.ConnectionString); 
-    $eventHubDescription = Invoke-WithRetries ({ $namespaceManager.GetEventHub($eventHubName) })
-    
-    $rights = [Microsoft.ServiceBus.Messaging.AccessRights]::Listen, [Microsoft.ServiceBus.Messaging.AccessRights]::Send
-
-    $accessRule = New-SharedAccessAuthorizationRule -Name "SendReceive" -Rights $rights
-    $eventHubDescription.Authorization.Add($accessRule.Rule)
-    $namespaceManager.UpdateEventHub($eventHubDescription)
 
     #endregion
 
     #region Update Settings
 
+    #simulator settings
     $simulatorSettings = @{
-        'Simulator.EventHubNamespace'= $serviceBusNamespace;
-        'Simulator.EventHubName' = $eventHubName;
-        'Simulator.EventHubSasKeyName' = $accessRule.PolicyName;
-        'Simulator.EventHubPrimaryKey' = $accessRule.PolicyKey;
-        'Simulator.EventHubTokenLifetimeDays' = ($eventHubDescription.MessageRetentionInDays -as [string]);
+        'Simulator.EventHubNamespace'= $deployInfo.Outputs["serviceBusNamespaceName"].Value;
+        'Simulator.EventHubName' = $deployInfo.Outputs["eventHubName"].Value;
+        'Simulator.EventHubSasKeyName' = $deployInfo.Outputs["sharedAccessPolicyName"].Value;
+        'Simulator.EventHubPrimaryKey' = $deployInfo.Outputs["sharedAccessPolicyPrimaryKey"].Value;
+        'Simulator.EventHubTokenLifetimeDays' = ($deployInfo.Outputs["messageRetentionInDays"].Value -as [string]);
     }
-
-    Write-SettingsFile -configurationTemplateFile (Join-Path $PSScriptRoot -ChildPath "..\..\..\..\..\src\Simulator\ScenarioSimulator.ConsoleHost.Template.config") `
-                       -configurationFile (Join-Path $PSScriptRoot -ChildPath "..\..\..\..\..\src\Simulator\ScenarioSimulator.ConsoleHost.config") `
+    
+    Write-SettingsFile -configurationTemplateFile (Join-Path $PSScriptRoot -ChildPath "..\..\..\..\src\Simulator\ScenarioSimulator.ConsoleHost.Template.config") `
+                       -configurationFile (Join-Path $PSScriptRoot -ChildPath "..\..\..\..\src\Simulator\ScenarioSimulator.ConsoleHost.config") `
                        -appSettings $simulatorSettings
     
-    $serviceConfigFiles = Get-ChildItem -Include "ServiceConfiguration.Cloud.cscfg" -Path $(Join-Path $PSScriptRoot -ChildPath "..\..\..\..\..\src\Simulator") -Recurse
+    #cloud services settings
+    $serviceConfigFiles = Get-ChildItem -Include "ServiceConfiguration.Cloud.cscfg" -Path $(Join-Path $PSScriptRoot -ChildPath "..\..\..\..\src\Simulator") -Recurse
     Write-CloudSettingsFiles -serviceConfigFiles $serviceConfigFiles -appSettings $simulatorSettings
-    
-    $storageAccountInfo = $null
-    $storageAccountKey = $null
-    Invoke-InAzureResourceManagerMode ({
-        $storageAccountInfo = Get-AzureStorageAccount -StorageAccountName $StorageAccountName
-        $storageAccountKey = Get-AzureStorageAccountKey -ResourceGroupName $ResourceGroupName -Name $StorageAccountName
-    })
 
-    $eventHubConnectionString = "Endpoint=sb://{0}.servicebus.windows.net/;SharedAccessKeyName={1};SharedAccessKey={2};TransportType=Amqp" -f $ServiceBusNamespace, $accessRule.PolicyName, $accessRule.PolicyKey
-    $storageAccountConnectionString = "DefaultEndpointsProtocol=https;AccountName={0};AccountKey={1}" -f $storageAccountInfo.Name, $storageAccountKey.Key1
+    $eventHubAmqpConnectionString = $deployInfo.Outputs["eventHubAmqpConnectionString"].Value
+    $storageAccountConnectionString = $deployInfo.Outputs["storageAccountConnectionString"].Value
 
     $settings = @{
         'Coldstorage.CheckpointStorageAccount' = $storageAccountConnectionString;
-        'Coldstorage.EventHubConnectionString' = $eventHubConnectionString;
-        'Coldstorage.EventHubName' = $EventHubName;
+        'Coldstorage.EventHubConnectionString' = $eventHubAmqpConnectionString;
+        'Coldstorage.EventHubName' = $deployInfo.Outputs["eventHubName"].Value;
         'Coldstorage.BlobWriterStorageAccount' = $storageAccountConnectionString;
         'Coldstorage.ContainerName' = $ContainerName;
         'Coldstorage.ConsumerGroupName' = $ConsumerGroupName;
         'Coldstorage.Tests.StorageConnectionString' = $storageAccountConnectionString;
     }
 
-    Write-SettingsFile -configurationTemplateFile (Join-Path $PSScriptRoot -ChildPath "..\..\..\..\..\src\LongTermStorage\DotnetEventProcessor\ColdStorage.EventProcessor.ConsoleHost.Template.config") `
-                       -configurationFile (Join-Path $PSScriptRoot -ChildPath "..\..\..\..\..\src\LongTermStorage\DotnetEventProcessor\ColdStorage.EventProcessor.ConsoleHost.config") `
+    Write-SettingsFile -configurationTemplateFile (Join-Path $PSScriptRoot -ChildPath "..\..\..\..\src\LongTermStorage\DotnetEventProcessor\ColdStorage.EventProcessor.ConsoleHost.Template.config") `
+                       -configurationFile (Join-Path $PSScriptRoot -ChildPath "..\..\..\..\src\LongTermStorage\DotnetEventProcessor\ColdStorage.EventProcessor.ConsoleHost.config") `
                        -appSettings $settings
 
-    $serviceConfigFiles = Get-ChildItem -Include "ServiceConfiguration.Cloud.cscfg" -Path $(Join-Path $PSScriptRoot -ChildPath "..\..\..\..\..\src\LongTermStorage\DotnetEventProcessor") -Recurse
+    $serviceConfigFiles = Get-ChildItem -Include "ServiceConfiguration.Cloud.cscfg" -Path $(Join-Path $PSScriptRoot -ChildPath "..\..\..\..\src\LongTermStorage\DotnetEventProcessor") -Recurse
     Write-CloudSettingsFiles -serviceConfigFiles $serviceConfigFiles -appSettings $settings
 
     #endregion

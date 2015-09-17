@@ -58,7 +58,6 @@ PROCESS
         $info = New-AzureResourceGroupDeployment -ResourceGroupName $ResourceGroupName `
                                                  -Name $DeploymentName `
                                                  -TemplateFile $templatePath `
-                                                 -location $Location `
                                                  -clusterName $ClusterName `
                                                  -clusterLoginUserName $ClusterLoginUserName `
                                                  -clusterLoginPassword $ClusterLoginPassword `

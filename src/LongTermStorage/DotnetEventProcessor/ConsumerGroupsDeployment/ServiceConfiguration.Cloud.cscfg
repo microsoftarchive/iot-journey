@@ -1,16 +1,16 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <ServiceConfiguration serviceName="ConsumerGroupsDeployment" xmlns="http://schemas.microsoft.com/ServiceHosting/2008/10/ServiceConfiguration" osFamily="4" osVersion="*" schemaVersion="2015-04.2.6">
   <Role name="ColdStorage.EventProcessor.WorkerRole">
     <Instances count="1" />
     <ConfigurationSettings>
-      <Setting name="Coldstorage.ConsumerGroupName" value="ColdStorage" />
-      <Setting name="Coldstorage.CheckpointStorageAccount" value="DefaultEndpointsProtocol=https;AccountName=[YourStorageAccount];AccountKey=[YourAccountKey]" />
-      <Setting name="Coldstorage.EventHubConnectionString" value="Endpoint=sb://[YourServiceNamespace].servicebus.windows.net/;SharedAccessKeyName=[YourAccessKeyName];SharedAccessKey=[YourAccessKey];TransportType=Amqp" />
-      <Setting name="Coldstorage.EventHubName" value="[YourEventHubName]" />
+      <Setting name="Coldstorage.ConsumerGroupName" value="blobs" />
+      <Setting name="Coldstorage.CheckpointStorageAccount" value="DefaultEndpointsProtocol=https;AccountName=iot022havsa;AccountKey=FSbRXGF03YgnDWwC2+/WTLtZDN5FOqufqDgEbnjFMurITDMCU+S7yjgCif96gKROPIeWLIMjxWSJ9u9ONtnABw==" />
+      <Setting name="Coldstorage.EventHubConnectionString" value="Endpoint=sb://iot022havsb.servicebus.windows.net/;SharedAccessKeyName=SendReceive;SharedAccessKey=YzSAQTODcTxYbuGjCA9fselMqkij1p1f/WFMrSWtKpU=;TransportType=Amqp" />
+      <Setting name="Coldstorage.EventHubName" value="eh01" />
       <Setting name="Coldstorage.MaxBatchSize" value="100" />
       <Setting name="Coldstorage.PreFetchCount" value="500" />
       <Setting name="Coldstorage.ReceiveTimeout" value="0.00:01:00" />
-      <Setting name="Coldstorage.BlobWriterStorageAccount" value="DefaultEndpointsProtocol=https;AccountName=[YourStorageAccount];AccountKey=[YourAccountKey]" />
+      <Setting name="Coldstorage.BlobWriterStorageAccount" value="DefaultEndpointsProtocol=https;AccountName=iot022havsa;AccountKey=FSbRXGF03YgnDWwC2+/WTLtZDN5FOqufqDgEbnjFMurITDMCU+S7yjgCif96gKROPIeWLIMjxWSJ9u9ONtnABw==" />
       <Setting name="Coldstorage.RollSizeForBlobWriterMb" value="2048" />
       <Setting name="Coldstorage.ContainerName" value="blobs-processor" />
       <Setting name="Coldstorage.BlobPrefix" value="fabrikam" />

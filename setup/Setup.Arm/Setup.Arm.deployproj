@@ -31,18 +31,21 @@
     <None Include="Modules\ResourceManager.psm1" />
     <None Include="Modules\Config.psm1" />
     <None Include="Modules\SettingsWriter.psm1" />
+    <None Include="Modules\Storage.psm1" />
     <None Include="Modules\Validation.psm1" />
     <None Include="Scripts\Init.ps1" />
     <None Include="Scripts\LongTermStorage-AzureStreamAnalytics\azuredeploy.json" />
-    <None Include="Scripts\LongTermStorage-AzureStreamAnalytics\Deploy-AzureStreamAnalytics.ps1" />
+    <None Include="Scripts\LongTermStorage-AzureStreamAnalytics\Deploy-LongTermStorageAzureStreamAnalytics.ps1" />
     <None Include="Scripts\LongTermStorage-AzureStreamAnalytics\metadata.json" />
-    <None Include="Scripts\LongTermStorage-DotNetEventProcessor\Deploy-DotNetEventProcessor.ps1" />
+    <None Include="Scripts\LongTermStorage-DotNetEventProcessor\Deploy-LongTermStorageDotNetEventProcessor.ps1" />
     <None Include="Scripts\LongTermStorage-DotNetEventProcessor\azuredeploy.json" />
+    <None Include="Scripts\LongTermStorage-DotNetEventProcessor\metadata.json" />
     <None Include="Scripts\LongTermStorage-HDInsight\Deploy-LongTermStorageHDInsight.ps1" />
     <None Include="Scripts\LongTermStorage-HDInsight\azuredeploy.json" />
+    <None Include="Scripts\LongTermStorage-HDInsight\metadata.json" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Scripts\DeviceProvisioningWebApi\" />
+    <Folder Include="Templates\" />
     <Folder Include="Scripts\WarmStorage-EventProcessor\" />
     <Folder Include="Scripts\WarmStorage-AzureStreamAnalyticsAndSql\" />
   </ItemGroup>
