@@ -13,7 +13,6 @@ namespace Monitoring.EventProcessor.Tests
 {
     public class The_monitor
     {
-        private readonly List<PartitionSnapshot> _captured = new List<PartitionSnapshot>();
         private readonly EventHubMonitor _monitor;
         private readonly string[] _partitionIds = { "0", "1", "2" };
         private readonly TestScheduler _virtualTime = new TestScheduler();
@@ -25,24 +24,25 @@ namespace Monitoring.EventProcessor.Tests
                 partitionId => Task.FromResult(new PartitionCheckpoint()),
                 partitionId => Task.FromResult(new PartitionDescription("myHub", "0")),
                 TimeSpan.FromSeconds(1),
-                TimeSpan.FromSeconds(1),
+                TimeSpan.FromSeconds(10),
                 _virtualTime);
         }
 
         [Fact]
         public void should_emit_an_event_for_each_partition()
         {
-            using (_monitor.Subscribe(_captured.Add))
+            var actual = new List<string>();
+            using (_monitor.Subscribe(x => actual.Add(x.PartitionId)))
             {
                 var enoughForAllPartitions = TimeSpan.FromSeconds(_partitionIds.Length);
-                _virtualTime.AdvanceBy(enoughForAllPartitions.Ticks);
+                _virtualTime.AdvanceBy(enoughForAllPartitions.Ticks + 1);
             }
 
-            Assert.Equal(_partitionIds.Length, _captured.Count);
+            Assert.Equal(_partitionIds.Length, actual.Count);
 
-            for (var i = 0; i < _captured.Count; i++)
+            for (var i = 0; i < actual.Count; i++)
             {
-                Assert.Equal(_partitionIds[i], _captured[i].PartitionId);
+                Assert.Equal(_partitionIds[i], actual[i]);
             }
         }
 
@@ -55,7 +55,7 @@ namespace Monitoring.EventProcessor.Tests
                     partitionId => { throw e; },
                     partitionId => Task.FromResult(new PartitionDescription("myHub", "0")),
                     TimeSpan.FromSeconds(1),
-                    TimeSpan.FromSeconds(1),
+                    TimeSpan.FromSeconds(10),
                     scheduler);
             }
 

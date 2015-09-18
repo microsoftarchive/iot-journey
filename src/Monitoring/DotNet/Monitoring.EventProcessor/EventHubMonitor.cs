@@ -38,8 +38,8 @@ namespace Microsoft.Practices.IoTJourney.Monitoring.EventProcessor
             // The stream will begin producing values
             // as soon as we subcribe.
             var stream = GenerateStream(
-                partitionIds, 
-                betweenEachPartition, 
+                partitionIds,
+                betweenEachPartition,
                 afterAllPartitions,
                 scheduler ?? DefaultScheduler.Instance);
 
@@ -55,34 +55,36 @@ namespace Microsoft.Practices.IoTJourney.Monitoring.EventProcessor
         private IObservable<PartitionSnapshot> GenerateStream(
             string[] partitionIds,
             TimeSpan delayBetweenEachPartition,
-            TimeSpan delayBetweenPartitionSet,
+            TimeSpan delayBeforeRequeryingPartition,
             IScheduler scheduler)
         {
-            var lastIndex = partitionIds.Length - 1;
 
-            var firstTime = true;
-            Func<int, TimeSpan> timeSelector = index =>
+            // Create a sequence of the partition ids
+            // staggered so that we don't hit them all
+            // at the same time.
+            var partitions = Observable.Generate(
+                0,
+                i => i < partitionIds.Length,
+                i => i + 1,
+                i => partitionIds[i],
+                _ => delayBetweenEachPartition, 
+                scheduler);
+
+            var actualDelay = TimeSpan.FromTicks(delayBetweenEachPartition.Ticks*partitionIds.Length)
+                              + delayBeforeRequeryingPartition;
+
+            return partitions.SelectMany(id =>
             {
-                if (firstTime)
-                {
-                    firstTime = false;
-                    return TimeSpan.Zero;
-                }
+                var timeDelayedRepeatingQuery = Observable
+                    .Interval(actualDelay, scheduler)
+                    .Select(_ => id);
 
-                return index != 0
-                    ? delayBetweenEachPartition
-                    : delayBetweenPartitionSet;
-            };
-
-            return Observable.Generate(
-                initialState: 0,
-                condition: _ => true,
-                iterate: index => index < lastIndex ? index + 1 : 0,
-                resultSelector: index => partitionIds[index],
-                timeSelector: timeSelector,
-                scheduler: scheduler
-                )
+                return Observable
+                .Return(id)
+                .Concat(timeDelayedRepeatingQuery)
+                //return timeDelayedRepeatingQuery
                 .SelectMany(partitionId => CaptureSnapshot(partitionId).IgnoreCertainExcetions(ExceptionsToIgnore));
+            });
         }
 
         public async Task<PartitionSnapshot> CaptureSnapshot(string partitionId)
