@@ -35,19 +35,19 @@
     <None Include="Modules\Validation.psm1" />
     <None Include="Scripts\Init.ps1" />
     <None Include="Scripts\LongTermStorage-AzureStreamAnalytics\azuredeploy.json" />
-    <None Include="Scripts\LongTermStorage-AzureStreamAnalytics\Deploy-LongTermStorageAzureStreamAnalytics.ps1" />
+    <None Include="Scripts\LongTermStorage-AzureStreamAnalytics\Deploy.ps1" />
     <None Include="Scripts\LongTermStorage-AzureStreamAnalytics\metadata.json" />
-    <None Include="Scripts\LongTermStorage-DotNetEventProcessor\Deploy-LongTermStorageDotNetEventProcessor.ps1" />
+    <None Include="Scripts\LongTermStorage-DotNetEventProcessor\Deploy.ps1" />
     <None Include="Scripts\LongTermStorage-DotNetEventProcessor\azuredeploy.json" />
     <None Include="Scripts\LongTermStorage-DotNetEventProcessor\metadata.json" />
-    <None Include="Scripts\LongTermStorage-HDInsight\Deploy-LongTermStorageHDInsight.ps1" />
+    <None Include="Scripts\LongTermStorage-HDInsight\Deploy.ps1" />
     <None Include="Scripts\LongTermStorage-HDInsight\azuredeploy.json" />
     <None Include="Scripts\LongTermStorage-HDInsight\metadata.json" />
+    <None Include="Scripts\WarmStorage-AzureStreamAnalyticsAndSql\azuredeploy.json" />
+    <None Include="Scripts\WarmStorage-AzureStreamAnalyticsAndSql\Deploy.ps1" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Templates\" />
     <Folder Include="Scripts\WarmStorage-EventProcessor\" />
-    <Folder Include="Scripts\WarmStorage-AzureStreamAnalyticsAndSql\" />
   </ItemGroup>
   <Target Name="GetReferenceAssemblyPaths" />
 </Project>

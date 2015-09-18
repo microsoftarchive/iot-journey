@@ -1,10 +1,6 @@
 # Copyright (c) Microsoft. All rights reserved.
 # Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-<#
-.SYNOPSIS
-  Deploy long term storage with Azure Stream Analytics example.
-#>
 [CmdletBinding()]
 Param
 (
@@ -13,7 +9,7 @@ Param
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$StorageAccountName =$ApplicationName + "sa",
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$ContainerName = "blobs-asa",
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$ServiceBusNamespace = $ApplicationName + "sb",
-    [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$EventHubName = "eh01",
+    [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$EventHubName = "eventhub-iot",
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$ConsumerGroupName  = "cg-blobs-asa",
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][string]$ResourceGroupName = "IoTJourney",
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][string]$DeploymentName = $ResourceGroupName + "Deployment",
@@ -42,6 +38,7 @@ PROCESS
     Test-OnlyLettersNumbersAndHyphens "ConsumerGroupName" $ConsumerGroupName
     Test-OnlyLettersNumbersHyphensPeriodsAndUnderscores "EventHubName" $EventHubName
     Test-OnlyLettersNumbersAndHyphens "ServiceBusNamespace" $ServiceBusNamespace
+    Test-OnlyLettersNumbersAndHyphens "ContainerName" $ContainerName
     
     Load-Module -ModuleName Config -ModuleLocation $ModulesFolderPath
     Load-Module -ModuleName SettingsWriter -ModuleLocation $ModulesFolderPath

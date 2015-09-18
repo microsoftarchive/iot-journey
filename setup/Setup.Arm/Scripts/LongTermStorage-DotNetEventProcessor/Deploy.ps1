@@ -1,47 +1,6 @@
-#region Header
-
 # Copyright (c) Microsoft. All rights reserved.
 # Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-<#
-.SYNOPSIS
-  
-
-.DESCRIPTION
-  
-
-.PARAMETER SubscriptionName
-    Name of the Azure Subscription.
-
-.PARAMETER ApplicationName
-    Name of the Application.
-
-.PARAMETER StorageAccountName
-    Name of the storage account name.
-
-.PARAMETER ServiceBusNamespace
-    Name of the Namespace tha will contain the EventHub instance.
-
-.PARAMETER EventHubName
-    Name of the EventHub that will receive events from the simulator.
-
-.PARAMETER ConsumerGroupName
-    Event Hub consumer group for blob storage.
-
-.PARAMETER EventHubSharedAccessPolicyName
-    Shared Access Policy
-
-.PARAMETER ContainerName
-    Name of the container use to store output from Event Hub.
-
-.PARAMETER Location
-    Location
-
-.EXAMPLE
-  .\Provision-ColdStorageEventProcessor.ps1 -SubscriptionName [YourAzureSubscriptionName] -ApplicationName [YourApplicationName]
-#>
-
-#endregion
 [CmdletBinding()]
 Param
 (
@@ -50,7 +9,7 @@ Param
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][bool]$AddAccount =$True,
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$StorageAccountName =$ApplicationName + "sa",
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$ServiceBusNamespace = $ApplicationName + "sb",
-    [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$EventHubName = "eh01",
+    [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$EventHubName = "eventhub-iot",
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$ConsumerGroupName  = "cg-blobs",
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$ContainerName = "blobs-processor",
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][string]$ResourceGroupName = "IoTJourney",

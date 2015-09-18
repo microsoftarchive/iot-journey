@@ -1,12 +1,308 @@
 ﻿{
-    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
-    "contentVersion": "1.0.0.0",
-    "parameters": {
+  "$schema": "http://schema.management.azure.com/schemas/2014-04-01-preview/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "asaJobName": {
+      "type": "string"
     },
-    "variables": {
+    "containerName": {
+      "type": "string"
     },
-    "resources": [
-    ],
-    "outputs": {
+    "storageAccountName": {
+      "type": "string"
+    },
+    "serviceBusNamespaceName": {
+      "type": "string"
+    },
+    "eventHubName": {
+      "type": "string"
+    },
+    "consumerGroupName": {
+      "type": "string"
+    },
+    "sharedAccessPolicyPrimaryKey": {
+      "type": "string"
+    },
+    "sharedAccessPolicySecondaryKey": {
+      "type": "string"
+    },
+    "sqlServerName": {
+      "type": "string"
+    },
+    "sqlServerAdminLogin": {
+      "type": "string"
+    },
+    "sqlServerAdminLoginPassword": {
+      "type": "securestring"
+    },
+    "sqlDatabaseName": {
+      "type": "string"
+    },
+    "sqlDatabaseUser": {
+      "type": "string"
+    },
+    "sqlDatabaseCollation": {
+      "type": "string",
+      "defaultValue": "SQL_Latin1_General_CP1_CI_AS"
+    },
+    "sqlDatabaseEdition": {
+      "type": "string",
+      "defaultValue": "Standard",
+      "allowedValues": [
+        "Basic",
+        "Business",
+        "Premium",
+        "Standard",
+        "Web"
+      ]
+    },
+    "referenceDataContainerName": {
+      "type": "string"
     }
+  },
+  "variables": {
+    "storageAccountNameLowerCase": "[toLower(parameters('storageAccountName'))]",
+    "serviceBusNamespaceNameLowerCase": "[toLower(parameters('serviceBusNamespaceName'))]",
+    "sqlServerNameLowerCase": "[toLower(parameters('sqlServerName'))]",
+    "location": "[resourceGroup().location]",
+    "eventHubPartitionCount": 16,
+    "pathPrefixPattern": "",
+    "sharedAccessPolicyName": "SendReceive",
+    "messageRetentionInDays": 7,
+    "referenceDataBlobName": "fabrikam/buildingdevice.json"
+  },
+  "resources": [
+    /* EventHub */
+    {
+      "apiVersion": "2014-09-01",
+      "type": "Microsoft.EventHub/namespaces",
+      "name": "[variables('serviceBusNamespaceNameLowerCase')]",
+      "location": "[variables('location')]",
+      "properties": {
+        "region": "[variables('location')]"
+      },
+      "resources": [
+        {
+          "apiVersion": "2014-09-01",
+          "name": "[parameters('eventHubName')]",
+          "type": "eventHubs",
+          "dependsOn": [
+            "[variables('serviceBusNamespaceNameLowerCase')]"
+          ],
+          "properties": {
+            "path": "[parameters('eventHubName')]",
+            "eventHubPartitionCount": "[variables('eventHubPartitionCount')]",
+            "messageRetentionInDays": "[variables('messageRetentionInDays')]"
+          },
+          "resources": [
+            {
+              "apiVersion": "2014-09-01",
+              "name": "[parameters('consumerGroupName')]",
+              "type": "consumergroups",
+              "dependsOn": [
+                "[parameters('eventHubName')]"
+              ],
+              "properties": {
+                "enableCheckpoint": "true"
+              }
+            },
+            {
+              "apiVersion": "2014-09-01",
+              "name": "[concat(parameters('serviceBusNamespaceName'),'/SendReceive')]",
+              "type": "Microsoft.EventHub/namespaces/authorizationRules",
+              "dependsOn": [
+                "[parameters('eventHubName')]"
+              ],
+              "location": "[variables('location')]",
+              "properties": {
+                "KeyName": "SendReceive",
+                "ClaimType": "SharedAccessKey",
+                "ClaimValue": "None",
+                "PrimaryKey": "[parameters('sharedAccessPolicyPrimaryKey')]",
+                "SecondaryKey": "[parameters('sharedAccessPolicySecondaryKey')]",
+                "Rights": [ 1, 2 ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    /* Storage Account to use for out of Stream Analytics job */
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "name": "[variables('storageAccountNameLowerCase')]",
+      "apiVersion": "2015-05-01-preview",
+      "location": "[variables('location')]",
+      "properties": {
+        "accountType": "Standard_LRS"
+      }
+    },
+    /* Stream Analytics job */
+    {
+      "name": "[parameters('asaJobName')]",
+      "dependsOn": [
+        "[variables('storageAccountNameLowerCase')]"
+      ],
+      "location": "[variables('location')]",
+      "type": "Microsoft.StreamAnalytics/streamingjobs",
+      "apiVersion": "2015-06-01",
+      "dependsOn": [
+        "[concat('Microsoft.Sql/servers/', variables('sqlServerNameLowerCase'))]"
+      ],
+      "properties": {
+        "sku": {
+          "name": "standard"
+        },
+        "eventsLateArrivalMaxDelayInSeconds": 5,
+        "eventsOutOfOrderMaxDelayInSeconds": 0,
+        "eventsOutOfOrderPolicy": "Adjust",
+        "inputs": [
+          {
+            "name": "incoming-events",
+            "properties": {
+              "type": "Stream",
+              "dataSource": {
+                "type": "Microsoft.ServiceBus/EventHub",
+                "properties": {
+                  "consumerGroupName": "[parameters('consumerGroupName')]",
+                  "eventHubName": "[parameters('eventHubName')]",
+                  "serviceBusNamespace": "[variables('serviceBusNamespaceNameLowerCase')]",
+                  "sharedAccessPolicyName": "[variables('sharedAccessPolicyName')]",
+                  "sharedAccessPolicyKey": "[parameters('sharedAccessPolicyPrimaryKey')]"
+                }
+              },
+              "serialization": {
+                "type": "Json",
+                "properties": {
+                  "encoding": "UTF8"
+                }
+              }
+            }
+          },
+          {
+            "name": "reference-data",
+            "properties": {
+              "type": "Reference",
+              "dataSource": {
+                "type": "Microsoft.Storage/Blob",
+                "properties": {
+                  "container": "[parameters('referenceDataContainerName')]",
+                  "blobName": "[variables('referenceDataBlobName')]",
+                  "storageAccounts": [
+                    {
+                      "accountName": "[variables('storageAccountNameLowerCase')]",
+                      "accountKey": "[listKeys(parameters('storageAccountName'), '2015-05-01-preview' ).key1]"
+                    }
+                  ]
+                }
+              },
+              "serialization": {
+                "properties": {
+                  "encoding": "UTF8"
+                },
+                "type": "Json"
+              }
+            }
+          }
+        ],
+        "outputs": [
+          {
+            "name": "warm-storage-sql",
+            "properties": {
+              "dataSource": {
+                "properties": {
+                  "database": "[parameters('sqlDatabaseName')]",
+                  "password": "[parameters('sqlServerAdminLoginPassword')]",
+                  "server": "[variables('sqlServerNameLowerCase')]",
+                  "table": "BuildingTemperature",
+                  "user": "[parameters('sqlDatabaseUser')]"
+                },
+                "type": "Microsoft.Sql/Server/Database"
+              },
+              "serialization": null
+            }
+          }
+        ],
+        "transformation": {
+          "name": "average-temperature",
+          "properties": {
+            "streamingUnits": 24,
+            "query": "SELECT AVG(I1.Temperature) as Temperature, Max(I1.TimeObserved) as LastObservedTime, I2.BuildingId \r\nINTO [warm-storage-sql] \r\nFROM [incoming-events] I1 TIMESTAMP BY TimeObserved \r\nJOIN [reference-data] I2 On I1.DeviceId = I2.DeviceId  \r\nGROUP BY TumblingWindow(s,5), I2.BuildingId"
+          }
+        }
+      }
+    },
+    {
+      "name": "[variables('sqlServerNameLowerCase')]",
+      "type": "Microsoft.Sql/servers",
+      "location": "[variables('location')]",
+      "apiVersion": "2014-04-01-preview",
+      "dependsOn": [ ],
+      "tags": {
+        "displayName": "sqlServer"
+      },
+      "properties": {
+        "administratorLogin": "[parameters('sqlServerAdminLogin')]",
+        "administratorLoginPassword": "[parameters('sqlServerAdminLoginPassword')]"
+      },
+      "resources": [
+        {
+          "name": "AllowAllWindowsAzureIps",
+          "type": "firewallrules",
+          "location": "[variables('location')]",
+          "apiVersion": "2014-04-01-preview",
+          "dependsOn": [
+            "[concat('Microsoft.Sql/servers/', variables('sqlServerNameLowerCase'))]"
+          ],
+          "properties": {
+            "startIpAddress": "0.0.0.0",
+            "endIpAddress": "255.255.255.255"
+          }
+        },
+        {
+          "name": "[parameters('sqlDatabaseName')]",
+          "type": "databases",
+          "location": "[variables('location')]",
+          "apiVersion": "2014-04-01-preview",
+          "dependsOn": [
+            "[variables('sqlServerNameLowerCase')]"
+          ],
+          "tags": {
+            "displayName": "sqlDatabase"
+          },
+          "properties": {
+            "collation": "[parameters('sqlDatabaseCollation')]",
+            "edition": "[parameters('sqlDatabaseEdition')]",
+            "maxSizeBytes": "1073741824"
+          }
+        }
+      ]
+    }
+  ],
+  "outputs": {
+    "ServiceBusNamespaceName": {
+      "type": "string",
+      "value": "[variables('serviceBusNamespaceNameLowerCase')]"
+    },
+    "EventHubName": {
+      "type": "string",
+      "value": "[parameters('eventHubName')]"
+    },
+    "SharedAccessPolicyName": {
+      "type": "string",
+      "value": "[variables('sharedAccessPolicyName')]"
+    },
+    "SharedAccessPolicyPrimaryKey": {
+      "type": "string",
+      "value": "[parameters('sharedAccessPolicyPrimaryKey')]"
+    },
+    "MessageRetentionInDays": {
+      "type": "int",
+      "value": "[variables('messageRetentionInDays')]"
+    },
+    "StorageAccountPrimaryKey": {
+      "type": "string",
+      "value": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName')), '2015-05-01-preview').key1]"
+    }
+  }
 }

@@ -5,10 +5,10 @@
     <ConfigurationSettings>
       <Setting name="Simulator.Scenario" value="" />
       <Setting name="Simulator.NumberOfDevices" value="2000" />
-      <Setting name="Simulator.EventHubNamespace" value="iot022havsb" />
-      <Setting name="Simulator.EventHubName" value="eh01" />
-      <Setting name="Simulator.EventHubSasKeyName" value="SendReceive" />
-      <Setting name="Simulator.EventHubPrimaryKey" value="YzSAQTODcTxYbuGjCA9fselMqkij1p1f/WFMrSWtKpU=" />
+      <Setting name="Simulator.EventHubNamespace" value="[YourEventHubNamespace]" />
+      <Setting name="Simulator.EventHubName" value="[YourEventHubName]" />
+      <Setting name="Simulator.EventHubSasKeyName" value="[YourSasKeyName]" />
+      <Setting name="Simulator.EventHubPrimaryKey" value="[YourEventHubPrimaryKey]" />
       <Setting name="Simulator.EventHubTokenLifetimeDays" value="7" />
       <Setting name="Simulator.WarmUpDuration" value="0.00:00:30" />
       <!--See: https://msdn.microsoft.com/en-us/library/system.diagnostics.tracing.eventlevel(v=vs.110).aspx -->
