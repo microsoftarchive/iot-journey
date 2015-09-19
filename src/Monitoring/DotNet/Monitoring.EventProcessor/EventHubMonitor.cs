@@ -5,6 +5,7 @@ using System;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
+using System.Reactive.Threading.Tasks;
 using System.Threading.Tasks;
 using Microsoft.ServiceBus.Messaging;
 
@@ -12,10 +13,6 @@ namespace Microsoft.Practices.IoTJourney.Monitoring.EventProcessor
 {
     public class EventHubMonitor : IObservable<PartitionSnapshot>
     {
-        private readonly Func<string, Task<PartitionCheckpoint>> _getLastCheckpointAsync;
-        private readonly Func<string, Task<PartitionDescription>> _getEventHubPartitionAsync;
-        private readonly ISubject<PartitionSnapshot> _replay = new ReplaySubject<PartitionSnapshot>();
-
         private static readonly Predicate<Exception> ExceptionsToIgnore = e =>
         {
             if (e is TimeoutException) return true;
@@ -24,13 +21,17 @@ namespace Microsoft.Practices.IoTJourney.Monitoring.EventProcessor
             return false;
         };
 
+        private readonly Func<string, Task<PartitionDescription>> _getEventHubPartitionAsync;
+        private readonly Func<string, Task<PartitionCheckpoint>> _getLastCheckpointAsync;
+        private readonly ISubject<PartitionSnapshot> _replay = new ReplaySubject<PartitionSnapshot>();
+
         public EventHubMonitor(
-                string[] partitionIds,
-                Func<string, Task<PartitionCheckpoint>> getLastCheckpointAsync,
-                Func<string, Task<PartitionDescription>> getEventHubPartitionAsync,
-                TimeSpan betweenEachPartition,
-                TimeSpan afterAllPartitions,
-                IScheduler scheduler = null)
+            string[] partitionIds,
+            Func<string, Task<PartitionCheckpoint>> getLastCheckpointAsync,
+            Func<string, Task<PartitionDescription>> getEventHubPartitionAsync,
+            TimeSpan betweenEachPartition,
+            TimeSpan afterAllPartitions,
+            IScheduler scheduler = null)
         {
             _getLastCheckpointAsync = getLastCheckpointAsync;
             _getEventHubPartitionAsync = getEventHubPartitionAsync;
@@ -52,13 +53,17 @@ namespace Microsoft.Practices.IoTJourney.Monitoring.EventProcessor
             stream.Subscribe(_replay);
         }
 
+        public IDisposable Subscribe(IObserver<PartitionSnapshot> observer)
+        {
+            return _replay.Subscribe(observer);
+        }
+
         private IObservable<PartitionSnapshot> GenerateStream(
             string[] partitionIds,
             TimeSpan delayBetweenEachPartition,
             TimeSpan delayBeforeRequeryingPartition,
             IScheduler scheduler)
         {
-
             // Create a sequence of the partition ids
             // staggered so that we don't hit them all
             // at the same time.
@@ -67,7 +72,7 @@ namespace Microsoft.Practices.IoTJourney.Monitoring.EventProcessor
                 i => i < partitionIds.Length,
                 i => i + 1,
                 i => partitionIds[i],
-                _ => delayBetweenEachPartition, 
+                _ => delayBetweenEachPartition,
                 scheduler);
 
             var actualDelay = TimeSpan.FromTicks(delayBetweenEachPartition.Ticks*partitionIds.Length)
@@ -80,14 +85,24 @@ namespace Microsoft.Practices.IoTJourney.Monitoring.EventProcessor
                     .Select(_ => id);
 
                 return Observable
-                .Return(id)
-                .Concat(timeDelayedRepeatingQuery)
-                //return timeDelayedRepeatingQuery
-                .SelectMany(partitionId => CaptureSnapshot(partitionId).IgnoreCertainExcetions(ExceptionsToIgnore));
+                    .Return(id)
+                    .Concat(timeDelayedRepeatingQuery)
+                    .SelectMany(CaptureSnapshotSafely);
             });
         }
 
-        public async Task<PartitionSnapshot> CaptureSnapshot(string partitionId)
+        private IObservable<PartitionSnapshot> CaptureSnapshotSafely(string partitionId)
+        {
+            return CaptureSnapshotAsync(partitionId)
+                .ToObservable()
+                .Catch(
+                    (Exception e) => 
+                        ExceptionsToIgnore(e)
+                            ? Observable.Empty<PartitionSnapshot>()
+                            : Observable.Throw<PartitionSnapshot>(e));
+        }
+
+        public async Task<PartitionSnapshot> CaptureSnapshotAsync(string partitionId)
         {
             var partition = await _getEventHubPartitionAsync(partitionId).ConfigureAwait(false);
             var checkpoint = await _getLastCheckpointAsync(partitionId).ConfigureAwait(false);
@@ -104,12 +119,6 @@ namespace Microsoft.Practices.IoTJourney.Monitoring.EventProcessor
                 IncomingBytesPerSecond = partition.IncomingBytesPerSecond,
                 OutgoingBytesPerSecond = partition.OutgoingBytesPerSecond
             };
-
-        }
-
-        public IDisposable Subscribe(IObserver<PartitionSnapshot> observer)
-        {
-            return _replay.Subscribe(observer);
         }
     }
 }
