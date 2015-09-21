@@ -58,7 +58,6 @@ PROCESS
     Add-Library -LibraryName "Microsoft.ServiceBus.dll" -Location $Configuration.PackagesFolderPath
 
     $templatePath = (Join-Path $PSScriptRoot -ChildPath ".\azuredeploy.json")
-    $streamAnalyticsJobName = $ApplicationName+"ToBlob"
     $primaryKey = [Microsoft.ServiceBus.Messaging.SharedAccessAuthorizationRule]::GenerateRandomKey()
     $secondaryKey = [Microsoft.ServiceBus.Messaging.SharedAccessAuthorizationRule]::GenerateRandomKey()
 

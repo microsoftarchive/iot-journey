@@ -25,6 +25,8 @@
   <Import Condition=" Exists('$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Deployment\1.1\DeploymentProject.targets') " Project="$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Deployment\1.1\DeploymentProject.targets" />
   <!-- vertag<:>end -->
   <ItemGroup>
+    <None Include="Data\CreateSqlDatabase_Schema.sql" />
+    <None Include="Data\fabrikam_buildingdevice.json" />
     <None Include="Deployment.targets">
       <Visible>False</Visible>
     </None>
@@ -45,9 +47,10 @@
     <None Include="Scripts\LongTermStorage-HDInsight\metadata.json" />
     <None Include="Scripts\WarmStorage-AzureStreamAnalyticsAndSql\azuredeploy.json" />
     <None Include="Scripts\WarmStorage-AzureStreamAnalyticsAndSql\Deploy.ps1" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Scripts\WarmStorage-EventProcessor\" />
+    <None Include="Scripts\WarmStorage-AzureStreamAnalyticsAndSql\metadata.json" />
+    <None Include="Scripts\WarmStorage-DotNetEventProcessor\azuredeploy.json" />
+    <None Include="Scripts\WarmStorage-DotNetEventProcessor\Deploy.ps1" />
+    <None Include="Scripts\WarmStorage-DotNetEventProcessor\metadata.json" />
   </ItemGroup>
   <Target Name="GetReferenceAssemblyPaths" />
 </Project>
