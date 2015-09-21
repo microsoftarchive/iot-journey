@@ -67,10 +67,14 @@ PROCESS
     $primaryKey = [Microsoft.ServiceBus.Messaging.SharedAccessAuthorizationRule]::GenerateRandomKey()
     $secondaryKey = [Microsoft.ServiceBus.Messaging.SharedAccessAuthorizationRule]::GenerateRandomKey()
 
+    $storageAccountContext = $null
+
     Invoke-InAzureResourceManagerMode ({
     
         New-AzureResourceGroupIfNotExists -ResourceGroupName $ResourceGroupName -Location $Location
         
+        $referenceDataContainerName = "$($ContainerName)-refdata"
+
         $deployInfo = New-AzureResourceGroupDeployment -ResourceGroupName $ResourceGroupName `
                                                        -Name $DeploymentName `
                                                        -TemplateFile $templatePath `
@@ -87,105 +91,34 @@ PROCESS
                                                        -sqlServerAdminLoginPassword $SqlServerAdminLoginPassword `
                                                        -sqlDatabaseName $SqlDatabaseName `
                                                        -sqlDatabaseUser $SqlServerAdminLogin `
-                                                       -referenceDataContainerName "$($ContainerName)-refdata"
+                                                       -referenceDataContainerName $referenceDataContainerName
 
         #Create the container.
-        #$context = New-AzureStorageContext -StorageAccountName $StorageAccountName -StorageAccountKey $deployInfo.Outputs["storageAccountPrimaryKey"].Value
-        #New-StorageContainerIfNotExists -ContainerName $ContainerName -Context $context
+        $storageAccountContext = New-AzureStorageContext -StorageAccountName $StorageAccountName -StorageAccountKey $deployInfo.Outputs["storageAccountPrimaryKey"].Value
+        New-StorageContainerIfNotExists -ContainerName $ContainerName -Context $storageAccountContext
+        New-StorageContainerIfNotExists -ContainerName $referenceDataContainerName -Context $storageAccountContext
     })
+
+    $referenceDataFilePath = Join-Path $PSScriptRoot -ChildPath "..\..\Data\fabrikam_buildingdevice.json"
+
+    Set-AzureStorageBlobContent -Blob "fabrikam/buildingdevice.json" `
+                                -Container $referenceDataContainerName `
+                                -File $referenceDataFilePath `
+                                -Context $storageAccountContext `
+                                -Force
 
     #endregion
 
-    <#
-
-    New-ProvisionedStorageAccount -StorageAccountName $StorageAccountName `
-                                  -ContainerName $ContainerName `
-                                  -Location $Location
-        
-    $EventHubInfo = New-ProvisionedEventHub -SubscriptionName $SubscriptionName `
-                                    -ServiceBusNamespace $ServiceBusNamespaceName `
-                                    -EventHubName $EventHubName `
-                                    -ConsumerGroupName $ConsumerGroupName `
-                                    -EventHubSharedAccessPolicyName $EventHubSharedAccessPolicyName `
-                                    -Location $Location `
-                                    -PartitionCount 16 `
-                                    -MessageRetentionInDays 7 `
-
-    # Update settings
-
+    #simulator settings
     $simulatorSettings = @{
-        'Simulator.EventHubNamespace'= $EventHubInfo.EventHubNamespace;
-        'Simulator.EventHubName' = $EventHubInfo.EventHubName;
-        'Simulator.EventHubSasKeyName' = $EventHubInfo.EventHubSasKeyName;
-        'Simulator.EventHubPrimaryKey' = $EventHubInfo.EventHubPrimaryKey;
-        'Simulator.EventHubTokenLifetimeDays' = ($EventHubInfo.EventHubTokenLifetimeDays -as [string]);
+        'Simulator.EventHubNamespace'= $deployInfo.Outputs["serviceBusNamespaceName"].Value;
+        'Simulator.EventHubName' = $deployInfo.Outputs["eventHubName"].Value;
+        'Simulator.EventHubSasKeyName' = $deployInfo.Outputs["sharedAccessPolicyName"].Value;
+        'Simulator.EventHubPrimaryKey' = $deployInfo.Outputs["sharedAccessPolicyPrimaryKey"].Value;
+        'Simulator.EventHubTokenLifetimeDays' = ($deployInfo.Outputs["messageRetentionInDays"].Value -as [string]);
     }
-
-    Write-SettingsFile -configurationTemplateFile (Join-Path $PSScriptRoot -ChildPath "..\src\Simulator\ScenarioSimulator.ConsoleHost.Template.config") `
-                       -configurationFile (Join-Path $PSScriptRoot -ChildPath "..\src\Simulator\ScenarioSimulator.ConsoleHost.config") `
-                       -appSettings $simulatorSettings
-
-    $ResourceGroupName = $ResourceGroupPrefix + "-" + $Location.Replace(" ","-")
-
-    Provision-SqlDatabase -SqlServerName $SqlServerName `
-                                        -SqlServerAdminLogin $SqlServerAdminLogin `
-                                        -SqlServerAdminPassword $SqlServerAdminPassword `
-                                        -SqlDatabaseName $SqlDatabaseName `
-                                        -ResourceGroupName $ResourceGroupName `
-                                        -Location $Location
-
-
-
-        # Get Storage Account Key
-        $storageAccountKey = Get-AzureStorageKey -StorageAccountName $StorageAccountName
-        $storageAccountKeyPrimary = $storageAccountKey.Primary
-        $RefdataContainerName = $ContainerName + "-refdata"
-        
-        $context = New-AzureStorageContext -StorageAccountName $StorageAccountName -StorageAccountKey $storageAccountKeyPrimary;
-
-        New-StorageContainerIfNotExists -ContainerName $RefdataContainerName `
-                                        -Context $context
-
-        Set-BlobData -StorageAccountName $StorageAccountName `
-                     -ContainerName $RefdataContainerName `
-                     -BlobName "fabrikam/buildingdevice.json" `
-                     -FilePath ".\data\fabrikam_buildingdevice.json"
-
-
-        $EventHubSharedAccessPolicyKey = Get-EventHubSharedAccessPolicyKey -ServiceBusNamespace $ServiceBusNamespaceName `
-                                                                           -EventHubName $EventHubName `
-                                                                           -EventHubSharedAccessPolicyName $EventHubSharedAccessPolicyName
-
-        # Get Storage Account Key
-        $storageAccountKey = Get-AzureStorageKey -StorageAccountName $StorageAccountName
-        $storageAccountKeyPrimary = $storageAccountKey.Primary
-
-        # Create SQL Job Definition
-        [string]$JobDefinitionText = (Get-Content -LiteralPath (Join-Path $PSScriptRoot -ChildPath $JobDefinitionPath)).
-                                    Replace("_StreamAnalyticsJobName",$StreamAnalyticsSQLJobName).
-                                    Replace("_Location",$Location).
-                                    Replace("_ConsumerGroupName",$ConsumerGroupName).
-                                    Replace("_EventHubName",$EventHubName).
-                                    Replace("_ServiceBusNamespace",$ServiceBusNamespaceName).
-                                    Replace("_EventHubSharedAccessPolicyName",$EventHubSharedAccessPolicyName).
-                                    Replace("_EventHubSharedAccessPolicyKey",$EventHubSharedAccessPolicyKey).
-                                    Replace("_AccountName",$StorageAccountName).
-                                    Replace("_AccountKey",$storageAccountKeyPrimary).
-                                    Replace("_Container",$ContainerName).
-                                    Replace("_RefdataContainer",$RefdataContainerName).
-                                    Replace("_DBName",$SqlDatabaseName).
-                                    Replace("_DBPassword",$SqlServerAdminPassword).
-                                    Replace("_DBServer",$SqlServerName).
-                                    Replace("_DBUser",$SqlServerAdminLogin)
-
-    Provision-StreamAnalyticsJob -ServiceBusNamespace $ServiceBusNamespaceName `
-                                            -EventHubName $EventHubName `
-                                            -EventHubSharedAccessPolicyName $EventHubSharedAccessPolicyName `
-                                            -StorageAccountName $StorageAccountName `
-                                            -ContainerName $ContainerName `
-                                            -ResourceGroupName $ResourceGroupName `
-                                            -Location $Location `
-                                            -JobDefinitionText $JobDefinitionText
     
-    Write-Output "Provision Finished OK"      #>                                         
+    Write-SettingsFile -configurationTemplateFile (Join-Path $PSScriptRoot -ChildPath "..\..\..\..\src\Simulator\ScenarioSimulator.ConsoleHost.Template.config") `
+                       -configurationFile (Join-Path $PSScriptRoot -ChildPath "..\..\..\..\src\Simulator\ScenarioSimulator.ConsoleHost.config") `
+                       -appSettings $simulatorSettings                               
 }
