@@ -13,8 +13,6 @@ Param
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][string]$ClusterStorageType = "Standard_LRS",
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][string]$ClusterLoginUserName = "admin",
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $True)][securestring]$ClusterLoginPassword,
-    [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][string]$SshUserName = "hdiuser",
-    [ValidateNotNullOrEmpty()][Parameter (Mandatory = $True)][securestring]$SshPassword,
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][int]$ClusterWorkerNodeCount = 2,
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][string]$ResourceGroupName = "IoTJourney",
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][string]$DeploymentName = $ResourceGroupName + "Deployment",
@@ -61,8 +59,6 @@ PROCESS
                                                  -clusterName $ClusterName `
                                                  -clusterLoginUserName $ClusterLoginUserName `
                                                  -clusterLoginPassword $ClusterLoginPassword `
-                                                 -sshUserName $SshUserName `
-                                                 -sshPassword $SshPassword `
                                                  -clusterStorageAccountName $ClusterStorageAccountName `
                                                  -clusterStorageType $ClusterStorageType `
                                                  -clusterWorkerNodeCount $ClusterWorkerNodeCount

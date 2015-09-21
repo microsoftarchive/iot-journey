@@ -21,19 +21,6 @@
         "description": "The password for the cluster login."
       }
     },
-    "sshUserName": {
-      "type": "string",
-      "defaultValue": "hdiuser",
-      "metadata": {
-        "description": "These credentials can be used to remotely access the cluster and the edge node virtual machine."
-      }
-    },
-    "sshPassword": {
-      "type": "securestring",
-      "metadata": {
-        "description": "The password for the ssh user."
-      }
-    },
     "clusterStorageAccountName": {
       "type": "string",
       "metadata": {
@@ -83,7 +70,7 @@
       "tags": {},
       "properties": {
         "clusterVersion": "3.2",
-        "osType": "Linux",
+        "osType": "Windows",
         "clusterDefinition": {
           "kind": "hadoop",
           "configurations": {
@@ -111,12 +98,6 @@
               "targetInstanceCount": "1",
               "hardwareProfile": {
                 "vmSize": "Large"
-              },
-              "osProfile": {
-                "linuxOperatingSystemProfile": {
-                  "username": "[parameters('sshUserName')]",
-                  "password": "[parameters('sshPassword')]"
-                }
               }
             },
             {
@@ -124,12 +105,6 @@
               "targetInstanceCount": "[parameters('clusterWorkerNodeCount')]",
               "hardwareProfile": {
                 "vmSize": "Large"
-              },
-              "osProfile": {
-                "linuxOperatingSystemProfile": {
-                  "username": "[parameters('sshUserName')]",
-                  "password": "[parameters('sshPassword')]"
-                }
               }
             }
           ]
