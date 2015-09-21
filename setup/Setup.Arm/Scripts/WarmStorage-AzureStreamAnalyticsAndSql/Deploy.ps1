@@ -13,7 +13,7 @@ Param
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][string]$SqlServerName = "$($ApplicationName)sql",
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][string]$SqlServerAdminLogin = "dbuser",
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][string]$SqlDatabaseName = "fabrikamdb",
-    [ValidateNotNullOrEmpty()][Parameter (Mandatory = $True)][securestring]$SqlServerAdminLoginPassword,
+    [ValidateNotNullOrEmpty()][Parameter (Mandatory = $True)][string]$SqlServerAdminLoginPassword,
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][string]$ResourceGroupName = "IoTJourney",
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][string]$DeploymentName = "$($ResourceGroupName)Deployment",
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][string]$Location = "Central US",
@@ -103,6 +103,16 @@ PROCESS
                                 -Context $storageAccountContext `
                                 -Force
 
+    $qualifiedSqlServerName = $SqlServerName + ".database.windows.net"
+
+    $schemaFilePath = Join-Path $PSScriptRoot -ChildPath "..\..\Data\CreateSqlDatabase_Schema.sql"
+
+    Invoke-Sqlcmd -InputFile $schemaFilePath `
+                  -ServerInstance $qualifiedSqlServerName `
+                  -Database $SqlDatabaseName `
+                  -Username $SqlServerAdminLogin `
+                  -Password $SqlServerAdminLoginPassword
+
     #endregion
 
     #simulator settings
@@ -116,5 +126,5 @@ PROCESS
     
     Write-SettingsFile -configurationTemplateFile (Join-Path $PSScriptRoot -ChildPath "..\..\..\..\src\Simulator\ScenarioSimulator.ConsoleHost.Template.config") `
                        -configurationFile (Join-Path $PSScriptRoot -ChildPath "..\..\..\..\src\Simulator\ScenarioSimulator.ConsoleHost.config") `
-                       -appSettings $simulatorSettings                               
+                       -appSettings $simulatorSettings
 }

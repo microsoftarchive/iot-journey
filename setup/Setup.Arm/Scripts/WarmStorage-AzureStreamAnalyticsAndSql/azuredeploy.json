@@ -53,7 +53,7 @@
       "type": "string"
     },
     "sqlServerAdminLoginPassword": {
-      "type": "securestring"
+      "type": "string"
     },
     "sqlDatabaseName": {
       "type": "string"
