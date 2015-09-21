@@ -1,3 +1,7 @@
 ﻿{
-
+  "itemDisplayName": "LongTermStorage-HDInsight",
+  "description": "This template creates the required resources to deploy the LongTermStorage-HDInsight scenario.",
+  "summary": "With this HDInsight cluster you can run Hive queries to perform calculations over the data stored.",
+  "githubUsername": "mspnp",
+  "dateUpdated": "2015-09-21"
 }

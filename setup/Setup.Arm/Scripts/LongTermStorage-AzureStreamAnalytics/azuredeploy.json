@@ -5,11 +5,8 @@
     "asaJobName": {
       "type": "string",
       "metadata": {
-        "description": "The name of the Stream Analytics Job."
+        "description": "The name of the StreamAnalytics job."
       }
-    },
-    "containerName": {
-      "type": "string"     
     },
     "storageAccountName": {
       "type": "string",
@@ -17,20 +14,44 @@
         "description": "The name of the storage account to use for long-term storage."
       }
     },
+    "blobContainerName": {
+      "type": "string",
+      "defaultValue": "blobs-asa",
+      "metadata": {
+        "description": "The name of the blob where events will be stored."
+      }
+    },
     "serviceBusNamespaceName": {
-      "type": "string"
+      "type": "string",
+      "metadata": {
+        "description": "The name of the ServiceBus namespace."
+      }
     },
     "eventHubName": {
-      "type": "string"
+      "type": "string",
+      "defaultValue": "eventhub-iot",
+      "metadata": {
+        "description": "The name of the EventHub where the events ingress."
+      }
     },
     "consumerGroupName": {
-      "type": "string"
+      "type": "string",
+      "defaultValue": "cg-blobs-asa",
+      "metadata": {
+        "description": "The name of the ConsumerGroup for the EventHub."
+      }
     },
-    "sharedAccessPolicyPrimaryKey": {
-      "type": "string"
+    "eventHubPrimaryKey": {
+      "type": "string",
+      "metadata": {
+        "description": "The primary key used to send/revice data to/from EventHub."
+      }
     },
-    "sharedAccessPolicySecondaryKey": {
-      "type": "string"
+    "eventHubSecondaryKey": {
+      "type": "string",
+       "metadata": {
+        "description": "The secondary key used to send/revice data to/from EventHub."
+      }
     }
   },
   "variables": {
@@ -87,8 +108,8 @@
                 "KeyName": "SendReceive",
                 "ClaimType": "SharedAccessKey",
                 "ClaimValue": "None",
-                "PrimaryKey": "[parameters('sharedAccessPolicyPrimaryKey')]",
-                "SecondaryKey": "[parameters('sharedAccessPolicySecondaryKey')]",
+                "PrimaryKey": "[parameters('eventHubPrimaryKey')]",
+                "SecondaryKey": "[parameters('eventHubSecondaryKey')]",
                 "Rights": [ 1, 2 ]
               }
             }
@@ -134,7 +155,7 @@
                   "eventHubName": "[parameters('eventHubName')]",
                   "serviceBusNamespace": "[parameters('serviceBusNamespaceName')]",
                   "sharedAccessPolicyName": "[variables('sharedAccessPolicyName')]",
-                  "sharedAccessPolicyKey": "[parameters('sharedAccessPolicyPrimaryKey')]"
+                  "sharedAccessPolicyKey": "[parameters('eventHubPrimaryKey')]"
                 }
               },
               "serialization": {
@@ -153,7 +174,7 @@
               "dataSource": {
                 "type": "Microsoft.Storage/Blob",
                 "properties": {
-                  "container": "[parameters('containerName')]",
+                  "container": "[parameters('blobContainerName')]",
                   "pathPattern": "[variables('pathPrefixPattern')]",
                   "storageAccounts": [
                     {
@@ -196,9 +217,9 @@
       "type": "string",
       "value": "[variables('sharedAccessPolicyName')]"
     },
-    "SharedAccessPolicyPrimaryKey": {
+    "EventHubPrimaryKey": {
       "type": "string",
-      "value": "[parameters('sharedAccessPolicyPrimaryKey')]"
+      "value": "[parameters('eventHubPrimaryKey')]"
     },
     "MessageRetentionInDays": {
       "type": "int",

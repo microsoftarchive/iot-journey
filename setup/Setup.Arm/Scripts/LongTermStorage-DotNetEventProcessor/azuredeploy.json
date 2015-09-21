@@ -3,22 +3,42 @@
   "contentVersion": "1.0.0.0",
   "parameters": {
     "serviceBusNamespaceName": {
-      "type": "string"
+      "type": "string",
+      "metadata": {
+        "description": "The name of the ServiceBus namespace."
+      }
     },
     "eventHubName": {
-      "type": "string"
+      "type": "string",
+      "defaultValue": "eventhub-iot",
+      "metadata": {
+        "description": "The name of the EventHub where the events ingress."
+      }
     },
     "consumerGroupName": {
-      "type": "string"
+      "type": "string",
+      "defaultValue": "cg-blobs-asa",
+      "metadata": {
+        "description": "The name of the ConsumerGroup for the EventHub."
+      }
     },
     "storageAccountName": {
-      "type": "string"
+      "type": "string",
+      "metadata": {
+        "description": "The name of the storage account to use for long-term storage."
+      }
     },
-    "sharedAccessPolicyPrimaryKey": {
-      "type": "string"
+    "eventHubPrimaryKey": {
+      "type": "string",
+      "metadata": {
+        "description": "The primary key used to send/revice data to/from EventHub."
+      }
     },
-    "sharedAccessPolicySecondaryKey": {
-      "type": "string"
+    "eventHubSecondaryKey": {
+      "type": "string",
+       "metadata": {
+        "description": "The secondary key used to send/revice data to/from EventHub."
+      }
     }
   },
   "variables": {
@@ -84,8 +104,8 @@
                 "KeyName": "SendReceive",
                 "ClaimType": "SharedAccessKey",
                 "ClaimValue": "None",
-                "PrimaryKey": "[parameters('sharedAccessPolicyPrimaryKey')]",
-                "SecondaryKey": "[parameters('sharedAccessPolicySecondaryKey')]",
+                "PrimaryKey": "[parameters('eventHubPrimaryKey')]",
+                "SecondaryKey": "[parameters('eventHubSecondaryKey')]",
                 "Rights": [ 1, 2 ]
               }
             }
@@ -109,7 +129,7 @@
     },
     "SharedAccessPolicyPrimaryKey": {
       "type": "string",
-      "value": "[parameters('sharedAccessPolicyPrimaryKey')]"
+      "value": "[parameters('eventHubPrimaryKey')]"
     },
     "MessageRetentionInDays": {
       "type": "int",
@@ -121,7 +141,7 @@
     },
     "EventHubAmqpConnectionString": {
       "type": "string",
-      "value": "[concat('Endpoint=sb://', parameters('serviceBusNamespaceName'), '.servicebus.windows.net/;SharedAccessKeyName=', variables('sharedAccessPolicyName'), ';SharedAccessKey=', parameters('sharedAccessPolicyPrimaryKey'), ';TransportType=Amqp')]"
+      "value": "[concat('Endpoint=sb://', parameters('serviceBusNamespaceName'), '.servicebus.windows.net/;SharedAccessKeyName=', variables('sharedAccessPolicyName'), ';SharedAccessKey=', parameters('eventHubPrimaryKey'), ';TransportType=Amqp')]"
     },
     "StorageAccountPrimaryKey": {
       "type": "string",

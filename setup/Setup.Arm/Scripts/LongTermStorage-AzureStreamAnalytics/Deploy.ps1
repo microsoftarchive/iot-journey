@@ -7,7 +7,7 @@ Param
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $True)][string]$SubscriptionName,
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $True)][String]$ApplicationName,
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$StorageAccountName =$ApplicationName + "sa",
-    [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$ContainerName = "blobs-asa",
+    [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$BlobContainerName = "blobs-asa",
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$ServiceBusNamespace = $ApplicationName + "sb",
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$EventHubName = "eventhub-iot",
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$ConsumerGroupName  = "cg-blobs-asa",
@@ -38,7 +38,7 @@ PROCESS
     Test-OnlyLettersNumbersAndHyphens "ConsumerGroupName" $ConsumerGroupName
     Test-OnlyLettersNumbersHyphensPeriodsAndUnderscores "EventHubName" $EventHubName
     Test-OnlyLettersNumbersAndHyphens "ServiceBusNamespace" $ServiceBusNamespace
-    Test-OnlyLettersNumbersAndHyphens "ContainerName" $ContainerName
+    Test-OnlyLettersNumbersAndHyphens "ContainerName" $BlobContainerName
     
     Load-Module -ModuleName Config -ModuleLocation $ModulesFolderPath
     Load-Module -ModuleName SettingsWriter -ModuleLocation $ModulesFolderPath
@@ -74,12 +74,13 @@ PROCESS
                                          -eventHubName $EventHubName `
                                          -consumerGroupName $ConsumerGroupName `
                                          -storageAccountNameFromTemplate $StorageAccountName `
-                                         -sharedAccessPolicyPrimaryKey $primaryKey `
-                                         -sharedAccessPolicySecondaryKey $secondaryKey
+                                         -blobContainerName $BlobContainerName `
+                                         -eventHubPrimaryKey $primaryKey `
+                                         -eventHubSecondaryKey $secondaryKey
 
         #Create the container.
         $context = New-AzureStorageContext -StorageAccountName $StorageAccountName -StorageAccountKey $deployInfo.Outputs["storageAccountPrimaryKey"].Value
-        New-StorageContainerIfNotExists -ContainerName $ContainerName -Context $context
+        New-StorageContainerIfNotExists -ContainerName $BlobContainerName -Context $context
     })
 
     #endregion
@@ -90,7 +91,7 @@ PROCESS
         'Simulator.EventHubNamespace'= $deployInfo.Outputs["serviceBusNamespaceName"].Value;
         'Simulator.EventHubName' = $deployInfo.Outputs["eventHubName"].Value;
         'Simulator.EventHubSasKeyName' = $deployInfo.Outputs["sharedAccessPolicyName"].Value;
-        'Simulator.EventHubPrimaryKey' = $deployInfo.Outputs["sharedAccessPolicyPrimaryKey"].Value;
+        'Simulator.EventHubPrimaryKey' = $deployInfo.Outputs["eventHubPrimaryKey"].Value;
         'Simulator.EventHubTokenLifetimeDays' = ($deployInfo.Outputs["messageRetentionInDays"].Value -as [string]);
     }
     

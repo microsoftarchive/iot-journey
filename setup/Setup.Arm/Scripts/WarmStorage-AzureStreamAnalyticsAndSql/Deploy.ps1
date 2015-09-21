@@ -7,7 +7,6 @@ Param
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $True)][string]$SubscriptionName,
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $True)][string]$ApplicationName,
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][string]$StorageAccountName = "$($ApplicationName)sa",
-    [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][string]$ContainerName = "warm-asa",
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][string]$ServiceBusNamespaceName = "$($ApplicationName)sb",
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][string]$EventHubName = "eventhub-iot",
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][string]$ConsumerGroupName = "cg-sql-asa",
@@ -43,7 +42,6 @@ PROCESS
     Test-OnlyLettersNumbersAndHyphens "ConsumerGroupName" $ConsumerGroupName
     Test-OnlyLettersNumbersHyphensPeriodsAndUnderscores "EventHubName" $EventHubName
     Test-OnlyLettersNumbersAndHyphens "ServiceBusNamespace" $ServiceBusNamespaceName
-    Test-OnlyLettersNumbersAndHyphens "ContainerName" $ContainerName
     
     Load-Module -ModuleName Config -ModuleLocation $ModulesFolderPath
     Load-Module -ModuleName SettingsWriter -ModuleLocation $ModulesFolderPath
@@ -73,19 +71,18 @@ PROCESS
     
         New-AzureResourceGroupIfNotExists -ResourceGroupName $ResourceGroupName -Location $Location
         
-        $referenceDataContainerName = "$($ContainerName)-refdata"
+        $referenceDataContainerName = "warm-asa-refdata"
 
         $deployInfo = New-AzureResourceGroupDeployment -ResourceGroupName $ResourceGroupName `
                                                        -Name $DeploymentName `
                                                        -TemplateFile $templatePath `
                                                        -asaJobName $streamAnalyticsJobName `
-                                                       -containerName $ContainerName `
                                                        -storageAccountNameFromTemplate $StorageAccountName `
                                                        -serviceBusNamespaceName $ServiceBusNamespaceName `
                                                        -eventHubName $EventHubName `
                                                        -consumerGroupName $ConsumerGroupName `
-                                                       -sharedAccessPolicyPrimaryKey $primaryKey `
-                                                       -sharedAccessPolicySecondaryKey $secondaryKey `
+                                                       -eventHubPrimaryKey $primaryKey `
+                                                       -eventHubSecondaryKey $secondaryKey `
                                                        -sqlServerName $SqlServerName `
                                                        -sqlServerAdminLogin $SqlServerAdminLogin `
                                                        -sqlServerAdminLoginPassword $SqlServerAdminLoginPassword `
@@ -95,7 +92,6 @@ PROCESS
 
         #Create the container.
         $storageAccountContext = New-AzureStorageContext -StorageAccountName $StorageAccountName -StorageAccountKey $deployInfo.Outputs["storageAccountPrimaryKey"].Value
-        New-StorageContainerIfNotExists -ContainerName $ContainerName -Context $storageAccountContext
         New-StorageContainerIfNotExists -ContainerName $referenceDataContainerName -Context $storageAccountContext
     })
 

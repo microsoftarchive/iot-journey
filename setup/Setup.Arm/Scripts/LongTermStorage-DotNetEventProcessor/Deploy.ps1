@@ -72,8 +72,8 @@ PROCESS
                                          -eventHubName $EventHubName `
                                          -consumerGroupName $ConsumerGroupName `
                                          -storageAccountNameFromTemplate $StorageAccountName `
-                                         -sharedAccessPolicyPrimaryKey $primaryKey `
-                                         -sharedAccessPolicySecondaryKey $secondaryKey
+                                         -eventHubPrimaryKey $primaryKey `
+                                         -eventHubSecondaryKey $secondaryKey
 
         #Create the container.
         $context = New-AzureStorageContext -StorageAccountName $StorageAccountName -StorageAccountKey $deployInfo.Outputs["storageAccountPrimaryKey"].Value

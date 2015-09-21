@@ -3,28 +3,48 @@
   "contentVersion": "1.0.0.0",
   "parameters": {
     "asaJobName": {
-      "type": "string"
-    },
-    "containerName": {
-      "type": "string"
+      "type": "string",
+      "metadata": {
+        "description": "The name of the StreamAnalytics job."
+      }
     },
     "storageAccountName": {
-      "type": "string"
+      "type": "string",
+      "metadata": {
+        "description": "The name of the storage account to use for long-term storage."
+      }
     },
     "serviceBusNamespaceName": {
-      "type": "string"
+      "type": "string",
+      "metadata": {
+        "description": "The name of the ServiceBus namespace."
+      }
     },
     "eventHubName": {
-      "type": "string"
+      "type": "string",
+      "defaultValue": "eventhub-iot",
+      "metadata": {
+        "description": "The name of the EventHub where the events ingress."
+      }
     },
     "consumerGroupName": {
-      "type": "string"
+      "type": "string",
+      "defaultValue": "cg-blobs-asa",
+      "metadata": {
+        "description": "The name of the ConsumerGroup for the EventHub."
+      }
     },
-    "sharedAccessPolicyPrimaryKey": {
-      "type": "string"
+    "eventHubPrimaryKey": {
+      "type": "string",
+      "metadata": {
+        "description": "The primary key used to send/revice data to/from EventHub."
+      }
     },
-    "sharedAccessPolicySecondaryKey": {
-      "type": "string"
+    "eventHubSecondaryKey": {
+      "type": "string",
+      "metadata": {
+        "description": "The secondary key used to send/revice data to/from EventHub."
+      }
     },
     "sqlServerName": {
       "type": "string"
@@ -118,8 +138,8 @@
                 "KeyName": "SendReceive",
                 "ClaimType": "SharedAccessKey",
                 "ClaimValue": "None",
-                "PrimaryKey": "[parameters('sharedAccessPolicyPrimaryKey')]",
-                "SecondaryKey": "[parameters('sharedAccessPolicySecondaryKey')]",
+                "PrimaryKey": "[parameters('eventHubPrimaryKey')]",
+                "SecondaryKey": "[parameters('eventHubSecondaryKey')]",
                 "Rights": [ 1, 2 ]
               }
             }
@@ -168,7 +188,7 @@
                   "eventHubName": "[parameters('eventHubName')]",
                   "serviceBusNamespace": "[variables('serviceBusNamespaceNameLowerCase')]",
                   "sharedAccessPolicyName": "[variables('sharedAccessPolicyName')]",
-                  "sharedAccessPolicyKey": "[parameters('sharedAccessPolicyPrimaryKey')]"
+                  "sharedAccessPolicyKey": "[parameters('eventHubPrimaryKey')]"
                 }
               },
               "serialization": {
@@ -294,7 +314,7 @@
     },
     "SharedAccessPolicyPrimaryKey": {
       "type": "string",
-      "value": "[parameters('sharedAccessPolicyPrimaryKey')]"
+      "value": "[parameters('eventHubPrimaryKey')]"
     },
     "MessageRetentionInDays": {
       "type": "int",
