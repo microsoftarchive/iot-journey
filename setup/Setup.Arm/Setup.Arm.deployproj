@@ -33,7 +33,6 @@
     <None Include="Modules\ResourceManager.psm1" />
     <None Include="Modules\Config.psm1" />
     <None Include="Modules\SettingsWriter.psm1" />
-    <None Include="Modules\SqlHelper.psm1" />
     <None Include="Modules\Storage.psm1" />
     <None Include="Modules\Validation.psm1" />
     <None Include="Scripts\Init.ps1" />
