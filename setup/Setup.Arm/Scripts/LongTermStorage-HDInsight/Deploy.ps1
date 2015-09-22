@@ -7,7 +7,7 @@ Param
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $True)][string]$SubscriptionName,
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $True)][String]$ApplicationName,
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][bool]$AddAccount = $True,
-    [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$ClusterStorageAccountName =$ApplicationName,
+    [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$ClusterStorageAccountName = "$($ApplicationName)sa",
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$ContainerName = "hdinsight",
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][string]$ClusterName =$ApplicationName,
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][string]$ClusterStorageType = "Standard_LRS",
@@ -15,7 +15,7 @@ Param
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $True)][securestring]$ClusterLoginPassword,
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][int]$ClusterWorkerNodeCount = 2,
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][string]$ResourceGroupName = "IoTJourney",
-    [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][string]$DeploymentName = $ResourceGroupName + "Deployment",
+    [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][string]$DeploymentName = "LongTermStorage-HDInsight",
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$Location = "Central US"
 )
 PROCESS

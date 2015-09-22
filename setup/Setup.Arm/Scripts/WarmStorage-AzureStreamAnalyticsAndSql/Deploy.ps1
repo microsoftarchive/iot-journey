@@ -15,7 +15,7 @@ Param
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][string]$SqlDatabaseName = "fabrikamdb",
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $True)][string]$SqlServerAdminLoginPassword,
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][string]$ResourceGroupName = "IoTJourney",
-    [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][string]$DeploymentName = "$($ResourceGroupName)Deployment",
+    [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][string]$DeploymentName = "WarmStorage-AzureStreamAnalyticsAndSql",
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][string]$Location = "Central US",
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][bool]$AddAccount = $True
 )

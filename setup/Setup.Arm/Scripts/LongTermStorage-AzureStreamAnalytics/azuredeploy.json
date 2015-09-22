@@ -197,7 +197,7 @@
         "transformation": {
           "name": "simple-copy",
           "properties": {
-            "streamingUnits": 24,
+            "streamingUnits": 6, //6 is the maximum streaming units in a query without aggregation.
             "query": "SELECT * INTO [long-term-storage] FROM [incoming-events] TIMESTAMP BY TimeObserved;"
           }
         }

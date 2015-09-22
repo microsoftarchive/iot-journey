@@ -6,14 +6,14 @@ Param
 (
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $True)][string]$SubscriptionName,
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $True)][String]$ApplicationName,
-    [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$StorageAccountName =$ApplicationName + "sa",
+    [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$StorageAccountName = "$($ApplicationName)sa",
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$BlobContainerName = "blobs-asa",
-    [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$ServiceBusNamespace = $ApplicationName + "sb",
+    [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$ServiceBusNamespace = "$($ApplicationName)sb",
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$EventHubName = "eventhub-iot",
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$ConsumerGroupName  = "cg-blobs-asa",
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][string]$ResourceGroupName = "IoTJourney",
-    [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][string]$DeploymentName = $ResourceGroupName + "Deployment",
-    [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][bool]$AddAccount =$True,
+    [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][string]$DeploymentName = "LongTermStorage-AzureStreamAnalytics",
+    [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][bool]$AddAccount = $true,
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$Location = "Central US"
 )
 PROCESS
@@ -61,12 +61,13 @@ PROCESS
     $streamAnalyticsJobName = $ApplicationName+"ToBlob"
     $primaryKey = [Microsoft.ServiceBus.Messaging.SharedAccessAuthorizationRule]::GenerateRandomKey()
     $secondaryKey = [Microsoft.ServiceBus.Messaging.SharedAccessAuthorizationRule]::GenerateRandomKey()
+    $deploymentInfo = $null
 
     Invoke-InAzureResourceManagerMode ({
     
         New-AzureResourceGroupIfNotExists -ResourceGroupName $ResourceGroupName -Location $Location
         
-        $deployInfo = New-AzureResourceGroupDeployment -ResourceGroupName $ResourceGroupName `
+        $deploymentInfo = New-AzureResourceGroupDeployment -ResourceGroupName $ResourceGroupName `
                                          -Name $DeploymentName `
                                          -TemplateFile $templatePath `
                                          -asaJobName $streamAnalyticsJobName `
@@ -79,25 +80,15 @@ PROCESS
                                          -eventHubSecondaryKey $secondaryKey
 
         #Create the container.
-        $context = New-AzureStorageContext -StorageAccountName $StorageAccountName -StorageAccountKey $deployInfo.Outputs["storageAccountPrimaryKey"].Value
+        $context = New-AzureStorageContext -StorageAccountName $StorageAccountName -StorageAccountKey $deploymentInfo.Outputs["storageAccountPrimaryKey"].Value
         New-StorageContainerIfNotExists -ContainerName $BlobContainerName -Context $context
     })
 
     #endregion
-    
-    #region Update Settings
+   
+    Push-Location $PSScriptRoot
 
-    $simulatorSettings = @{
-        'Simulator.EventHubNamespace'= $deployInfo.Outputs["serviceBusNamespaceName"].Value;
-        'Simulator.EventHubName' = $deployInfo.Outputs["eventHubName"].Value;
-        'Simulator.EventHubSasKeyName' = $deployInfo.Outputs["sharedAccessPolicyName"].Value;
-        'Simulator.EventHubPrimaryKey' = $deployInfo.Outputs["eventHubPrimaryKey"].Value;
-        'Simulator.EventHubTokenLifetimeDays' = ($deployInfo.Outputs["messageRetentionInDays"].Value -as [string]);
-    }
-    
-    Write-SettingsFile -configurationTemplateFile (Join-Path $PSScriptRoot -ChildPath "..\..\..\..\src\Simulator\ScenarioSimulator.ConsoleHost.Template.config") `
-                       -configurationFile (Join-Path $PSScriptRoot -ChildPath "..\..\..\..\src\Simulator\ScenarioSimulator.ConsoleHost.config") `
-                       -appSettings $simulatorSettings
+        .\Update-Settings.ps1 -SubscriptionName $SubscriptionName -ResourceGroupName $ResourceGroupName -AddAccount $false
 
-    #endregion
+    Pop-Location
 }
