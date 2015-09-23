@@ -93,7 +93,7 @@
                 "[parameters('eventHubName')]"
               ],
               "properties": {
-                "enableCheckpoint": "true"
+                "enableCheckpoint": "false"
               }
             },
             {
@@ -197,7 +197,7 @@
         "transformation": {
           "name": "simple-copy",
           "properties": {
-            "streamingUnits": 6, //6 is the maximum streaming units in a query without aggregation.
+            "streamingUnits": 6,
             "query": "SELECT * INTO [long-term-storage] FROM [incoming-events] TIMESTAMP BY TimeObserved;"
           }
         }

@@ -28,6 +28,12 @@
         "description": "The name of the storage account to use for long-term storage."
       }
     },
+    "containerName": {
+      "type": "string",
+      "metadata": {
+        "description" : "The name of the container for the output. This resource creation is still unsopported in ARM. This paramer is here only to return it as output."
+      }
+    },
     "eventHubPrimaryKey": {
       "type": "string",
       "metadata": {
@@ -36,7 +42,7 @@
     },
     "eventHubSecondaryKey": {
       "type": "string",
-       "metadata": {
+      "metadata": {
         "description": "The secondary key used to send/revice data to/from EventHub."
       }
     }
@@ -89,7 +95,7 @@
                 "[parameters('eventHubName')]"
               ],
               "properties": {
-                "enableCheckpoint": "true"
+                "enableCheckpoint": "false"
               }
             },
             {
@@ -146,6 +152,14 @@
     "StorageAccountPrimaryKey": {
       "type": "string",
       "value": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName')), '2015-05-01-preview').key1]"
+    },
+    "ConsumerGroupName": {
+      "type": "string",
+      "value": "[parameters('consumerGroupName')]"
+    },
+    "ContainerName": {
+      "type": "string",
+      "value": "[parameters('containerName')]"
     }
   }
 }

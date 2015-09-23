@@ -123,7 +123,7 @@
                 "[parameters('eventHubName')]"
               ],
               "properties": {
-                "enableCheckpoint": "true"
+                "enableCheckpoint": "false"
               }
             },
             {
@@ -246,7 +246,7 @@
         "transformation": {
           "name": "average-temperature",
           "properties": {
-            "streamingUnits": 24,
+            "streamingUnits": 6,
             "query": "SELECT AVG(I1.Temperature) as Temperature, Max(I1.TimeObserved) as LastObservedTime, I2.BuildingId \r\nINTO [warm-storage-sql] \r\nFROM [incoming-events] I1 TIMESTAMP BY TimeObserved \r\nJOIN [reference-data] I2 On I1.DeviceId = I2.DeviceId  \r\nGROUP BY TumblingWindow(s,5), I2.BuildingId"
           }
         }

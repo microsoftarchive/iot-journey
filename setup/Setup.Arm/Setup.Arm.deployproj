@@ -43,12 +43,14 @@
     <None Include="Scripts\LongTermStorage-DotNetEventProcessor\Deploy.ps1" />
     <None Include="Scripts\LongTermStorage-DotNetEventProcessor\azuredeploy.json" />
     <None Include="Scripts\LongTermStorage-DotNetEventProcessor\metadata.json" />
+    <None Include="Scripts\LongTermStorage-DotNetEventProcessor\Update-Settings.ps1" />
     <None Include="Scripts\LongTermStorage-HDInsight\Deploy.ps1" />
     <None Include="Scripts\LongTermStorage-HDInsight\azuredeploy.json" />
     <None Include="Scripts\LongTermStorage-HDInsight\metadata.json" />
     <None Include="Scripts\WarmStorage-AzureStreamAnalyticsAndSql\azuredeploy.json" />
     <None Include="Scripts\WarmStorage-AzureStreamAnalyticsAndSql\Deploy.ps1" />
     <None Include="Scripts\WarmStorage-AzureStreamAnalyticsAndSql\metadata.json" />
+    <None Include="Scripts\WarmStorage-AzureStreamAnalyticsAndSql\Update-Settings.ps1" />
     <None Include="Scripts\WarmStorage-DotNetEventProcessor\azuredeploy.json" />
     <None Include="Scripts\WarmStorage-DotNetEventProcessor\Deploy.ps1" />
     <None Include="Scripts\WarmStorage-DotNetEventProcessor\metadata.json" />

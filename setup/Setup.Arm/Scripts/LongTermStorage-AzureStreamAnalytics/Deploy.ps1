@@ -51,8 +51,6 @@ PROCESS
     }
     
     Select-AzureSubscription $SubscriptionName
-   
-    #region Create Resources
 
     $Configuration = Get-Configuration
     Add-Library -LibraryName "Microsoft.ServiceBus.dll" -Location $Configuration.PackagesFolderPath
@@ -83,12 +81,10 @@ PROCESS
         $context = New-AzureStorageContext -StorageAccountName $StorageAccountName -StorageAccountKey $deploymentInfo.Outputs["storageAccountPrimaryKey"].Value
         New-StorageContainerIfNotExists -ContainerName $BlobContainerName -Context $context
     })
-
-    #endregion
    
     Push-Location $PSScriptRoot
 
-        .\Update-Settings.ps1 -SubscriptionName $SubscriptionName -ResourceGroupName $ResourceGroupName -AddAccount $false
+        .\Update-Settings.ps1 -SubscriptionName $SubscriptionName -ResourceGroupName $ResourceGroupName -DeploymentName $DeploymentName -AddAccount $false
 
     Pop-Location
 }

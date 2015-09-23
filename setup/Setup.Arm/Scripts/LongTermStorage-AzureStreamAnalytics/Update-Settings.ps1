@@ -6,6 +6,7 @@ Param
 (
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $True)][string]$SubscriptionName,
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][string]$ResourceGroupName = "IoTJourney",
+    [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][string]$DeploymentName = "LongTermStorage-AzureStreamAnalytics",
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][bool]$AddAccount = $true
 )
 PROCESS
@@ -30,7 +31,7 @@ PROCESS
 
     $deploymentInfo = $null
     Invoke-InAzureResourceManagerMode ({
-        $deploymentInfo = Get-AzureResourceGroupDeployment -ResourceGroupName $ResourceGroupName  -Name "LongTermStorage-AzureStreamAnalytics"
+        $deploymentInfo = Get-AzureResourceGroupDeployment -ResourceGroupName $ResourceGroupName  -Name $DeploymentName
     })
 
     #update Simulator settings
