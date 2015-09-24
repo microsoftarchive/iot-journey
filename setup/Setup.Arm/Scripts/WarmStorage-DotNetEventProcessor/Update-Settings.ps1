@@ -6,7 +6,7 @@ Param
 (
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $True)][string]$SubscriptionName,
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][string]$ResourceGroupName = "IoTJourney",
-    [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][string]$DeploymentName = "WarmStorage-AzureStreamAnalyticsAndSql",
+    [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][string]$DeploymentName = "WarmStorage-DotNetEventProcessor",
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][bool]$AddAccount = $true
 )
 PROCESS
@@ -46,4 +46,28 @@ PROCESS
     Write-SettingsFile -configurationTemplateFile (Join-Path $PSScriptRoot -ChildPath "..\..\..\..\src\Simulator\ScenarioSimulator.ConsoleHost.Template.config") `
                        -configurationFile (Join-Path $PSScriptRoot -ChildPath "..\..\..\..\src\Simulator\ScenarioSimulator.ConsoleHost.config") `
                        -appSettings $simulatorSettings
+    
+    #cloud services settings
+    $serviceConfigFiles = Get-ChildItem -Include "ServiceConfiguration.Cloud.cscfg" -Path $(Join-Path $PSScriptRoot -ChildPath "..\..\..\..\src\Simulator") -Recurse
+    Write-CloudSettingsFiles -serviceConfigFiles $serviceConfigFiles -appSettings $simulatorSettings
+
+    $eventHubAmqpConnectionString = $deploymentInfo.Outputs["eventHubAmqpConnectionString"].Value
+    $storageAccountConnectionString = $deploymentInfo.Outputs["storageAccountConnectionString"].Value
+
+    $settings = @{
+        'Warmstorage.CheckpointStorageAccount' = $storageAccountConnectionString;
+        'Warmstorage.EventHubConnectionString' = $eventHubAmqpConnectionString;
+        'Warmstorage.EventHubName' = $deploymentInfo.Outputs["eventHubName"].Value;
+        'Warmstorage.ConsumerGroupName' = $deploymentInfo.Outputs["consumerGroupName"].Value;
+    }
+
+    Write-SettingsFile -configurationTemplateFile (Join-Path $PSScriptRoot -ChildPath "..\..\..\..\src\AdhocExploration\DotnetEventProcessor\WarmStorage.EventProcessor.ConsoleHost.Template.config") `
+                       -configurationFile (Join-Path $PSScriptRoot -ChildPath "..\..\..\..\src\AdhocExploration\DotnetEventProcessor\WarmStorage.EventProcessor.ConsoleHost.config") `
+                       -appSettings $settings
+
+    $serviceConfigFiles = Get-ChildItem -Include "ServiceConfiguration.Cloud.cscfg" -Path $(Join-Path $PSScriptRoot -ChildPath "..\..\..\..\src\AdhocExploration\DotnetEventProcessor") -Recurse
+    Write-CloudSettingsFiles -serviceConfigFiles $serviceConfigFiles -appSettings $settings
+
+    Write-Warning "This scenario requires Elastich Search installed to run which is not provisioned with this script."
+    Write-Output "Provision Finished OK"
 }

@@ -116,5 +116,9 @@ PROCESS
                   -Username $SqlServerAdminLogin `
                   -Password $SqlServerAdminLoginPassword
 
+    Push-Location $PSScriptRoot
 
+        .\Update-Settings.ps1 -SubscriptionName $SubscriptionName -ResourceGroupName $ResourceGroupName -DeploymentName $DeploymentName -AddAccount $false
+
+    Pop-Location
 }

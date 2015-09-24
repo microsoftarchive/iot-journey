@@ -54,6 +54,7 @@
     <None Include="Scripts\WarmStorage-DotNetEventProcessor\azuredeploy.json" />
     <None Include="Scripts\WarmStorage-DotNetEventProcessor\Deploy.ps1" />
     <None Include="Scripts\WarmStorage-DotNetEventProcessor\metadata.json" />
+    <None Include="Scripts\WarmStorage-DotNetEventProcessor\Update-Settings.ps1" />
   </ItemGroup>
   <Target Name="GetReferenceAssemblyPaths" />
 </Project>

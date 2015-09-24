@@ -53,8 +53,6 @@ PROCESS
 
     Select-AzureSubscription $SubscriptionName
 
-    #region Create Resources
-
     $Configuration = Get-Configuration
     Add-Library -LibraryName "Microsoft.ServiceBus.dll" -Location $Configuration.PackagesFolderPath
 
@@ -92,46 +90,9 @@ PROCESS
                                 -Context $storageAccountContext `
                                 -Force
 
-    #endregion
+    Push-Location $PSScriptRoot
 
-    #region Update Settings
+        .\Update-Settings.ps1 -SubscriptionName $SubscriptionName -ResourceGroupName $ResourceGroupName -DeploymentName $DeploymentName -AddAccount $false
 
-    #simulator settings
-    $simulatorSettings = @{
-        'Simulator.EventHubNamespace'= $deployInfo.Outputs["serviceBusNamespaceName"].Value;
-        'Simulator.EventHubName' = $deployInfo.Outputs["eventHubName"].Value;
-        'Simulator.EventHubSasKeyName' = $deployInfo.Outputs["sharedAccessPolicyName"].Value;
-        'Simulator.EventHubPrimaryKey' = $deployInfo.Outputs["sharedAccessPolicyPrimaryKey"].Value;
-        'Simulator.EventHubTokenLifetimeDays' = ($deployInfo.Outputs["messageRetentionInDays"].Value -as [string]);
-    }
-    
-    Write-SettingsFile -configurationTemplateFile (Join-Path $PSScriptRoot -ChildPath "..\..\..\..\src\Simulator\ScenarioSimulator.ConsoleHost.Template.config") `
-                       -configurationFile (Join-Path $PSScriptRoot -ChildPath "..\..\..\..\src\Simulator\ScenarioSimulator.ConsoleHost.config") `
-                       -appSettings $simulatorSettings
-    
-    #cloud services settings
-    $serviceConfigFiles = Get-ChildItem -Include "ServiceConfiguration.Cloud.cscfg" -Path $(Join-Path $PSScriptRoot -ChildPath "..\..\..\..\src\Simulator") -Recurse
-    Write-CloudSettingsFiles -serviceConfigFiles $serviceConfigFiles -appSettings $simulatorSettings
-
-    $eventHubAmqpConnectionString = $deployInfo.Outputs["eventHubAmqpConnectionString"].Value
-    $storageAccountConnectionString = $deployInfo.Outputs["storageAccountConnectionString"].Value
-
-    $settings = @{
-        'Warmstorage.CheckpointStorageAccount' = $storageAccountConnectionString;
-        'Warmstorage.EventHubConnectionString' = $eventHubAmqpConnectionString;
-        'Warmstorage.EventHubName' = $deployInfo.Outputs["eventHubName"].Value;
-        'Warmstorage.ConsumerGroupName' = $ConsumerGroupName;
-    }
-
-    Write-SettingsFile -configurationTemplateFile (Join-Path $PSScriptRoot -ChildPath "..\..\..\..\src\AdhocExploration\DotnetEventProcessor\WarmStorage.EventProcessor.ConsoleHost.Template.config") `
-                       -configurationFile (Join-Path $PSScriptRoot -ChildPath "..\..\..\..\src\AdhocExploration\DotnetEventProcessor\WarmStorage.EventProcessor.ConsoleHost.config") `
-                       -appSettings $settings
-
-    $serviceConfigFiles = Get-ChildItem -Include "ServiceConfiguration.Cloud.cscfg" -Path $(Join-Path $PSScriptRoot -ChildPath "..\..\..\..\src\AdhocExploration\DotnetEventProcessor") -Recurse
-    Write-CloudSettingsFiles -serviceConfigFiles $serviceConfigFiles -appSettings $settings
-
-    Write-Warning "This scenario requires Elastich Search installed to run which is not provisioned with this script."
-    Write-Output "Provision Finished OK"
-
-    #endregion
+    Pop-Location
 }

@@ -140,6 +140,10 @@
     "StorageAccountPrimaryKey": {
       "type": "string",
       "value": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName')), '2015-05-01-preview').key1]"
+    },
+    "ConsumerGroupName": {
+      "type": "string",
+      "value": "[parameters('consumerGroupName')]"
     }
   }
 }
