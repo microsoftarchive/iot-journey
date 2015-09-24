@@ -85,7 +85,7 @@
     "serviceBusNamespaceNameLowerCase": "[toLower(parameters('serviceBusNamespaceName'))]",
     "sqlServerNameLowerCase": "[toLower(parameters('sqlServerName'))]",
     "location": "[resourceGroup().location]",
-    "eventHubPartitionCount": 16,
+    "partitionCount": 16,
     "pathPrefixPattern": "",
     "sharedAccessPolicyName": "SendReceive",
     "messageRetentionInDays": 7,
@@ -111,7 +111,7 @@
           ],
           "properties": {
             "path": "[parameters('eventHubName')]",
-            "eventHubPartitionCount": "[variables('eventHubPartitionCount')]",
+            "partitionCount": "[variables('partitionCount')]",
             "messageRetentionInDays": "[variables('messageRetentionInDays')]"
           },
           "resources": [
