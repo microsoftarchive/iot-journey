@@ -40,8 +40,8 @@
     <None Include="Scripts\LongTermStorage-AzureStreamAnalytics\Deploy.ps1" />
     <None Include="Scripts\LongTermStorage-AzureStreamAnalytics\metadata.json" />
     <None Include="Scripts\LongTermStorage-AzureStreamAnalytics\Update-Settings.ps1" />
-    <None Include="Scripts\LongTermStorage-DotNetEventProcessor\Deploy.ps1" />
     <None Include="Scripts\LongTermStorage-DotNetEventProcessor\azuredeploy.json" />
+    <None Include="Scripts\LongTermStorage-DotNetEventProcessor\Deploy.ps1" />
     <None Include="Scripts\LongTermStorage-DotNetEventProcessor\metadata.json" />
     <None Include="Scripts\LongTermStorage-DotNetEventProcessor\Update-Settings.ps1" />
     <None Include="Scripts\LongTermStorage-HDInsight\Deploy.ps1" />

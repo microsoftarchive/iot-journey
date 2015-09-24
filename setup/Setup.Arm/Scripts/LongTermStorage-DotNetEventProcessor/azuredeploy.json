@@ -17,7 +17,7 @@
     },
     "consumerGroupName": {
       "type": "string",
-      "defaultValue": "cg-blobs-asa",
+      "defaultValue": "cg-blobs",
       "metadata": {
         "description": "The name of the ConsumerGroup for the EventHub."
       }
