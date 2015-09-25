@@ -47,6 +47,10 @@
     <None Include="Scripts\LongTermStorage-HDInsight\Deploy.ps1" />
     <None Include="Scripts\LongTermStorage-HDInsight\azuredeploy.json" />
     <None Include="Scripts\LongTermStorage-HDInsight\metadata.json" />
+    <None Include="Scripts\ProvisioningWebApi\azuredeploy.json" />
+    <None Include="Scripts\ProvisioningWebApi\Deploy.ps1" />
+    <None Include="Scripts\ProvisioningWebApi\metadata.json" />
+    <None Include="Scripts\ProvisioningWebApi\Update-Settings.ps1" />
     <None Include="Scripts\WarmStorage-AzureStreamAnalyticsAndSql\azuredeploy.json" />
     <None Include="Scripts\WarmStorage-AzureStreamAnalyticsAndSql\Deploy.ps1" />
     <None Include="Scripts\WarmStorage-AzureStreamAnalyticsAndSql\metadata.json" />

@@ -10,10 +10,8 @@ Param
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$StorageAccountName = "$($ApplicationName)sa",
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$ServiceBusNamespace = "$($ApplicationName)sb",
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$EventHubName = "eventhub-iot",
-    [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$ConsumerGroupName  = "cg-blobs",
-    [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$ContainerName = "blobs-processor",
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][string]$ResourceGroupName = "IoTJourney",
-    [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][string]$DeploymentName = "LongTermStorage-DotNetEventProcessor",
+    [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][string]$DeploymentName = "ProvisioningWebApi",
     [ValidateNotNullOrEmpty()][Parameter (Mandatory = $False)][String]$Location = "Central US"
 )
 PROCESS
@@ -35,10 +33,8 @@ PROCESS
 
     # Validate input.
     Test-OnlyLettersAndNumbers "StorageAccountName" $StorageAccountName
-    Test-OnlyLettersNumbersAndHyphens "ConsumerGroupName" $ConsumerGroupName
     Test-OnlyLettersNumbersHyphensPeriodsAndUnderscores "EventHubName" $EventHubName
     Test-OnlyLettersNumbersAndHyphens "ServiceBusNamespace" $ServiceBusNamespace
-    Test-OnlyLettersNumbersAndHyphens "ContainerName" $ContainerName
 
     # Load modules.
     Load-Module -ModuleName Config -ModuleLocation $ModulesFolderPath
@@ -69,15 +65,9 @@ PROCESS
                                          -TemplateFile $templatePath `
                                          -serviceBusNamespaceName $ServiceBusNamespace `
                                          -eventHubName $EventHubName `
-                                         -consumerGroupName $ConsumerGroupName `
                                          -storageAccountNameFromTemplate $StorageAccountName `
-                                         -containerName $ContainerName `
                                          -eventHubPrimaryKey $primaryKey `
                                          -eventHubSecondaryKey $secondaryKey
-
-        #Create the container.
-        $context = New-AzureStorageContext -StorageAccountName $StorageAccountName -StorageAccountKey $deployInfo.Outputs["storageAccountPrimaryKey"].Value
-        New-StorageContainerIfNotExists -ContainerName $ContainerName -Context $context
     })
     
     Push-Location $PSScriptRoot
