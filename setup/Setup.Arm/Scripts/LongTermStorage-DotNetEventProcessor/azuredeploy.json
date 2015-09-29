@@ -112,7 +112,8 @@
                 "ClaimValue": "None",
                 "PrimaryKey": "[parameters('eventHubPrimaryKey')]",
                 "SecondaryKey": "[parameters('eventHubSecondaryKey')]",
-                "Rights": [ 1, 2 ]
+                "Rights": [ 1, 2 ],
+                "Revision": -1
               }
             }
           ]
