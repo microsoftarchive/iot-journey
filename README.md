@@ -6,7 +6,8 @@ _An exploration into building a solution in the cloud_
 
 [![Join the chat at https://gitter.im/mspnp/iot-journey](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/mspnp/iot-journey?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-**There will be limited activity on this project until late September 2015.**
+**We are in the process of incorporating [Azure IoT Hub](https://azure.microsoft.com/en-us/documentation/services/iot-hub/) and [Azure IoT Suite](https://www.azureiotsuite.com/) into this content. 
+We expect to have updated content in November 2015.***
 
 ## Why
 
