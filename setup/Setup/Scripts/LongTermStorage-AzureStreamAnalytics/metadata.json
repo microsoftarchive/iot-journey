@@ -1,0 +1,7 @@
+﻿{
+  "itemDisplayName": "LongTermStorage-AzureStreamAnalytics",
+  "description": "This template creates the required resources to deploy the LongTermStorage-AzureStreamAnalytics scenario.",
+  "summary": "This scenario has the purpose to show how to process events from EventHub and store them into blobs using StreamAnalytics.",
+  "githubUsername": "mspnp",
+  "dateUpdated": "2015-09-21"
+}

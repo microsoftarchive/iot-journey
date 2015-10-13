@@ -1,0 +1,150 @@
+﻿{
+  "$schema": "http://schema.management.azure.com/schemas/2014-04-01-preview/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "serviceBusNamespaceName": {
+      "type": "string",
+      "metadata": {
+        "description": "The name of the ServiceBus namespace."
+      }
+    },
+    "eventHubName": {
+      "type": "string",
+      "defaultValue": "eventhub-iot",
+      "metadata": {
+        "description": "The name of the EventHub where the events ingress."
+      }
+    },
+    "consumerGroupName": {
+      "type": "string",
+      "defaultValue": "cg-blobs-asa",
+      "metadata": {
+        "description": "The name of the ConsumerGroup for the EventHub."
+      }
+    },
+    "storageAccountName": {
+      "type": "string",
+      "metadata": {
+        "description": "The name of the storage account to use for long-term storage."
+      }
+    },
+    "eventHubPrimaryKey": {
+      "type": "string"
+    },
+    "eventHubSecondaryKey": {
+      "type": "string"
+    }
+  },
+  "variables": {
+    "location": "[resourceGroup().location]",
+    "partitionCount": 16,
+    "messageRetentionInDays": 7,
+    "sharedAccessPolicyName": "SendReceive"
+  },
+  "resources": [
+    /* Storage Account to use for out of DotNetEventProcessor */
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "name": "[parameters('storageAccountName')]",
+      "apiVersion": "2015-05-01-preview",
+      "location": "[variables('location')]",
+      "properties": {
+        "accountType": "Standard_LRS"
+      }
+    },
+    /* EventHub */
+    {
+      "apiVersion": "2014-09-01",
+      "name": "[parameters('serviceBusNamespaceName')]",
+      "type": "Microsoft.EventHub/namespaces",
+      "location": "[variables('location')]",
+      "properties": {
+        "region": "[variables('location')]"
+      },
+      "resources": [
+        {
+          "apiVersion": "2014-09-01",
+          "name": "[parameters('eventHubName')]",
+          "type": "eventHubs",
+          "dependsOn": [
+            "[parameters('serviceBusNamespaceName')]"
+          ],
+          "properties": {
+            "path": "[parameters('eventHubName')]",
+            "partitionCount": "[variables('partitionCount')]",
+            "messageRetentionInDays": "[variables('messageRetentionInDays')]"
+          },
+          "resources": [
+            {
+              "apiVersion": "2014-09-01",
+              "name": "[parameters('consumerGroupName')]",
+              "type": "consumergroups",
+              "dependsOn": [
+                "[parameters('eventHubName')]"
+              ],
+              "properties": {
+                "enableCheckpoint": "false"
+              }
+            },
+            {
+              "apiVersion": "2014-09-01",
+              "name": "[concat(parameters('serviceBusNamespaceName'),'/SendReceive')]",
+              "type": "Microsoft.EventHub/namespaces/authorizationRules",
+              "dependsOn": [
+                "[parameters('eventHubName')]"
+              ],
+              "location": "[variables('location')]",
+              "properties": {
+                "KeyName": "SendReceive",
+                "ClaimType": "SharedAccessKey",
+                "ClaimValue": "None",
+                "PrimaryKey": "[parameters('eventHubPrimaryKey')]",
+                "SecondaryKey": "[parameters('eventHubSecondaryKey')]",
+                "Rights": [ 1, 2 ],
+                "Revision": -1
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "outputs": {
+    "ServiceBusNamespaceName": {
+      "type": "string",
+      "value": "[parameters('serviceBusNamespaceName')]"
+    },
+    "EventHubName": {
+      "type": "string",
+      "value": "[parameters('eventHubName')]"
+    },
+    "SharedAccessPolicyName": {
+      "type": "string",
+      "value": "[variables('sharedAccessPolicyName')]"
+    },
+    "SharedAccessPolicyPrimaryKey": {
+      "type": "string",
+      "value": "[parameters('eventHubPrimaryKey')]"
+    },
+    "MessageRetentionInDays": {
+      "type": "int",
+      "value": "[variables('messageRetentionInDays')]"
+    },
+    "StorageAccountConnectionString": {
+      "type": "string",
+      "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', parameters('storageAccountName'), ';AccountKey=', listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName')), '2015-05-01-preview').key1)]"
+    },
+    "EventHubAmqpConnectionString": {
+      "type": "string",
+      "value": "[concat('Endpoint=sb://', parameters('serviceBusNamespaceName'), '.servicebus.windows.net/;SharedAccessKeyName=', variables('sharedAccessPolicyName'), ';SharedAccessKey=', parameters('eventHubPrimaryKey'), ';TransportType=Amqp')]"
+    },
+    "StorageAccountPrimaryKey": {
+      "type": "string",
+      "value": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName')), '2015-05-01-preview').key1]"
+    },
+    "ConsumerGroupName": {
+      "type": "string",
+      "value": "[parameters('consumerGroupName')]"
+    }
+  }
+}

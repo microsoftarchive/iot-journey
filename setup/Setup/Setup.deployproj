@@ -1,0 +1,64 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|AnyCPU">
+      <Configuration>Debug</Configuration>
+      <Platform>AnyCPU</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|AnyCPU">
+      <Configuration>Release</Configuration>
+      <Platform>AnyCPU</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>0eaad7fc-706b-40c5-8ca2-b4ac30b51401</ProjectGuid>
+  </PropertyGroup>
+  <PropertyGroup>
+    <TargetFrameworkIdentifier>Deployment</TargetFrameworkIdentifier>
+    <TargetFrameworkVersion>1.0</TargetFrameworkVersion>
+    <PrepareForBuildDependsOn>
+    </PrepareForBuildDependsOn>
+  </PropertyGroup>
+  <Import Condition=" Exists('Deployment.targets') " Project="Deployment.targets" />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" />
+  <!-- vertag<:>start tokens<:>maj.min -->
+  <Import Condition=" Exists('$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Deployment\1.1\DeploymentProject.targets') " Project="$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Deployment\1.1\DeploymentProject.targets" />
+  <!-- vertag<:>end -->
+  <ItemGroup>
+    <None Include="Data\CreateSqlDatabase_Schema.sql" />
+    <None Include="Data\fabrikam_buildingdevice.json" />
+    <None Include="Deployment.targets">
+      <Visible>False</Visible>
+    </None>
+    <None Include="Modules\ResourceManager.psm1" />
+    <None Include="Modules\Config.psm1" />
+    <None Include="Modules\SettingsWriter.psm1" />
+    <None Include="Modules\Storage.psm1" />
+    <None Include="Modules\Validation.psm1" />
+    <None Include="Scripts\Init.ps1" />
+    <None Include="Scripts\LongTermStorage-AzureStreamAnalytics\azuredeploy.json" />
+    <None Include="Scripts\LongTermStorage-AzureStreamAnalytics\Deploy.ps1" />
+    <None Include="Scripts\LongTermStorage-AzureStreamAnalytics\metadata.json" />
+    <None Include="Scripts\LongTermStorage-AzureStreamAnalytics\Update-Settings.ps1" />
+    <None Include="Scripts\LongTermStorage-DotNetEventProcessor\azuredeploy.json" />
+    <None Include="Scripts\LongTermStorage-DotNetEventProcessor\Deploy.ps1" />
+    <None Include="Scripts\LongTermStorage-DotNetEventProcessor\metadata.json" />
+    <None Include="Scripts\LongTermStorage-DotNetEventProcessor\Update-Settings.ps1" />
+    <None Include="Scripts\LongTermStorage-HDInsight\Deploy.ps1" />
+    <None Include="Scripts\LongTermStorage-HDInsight\azuredeploy.json" />
+    <None Include="Scripts\LongTermStorage-HDInsight\metadata.json" />
+    <None Include="Scripts\ProvisioningWebApi\azuredeploy.json" />
+    <None Include="Scripts\ProvisioningWebApi\Deploy.ps1" />
+    <None Include="Scripts\ProvisioningWebApi\metadata.json" />
+    <None Include="Scripts\ProvisioningWebApi\Update-Settings.ps1" />
+    <None Include="Scripts\WarmStorage-AzureStreamAnalyticsAndSql\azuredeploy.json" />
+    <None Include="Scripts\WarmStorage-AzureStreamAnalyticsAndSql\Deploy.ps1" />
+    <None Include="Scripts\WarmStorage-AzureStreamAnalyticsAndSql\metadata.json" />
+    <None Include="Scripts\WarmStorage-AzureStreamAnalyticsAndSql\Update-Settings.ps1" />
+    <None Include="Scripts\WarmStorage-DotNetEventProcessor\azuredeploy.json" />
+    <None Include="Scripts\WarmStorage-DotNetEventProcessor\Deploy.ps1" />
+    <None Include="Scripts\WarmStorage-DotNetEventProcessor\metadata.json" />
+    <None Include="Scripts\WarmStorage-DotNetEventProcessor\Update-Settings.ps1" />
+  </ItemGroup>
+  <Target Name="GetReferenceAssemblyPaths" />
+</Project>

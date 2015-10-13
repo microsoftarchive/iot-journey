@@ -1,0 +1,7 @@
+﻿{
+  "itemDisplayName": "WarmStorage-AzureStreamAnalytics",
+  "description": "This template creates the required resources to deploy the WarmStorage-AzureStreamAnalytics scenario.",
+  "summary": "This scenario has the purpose to show how to process events from EventHub, aggregate and store them into SQL Server using StreamAnalytics.",
+  "githubUsername": "mspnp",
+  "dateUpdated": "2015-09-21"
+}

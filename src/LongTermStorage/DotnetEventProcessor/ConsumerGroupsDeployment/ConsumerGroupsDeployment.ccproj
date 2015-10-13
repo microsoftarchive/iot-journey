@@ -5,7 +5,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>2.7</ProductVersion>
-    <ProjectGuid>{0ed001ae-19de-407c-be6d-94b80c4f3072}</ProjectGuid>
+    <ProjectGuid>{63c3934d-9464-4511-a8b2-c578e1623add}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>ConsumerGroupsDeployment</RootNamespace>

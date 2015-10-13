@@ -5,8 +5,8 @@ function Get-Configuration
 {
     #All paths are relative to modules folder.
     @{
-        "PackagesFolderPath" = Join-Path -Path $PSScriptRoot -ChildPath "..\..\src\packages";
-        "SourceFolderPath" = Join-Path -Path $PSScriptRoot -ChildPath "..\..\src";
+        "PackagesFolderPath" = Join-Path -Path $PSScriptRoot -ChildPath "..\..\..\src\packages";
+        "SourceFolderPath" = Join-Path -Path $PSScriptRoot -ChildPath "..\..\..\src";
     }
 }
 
