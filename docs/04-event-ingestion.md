@@ -12,9 +12,9 @@ Getting events into the system is the most basic task for an IoT solution, and y
 
 Here are some common requirements for event ingestion in an IoT solution:
 
-- Authentication. Only authenticated devices can send data. (Provisioning devices is a separate scenario, although closely related.)
-- Achieving scale. That means both hitting the expected target data rate, but also designing the system to be scalable in the future.
-- Protecting the data stream.
+- *Authentication*. Only authenticated and authorized devices can send data, and will only publish data to validated endpoints (i.e. confirming that the endpoint you are connecting to has not been spoofed, etc).  Provisoning new devices is typically a separate scenario with different credentials and access).
+- *Achieving scale*. That means hitting the expected target data rate (without an unacceptable degredation in reliability or latency), but also designing the system to be scalable as the number of devices and messages increase over time.  This specifically includes being able to handle load spikes (including gracefully handling situations such as every device deciding to reconnect or publish data simultaneously).
+- *Protecting the data stream*.  Messages and data packets sent from devices will often pass through many intermediate systemss and services (including the public internet).  It is important to protect the data stream from end to end with the appropriate security, encryption and signatures suited to the scenario and sensitivity of the data and devices.
   
 ## Fabrikam requirements
 
@@ -22,14 +22,14 @@ Here are some common requirements for event ingestion in an IoT solution:
 
 Here are some specific requirements for our scenario:
 
-- As an initial target, the system must handle up to 100,000 devices, each device sending 1 reading every minute. That's approximately 1,667 events per second. This is a minimum load &mdash; the system should be scalable beyond this target. 
-- The event data stream must be protected. This means not only securing the content of the events, but also masking the *absence* of events. For example, if the motion detectors in a house are not streaming any events, an attacker can conclude that nobody is home.
-- Several processing components will sit downstream from event ingestion. (See [Long-term storage] and [Ad hoc exploration].) The system must be designed so these components will not introduce delays in the rest of the system.
--  Related to the previous point, a failure in one of the downstream processing components should not cause event ingestion to fail.
+- As an initial target, the system must handle up to 100,000 devices, each device sending 1 reading every minute. That's approximately 1,667 events per second. This is a minimum load &mdash; the system should be scalable beyond this target, as this assumes absolutely even distribution.  In the case that the firmware is designed that the publication of a particular event is tied to a periodic time cycle, all devices could end up publishing simultaneously). 
+- The event data stream must be protected. This means not only securing the content of the events, but also masking the *absence* of events (depending on the sensitivity of the data stream and its contents). For example, in a home security scenario, if the motion detectors in a house are not streaming any events, an attacker with access to the data stream can conclude that nobody is home even if the data stream itself is encrypted.
+- Several processing components will sit downstream from event ingestion. (See [Long-term storage] and [Ad hoc exploration].) The system must be designed so these components will not introduce backpressure and delays in the rest of the system.
+-  Related to the previous point, a failure in one of the downstream processing components should not cause event ingestion to fail (or cause failures in other processing components).
 
 ## Exploring solutions 
 
-Event **ingestion** and event **processing** are somewhat related. How the system ingests the events may limit the options for processing. We investigated the following options.   
+Event **ingestion** and event **processing** are somewhat related. How the system ingests the events may limit the options for processing. We investigated the following options, not all of which are practical for production, scaled deployments.   
 
 - HTTP service
 - Azure Service Bus topics + message subscriber
