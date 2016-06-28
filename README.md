@@ -4,10 +4,8 @@ _An exploration into building a solution in the cloud_
 
 [![Build status](https://ci.appveyor.com/api/projects/status/7oj0ufqarqmgfqim/branch/master?svg=true)](https://ci.appveyor.com/project/mspnp/iot-journey)
 
-[![Join the chat at https://gitter.im/mspnp/iot-journey](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/mspnp/iot-journey?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-
-**We are in the process of incorporating [Azure IoT Hub](https://azure.microsoft.com/en-us/documentation/services/iot-hub/) and [Azure IoT Suite](https://www.azureiotsuite.com/) into this content. 
-We expect to have updated content in November 2015.***
+:memo: **This project is currently on hold.** 
+Please see the  [**Azure IoT Hub**](https://azure.microsoft.com/en-us/documentation/services/iot-hub/) and [Azure IoT Suite](https://www.azureiotsuite.com/) for Microsoft's latest offerings in this space. 
 
 ## Why
 
@@ -54,11 +52,9 @@ If you feel that there is anything more that we can do to make this guidance acc
 
 ## Problems, Concerns, and Feedback
 If something doesn't make sense, start with the [FAQ](FAQ.md).
-If that doesn't help join the conversation on gitter or open an issues.
+If that doesn't help, open an issue.
 If you want to contribute directly, please review our
 [contribution guidelines](CONTRIBUTING.md).
-
-[![Join the chat at https://gitter.im/mspnp/iot-journey](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/mspnp/iot-journey?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 | Current Backlog Status 
 | :------
