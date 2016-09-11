@@ -1,10 +1,7 @@
-![Microsoft patterns & practices](http://pnp.azurewebsites.net/images/pnp-logo.png)
 # IoT Journey
 _An exploration into building a solution in the cloud_
 
-[![Build status](https://ci.appveyor.com/api/projects/status/7oj0ufqarqmgfqim/branch/master?svg=true)](https://ci.appveyor.com/project/mspnp/iot-journey)
-
-:memo: **This project is currently on hold.** 
+:memo: **This project is not under active development.** 
 Please see the  [**Azure IoT Hub**](https://azure.microsoft.com/en-us/documentation/services/iot-hub/) and [Azure IoT Suite](https://www.azureiotsuite.com/) for Microsoft's latest offerings in this space. 
 
 ## Why
