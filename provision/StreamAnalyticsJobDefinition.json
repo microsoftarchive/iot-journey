@@ -1,0 +1,74 @@
+{
+    "Name": "fabrikam-StreamAnalyticsJob01",
+    "Type": "Microsoft.StreamAnalytics/streamingjobs",
+    "Location": "West US",
+    "Properties": {
+        "sku": {
+            "name": "standard"
+        },
+
+        "EventsLateArrivalMaxDelayInSeconds": 5,
+        "EventsOutOfOrderMaxDelayInSeconds": 0,
+        "EventsOutOfOrderPolicy": "Adjust",
+
+        "Inputs": [
+            {
+                "Name": "fabrikam-input01",
+                "Properties": {
+                    "Type": "Stream",
+                    "DataSource": {
+                        "Type": "Microsoft.ServiceBus/EventHub",
+                        "Properties": {
+                            "ConsumerGroupName": "fabrikam-consumergroup01",
+                            "EventHubName": "fabrikam-eventhub01",
+                            "ServiceBusNamespace": "fabrikam-eventhub01-ns",
+                            "SharedAccessPolicyKey": "EventHubSharedAccessPolicyKeyPlaceHolder",
+                            "SharedAccessPolicyName": "Manage"
+                        }
+                    },
+                    "Serialization": {
+                        "Type": "Json",
+                        "Properties": {
+                            "Encoding": "UTF8"
+                        }
+                    }
+                }
+            }
+        ],
+
+        "Outputs": [
+            {
+                "Name": "fabrikam-output01",
+                "Properties": {
+                    "DataSource": {
+                        "Type": "Microsoft.Storage/Blob",
+                        "Properties": {
+                            "BlobPathPrefix": "fabrikam-",
+                            "Container": "fabrikam-container01",
+                            "StorageAccounts": [
+                                {
+                                    "AccountName": "fabrikamstorage01",
+                                    "AccountKey": "BlobStorageAccountKeyPlacHolder"
+                                }
+                            ]
+                        }
+                    },
+                    "Serialization": {
+                        "Type": "Json",
+                        "Properties": {
+                            "Encoding": "UTF8"
+                        }
+                    }
+                }
+            }
+        ],
+
+        "Transformation": {
+            "Name": "fabrikam-transformation01",
+            "Properties": {
+                "StreamingUnits": 1,
+                "Query": "SELECT * FROM fabrikam-input01"
+            }
+        }
+    }
+}
